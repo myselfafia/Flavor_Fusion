@@ -1,0 +1,7 @@
+footer{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:31px 30px;color:#265844;background:#caffdf;font-size:14px;letter-spacing:.06em}
+footer strong{color:var(--green);font:700 16px Manrope}
+footer nav{display:flex;gap:24px}
+footer nav a{text-underline-offset:4px}
+footer span{white-space:nowrap}
+@media(max-width:900px){footer{flex-wrap:wrap}}
+@media(max-width:620px){footer{align-items:flex-start;flex-direction:column;gap:18px;padding:28px 17px}footer nav{flex-wrap:wrap;gap:12px 20px}footer span{white-space:normal}}
