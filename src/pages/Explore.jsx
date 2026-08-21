@@ -57,7 +57,7 @@ function Explore({ selected, onSelected, navigate }) {
         {matches.length ? <div className="dish-grid">{matches.map((dish) => <DishCard dish={dish} key={dish.name} />)}</div> : <div className="empty-state"><span>⌕</span><h3>Start adding ingredients</h3><p>We&apos;ll surface recipes that match what&apos;s in your kitchen.</p></div>}
       </section>
     </main>
-    <Footer />
+    <Footer navigate={navigate} />
   </div>
 }
 

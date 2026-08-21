@@ -4,7 +4,7 @@ import Footer from '../components/Footer'
 import { communityPosts } from '../data/communityPosts'
 import './Community.css'
 
-function Community({ onHome, onExplore, onCommunity, onSignIn }) {
+function Community({ onHome, onExplore, onCommunity, onSignIn, navigate }) {
   const [posts, setPosts] = useState(() => {
     try { return JSON.parse(localStorage.getItem('flavor-fusion-community-posts')) || communityPosts } catch { return communityPosts }
   })
@@ -41,7 +41,7 @@ function Community({ onHome, onExplore, onCommunity, onSignIn }) {
         {posts.map((post) => <CommunityPost key={post.id} post={post} onUpdate={updatePost} onNotice={setNotice} />)}
       </section>
     </main>
-    <Footer />
+    <Footer navigate={navigate} />
   </div>
 }
 
@@ -51,6 +51,7 @@ function CommunityPost({ post, onUpdate, onNotice }) {
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [comment, setComment] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [photoOpen, setPhotoOpen] = useState(false)
   const saved = Boolean(post.saved)
   const share = async () => {
     const url = `${window.location.origin}/community#${post.id}`
@@ -61,7 +62,7 @@ function CommunityPost({ post, onUpdate, onNotice }) {
     <header><span className="community-avatar">{post.initials}</span><div><strong>{post.name}</strong><small>{post.time}</small></div><div className="post-menu"><button onClick={() => setMenuOpen(!menuOpen)} aria-label="Post options">•••</button>{menuOpen && <div><button onClick={() => { onUpdate(post.id, () => ({ saved: !saved })); setMenuOpen(false); onNotice(saved ? 'Post removed from saved items.' : 'Post saved.'); }}>{saved ? 'Unsave Post' : 'Save Post'}</button><button onClick={() => { share(); setMenuOpen(false) }}>Copy Link</button><button onClick={() => { setMenuOpen(false); onNotice('Thanks — the post has been reported for review.') }}>Report</button></div>}</div></header>
     <p className="post-text">{post.text}</p>{post.recipeLink && <a className="recipe-link" href={post.recipeLink} target="_blank" rel="noreferrer">View shared recipe ↗</a>}
     {post.tags?.length > 0 && <div className="post-tags">{post.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}
-    {post.image && <div className="post-image"><img src={post.image} alt={`Shared by ${post.name}`}/>{post.cooked && <b>● Cooked this!</b>}</div>}
+    {post.image && <button className={`post-image ${photoOpen ? 'open' : ''}`} onClick={() => setPhotoOpen(!photoOpen)} aria-label={`${photoOpen ? 'Close' : 'Expand'} photo shared by ${post.name}`} aria-pressed={photoOpen}><img src={post.image} alt={`Shared by ${post.name}`}/><span>{photoOpen ? '− Close photo' : '⌕ Expand photo'}</span>{post.cooked && <b>● Cooked this!</b>}</button>}
     <div className="post-actions"><button className={post.liked ? 'liked' : ''} onClick={() => onUpdate(post.id, (current) => ({ liked: !current.liked, likes: current.likes + (current.liked ? -1 : 1) }))}>{post.liked ? '♥' : '♡'} {post.likes}</button><button onClick={() => setCommentsOpen(!commentsOpen)}>▢ {post.comments.length}</button><button onClick={share}>⌯ Share</button><button className={saved ? 'saved' : ''} onClick={() => { onUpdate(post.id, () => ({ saved: !saved })); onNotice(saved ? 'Post removed from saved items.' : 'Post saved.'); }}>{saved ? '★ Saved' : '☆ Save'}</button></div>
     {commentsOpen && <div className="comments"><form onSubmit={addComment}><input value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Add a comment..."/><button>Send</button></form>{post.comments.map((item) => <p key={item.id}><strong>You</strong> {item.text}</p>)}</div>}
   </article>
