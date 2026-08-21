@@ -1,5 +1,6 @@
 .header{height:80px;padding:0 30px;display:flex;align-items:center;gap:34px;background:#c9f3d9;border-bottom:1px solid #91d6af;box-shadow:0 2px 9px #075d3d0d}
-.brand{font:700 27px Manrope;text-decoration:none;color:var(--green);white-space:nowrap;border:0;background:transparent;padding:0;cursor:pointer}
+.brand{display:flex;align-items:center;gap:10px;font:700 27px Manrope;text-decoration:none;color:var(--green);white-space:nowrap;border:0;background:transparent;padding:0;cursor:pointer}
+.brand img{width:38px;height:38px;object-fit:contain}
 .header nav{display:flex;gap:34px;margin:auto}
 .header nav a{padding:10px 14px;color:#174b35;text-decoration:none;font-size:16px;font-weight:700;border-radius:999px;transition:color .18s,background .18s,transform .18s}
 .header nav button{border:0;border-radius:999px;padding:10px 14px;background:transparent;color:#174b35;cursor:pointer;font-weight:700;transition:color .18s,background .18s,transform .18s}
@@ -9,5 +10,5 @@
 .signin-button{min-width:96px;padding:11px 19px;border:1px solid var(--green);border-radius:8px;background:var(--green);color:#fff;font-size:14px;font-weight:700}
 .signin-button:hover{background:#064c33}
 @media(max-width:900px){.header nav{margin-left:auto}}
-@media(max-width:620px){.header{height:66px;padding:0 17px;gap:15px}.brand{font-size:20px}.header nav{gap:4px}.header nav a,.header nav button{padding:8px 9px;font-size:13px}.avatar{display:none}}
+@media(max-width:620px){.header{height:66px;padding:0 17px;gap:15px}.brand{gap:7px;font-size:20px}.brand img{width:29px;height:29px}.header nav{gap:4px}.header nav a,.header nav button{padding:8px 9px;font-size:13px}.avatar{display:none}}
 @media(max-width:650px){.header nav button:first-child{display:none}}
