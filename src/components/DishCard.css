@@ -12,6 +12,10 @@
 .dish-image.rice{background:linear-gradient(135deg,#d9c5a4,#fffdf8 50%,#b9cfbd)}
 .dish-image.tomato{background:linear-gradient(135deg,#f0e8d8,#f9fbf9 50%,#e3b092)}
 .match{position:absolute;z-index:2;right:13px;top:13px;padding:7px 12px;border:1px solid #a2dbbd;border-radius:999px;background:#caffdf;color:#0d5d3e;font-size:13px;font-weight:700}
+.save-toggle{position:absolute;z-index:3;left:13px;top:13px;display:flex;width:38px;height:38px;align-items:center;justify-content:center;border:1px solid #fff;border-radius:50%;background:#063b2ad9;color:#fff;font-size:18px;line-height:1;backdrop-filter:blur(3px);transition:background .18s,transform .18s,color .18s}
+.save-toggle:hover{background:#063b2ae6;transform:scale(1.08)}
+.save-toggle.saved{background:var(--green);color:#ffd76e;animation:save-pop .35s ease}
+@keyframes save-pop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
 .match.perfect{background:var(--green);border-color:var(--green);color:#fff}
 .dish-content{padding:18px 20px 20px}
 .cuisine{color:#688075;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
@@ -23,4 +27,4 @@
 .missing-area span{display:inline-block;margin:0 5px 5px 0;padding:5px 9px;border-radius:4px;background:#fde7e4;color:#a31212;font-size:12px;font-weight:600}
 .missing-area strong{color:#305a43;font-size:13px}
 @media(max-width:620px){.dish-image{height:235px}}
-@keyframes dish-enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes food-drift{0%,100%{transform:scale(1.015) translateX(0)}50%{transform:scale(1.055) translateX(-5px)}}@media(prefers-reduced-motion:reduce){.dish-card,.dish-image img{animation:none}}
+@keyframes dish-enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes food-drift{0%,100%{transform:scale(1.015) translateX(0)}50%{transform:scale(1.055) translateX(-5px)}}@media(prefers-reduced-motion:reduce){.dish-card,.dish-image img,.save-toggle.saved{animation:none}}

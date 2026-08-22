@@ -7,7 +7,7 @@ import { dishes } from '../data/dishes'
 import { normalize } from '../utils/strings'
 import './Explore.css'
 
-function Explore({ selected, onSelected, navigate }) {
+function Explore({ selected, onSelected, saved, onToggleSave, navigate }) {
   const [query, setQuery] = useState('')
   const [addedMessage, setAddedMessage] = useState('')
 
@@ -29,7 +29,7 @@ function Explore({ selected, onSelected, navigate }) {
   const removeIngredient = (ingredient) => onSelected((current) => current.filter((item) => item !== ingredient))
 
   return <div className="app">
-    <Header activePage="explore" onExplore={() => navigate('explore')} onHome={() => navigate('home')} onCommunity={() => navigate('community')} onSignIn={() => navigate('signin')} />
+    <Header activePage="explore" onExplore={() => navigate('explore')} onHome={() => navigate('home')} onCommunity={() => navigate('community')} onSignIn={() => navigate('signin')} onSaved={() => navigate('saved')} />
     <main className="container dashboard">
       <section className="pantry-grid">
         <div className="pantry-card">
@@ -54,7 +54,7 @@ function Explore({ selected, onSelected, navigate }) {
 
       <section className="matches-section">
         <div className="matches-heading"><div><span className="label">RECIPE RECOMMENDATIONS</span><h2>Top matches</h2><p>Based on {selected.length} ingredient{selected.length === 1 ? '' : 's'} in your kitchen</p></div><button className="sort-button" type="button">☷ Filter &nbsp; ⇅ Sort: Match %</button></div>
-        {matches.length ? <div className="dish-grid">{matches.map((dish) => <DishCard dish={dish} key={dish.name} />)}</div> : <div className="empty-state"><span>⌕</span><h3>Start adding ingredients</h3><p>We&apos;ll surface recipes that match what&apos;s in your kitchen.</p></div>}
+        {matches.length ? <div className="dish-grid">{matches.map((dish) => <DishCard dish={dish} saved={saved?.includes(dish.name)} onToggleSave={onToggleSave} key={dish.name} />)}</div> : <div className="empty-state"><span>⌕</span><h3>Start adding ingredients</h3><p>We&apos;ll surface recipes that match what&apos;s in your kitchen.</p></div>}
       </section>
     </main>
     <Footer navigate={navigate} />
