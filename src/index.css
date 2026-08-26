@@ -1,13 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap");
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; color: #062d20; background: #fff; font-family: 'Work Sans', sans-serif; }
-button, input { font: inherit; }
-button { cursor: pointer; }
-a { color: inherit; }
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  color: #062d20;
+  background: #fff;
+  font-family: "Work Sans", sans-serif;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+a {
+  color: inherit;
+}
 
-:root{--green:#075d3d;--ink:#062d20;--mint:#edfff4;--card:#f6f5f2;--line:#dfe8e2;--muted:#526159}
-.app{min-height:100vh}
-.container{max-width:1420px;margin:auto;padding:0 30px}
-@media(max-width:620px){.container{padding-inline:17px}}
+:root {
+  --green: #075d3d;
+  --ink: #062d20;
+  --mint: #edfff4;
+  --card: #f6f5f2;
+  --line: #dfe8e2;
+  --muted: #526159;
+}
+.app {
+  min-height: 100vh;
+}
+.container {
+  max-width: 1420px;
+  margin: auto;
+  padding: 0 30px;
+}
+@media (max-width: 620px) {
+  .container {
+    padding-inline: 17px;
+  }
+}

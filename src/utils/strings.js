@@ -1,3 +1,3 @@
 export function normalize(value) {
-  return value.trim().toLowerCase()
+  return value.trim().toLowerCase();
 }

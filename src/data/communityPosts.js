@@ -1,4 +1,27 @@
 export const communityPosts = [
-  { id: 'elena', name: 'Elena G.', initials: 'EG', time: '2 hours ago', text: 'Finally nailed the perfect sear on these scallops! Served over a creamy parsnip purée with a brown butter caper sauce. Highly recommend the reverse sear for these. 🍋 ✨', tags: ['Seafood', 'Dinner'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCZN4eH2nUnlQm0HMpEgEXScl2Cx5vXaWg1t_GUnDDG3NVqPXOLAwGAcDKR1xzggOkE1c67yp3FWJ1Ar_q685bjIUYk_ofjR7zh1Lg7wvD5WgC1pE3a2d8hIcvhMlpYg6gcLL57sAApyWfoLyunC9R9NTTqABBsgfHCXHti7Ksig_jIg5zwR9PQgUKFfmcJT4aAPW3TC8kR-yT9SndLYvqRuV7hzI-7JSWzcBFjhU37u3KpvRrCUiTUCA', likes: 124, comments: [] , cooked: true },
-  { id: 'david', name: 'David Chen', initials: 'DC', time: '5 hours ago', text: 'Sunday meal prep sorted. Trying out a new vegan mapo tofu recipe using fresh shiitake mushrooms instead of pork. The depth of flavor is incredible.', tags: ['Vegan', 'Meal prep'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD9mf6yiXrdyuHHLU1DZBG2DqtiDSlXoIwz_3NZGKHiWClspgzmTtq2yBwvpZ0vXa6DqvetHi9e-NuBIlfpPtX0RxgcEixiwMc7VkNpC39rgJO_YMDJiug5CuI4Khe0064odYR3jRUVi3Hj5L_X14DQ-EFtD2__Ai4YvMdHhEqeIhdy1uFxaHB1nk7AtHwqykb-PxTeePMLYs5eQ8NwDnmdTW5wR95v55HMySgLbULT2qQY-C3n0oYcLw', likes: 89, comments: [] },
-]
+  {
+    id: "elena",
+    name: "Elena G.",
+    initials: "EG",
+    time: "2 hours ago",
+    text: "Finally nailed the perfect sear on these scallops! Served over a creamy parsnip purée with a brown butter caper sauce. Highly recommend the reverse sear for these. 🍋 ✨",
+    tags: ["Seafood", "Dinner"],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCZN4eH2nUnlQm0HMpEgEXScl2Cx5vXaWg1t_GUnDDG3NVqPXOLAwGAcDKR1xzggOkE1c67yp3FWJ1Ar_q685bjIUYk_ofjR7zh1Lg7wvD5WgC1pE3a2d8hIcvhMlpYg6gcLL57sAApyWfoLyunC9R9NTTqABBsgfHCXHti7Ksig_jIg5zwR9PQgUKFfmcJT4aAPW3TC8kR-yT9SndLYvqRuV7hzI-7JSWzcBFjhU37u3KpvRrCUiTUCA",
+    likes: 124,
+    comments: [],
+    cooked: true,
+  },
+  {
+    id: "david",
+    name: "David Chen",
+    initials: "DC",
+    time: "5 hours ago",
+    text: "Sunday meal prep sorted. Trying out a new vegan mapo tofu recipe using fresh shiitake mushrooms instead of pork. The depth of flavor is incredible.",
+    tags: ["Vegan", "Meal prep"],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuD9mf6yiXrdyuHHLU1DZBG2DqtiDSlXoIwz_3NZGKHiWClspgzmTtq2yBwvpZ0vXa6DqvetHi9e-NuBIlfpPtX0RxgcEixiwMc7VkNpC39rgJO_YMDJiug5CuI4Khe0064odYR3jRUVi3Hj5L_X14DQ-EFtD2__Ai4YvMdHhEqeIhdy1uFxaHB1nk7AtHwqykb-PxTeePMLYs5eQ8NwDnmdTW5wR95v55HMySgLbULT2qQY-C3n0oYcLw",
+    likes: 89,
+    comments: [],
+  },
+];

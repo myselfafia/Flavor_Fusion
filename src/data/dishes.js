@@ -1,10 +1,85 @@
 export const dishes = [
-  { name: 'Creamy Garlic Spinach Chicken', cuisine: 'Italian-inspired', time: '25 min', level: 'Easy', required: ['Chicken Breast', 'Garlic', 'Heavy Cream', 'Spinach', 'Parmesan'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCZN4eH2nUnlQm0HMpEgEXScl2Cx5vXaWg1t_GUnDDG3NVqPXOLAwGAcDKR1xzggOkE1c67yp3FWJ1Ar_q685bjIUYk_ofjR7zh1Lg7wvD5WgC1pE3a2d8hIcvhMlpYg6gcLL57sAApyWfoLyunC9R9NTTqABBsgfHCXHti7Ksig_jIg5zwR9PQgUKFfmcJT4aAPW3TC8kR-yT9SndLYvqRuV7hzI-7JSWzcBFjhU37u3KpvRrCUiTUCA' },
-  { name: 'Chicken Spinach Parmesan Bake', cuisine: 'Italian-inspired', time: '45 min', level: 'Medium', required: ['Chicken Breast', 'Spinach', 'Parmesan', 'Pasta'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzJV-flC8zvXxCwTDTo_AUwAk7Yav57A4np5AYbzu6fHBpoAKYUZbcdTkbJh-i8EiKiBrJ46TH_afn678Ndandcw9bsi7vMmNnDme8c3khwHB_9HrRZUpYUN-ALQSaosE9xmzA0k86xxItSZTW6XH_q3agW3NrMmA6h4fyB41gZ97O8lUlquVSebjDY4I5djk_TBQ9CSeXPODslJoSUIlw-Lr9EUGihFFEAnFezxRyb9G1IivKKIGx5Q' },
-  { name: 'Grilled Chicken Spinach Salad', cuisine: 'Mediterranean', time: '15 min', level: 'Easy', required: ['Chicken Breast', 'Spinach', 'Cherry Tomatoes', 'Balsamic Vinegar'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA7yfFyoVxj02jNGTBRYUyQ4mRv1kR01-7PReoyPYfAhwDOYjJrDLHMignva2Y6CohyA3YAKd4oitMqpD1jG_5qT8mVWIRkFGFGvuaploprYLMDny8wnDyOZiXqnZScfiSWYW0IMKw_qsPcOmslzAnktxbxHhwfJVraBHZNwxxf377iaOmmMM0FmQAgs-FN3I2fKudPmUbRwV3jlw6wzhILD1flDkYty9Ws-gk1SBJ_9PIMIZtJ70YUwQ' },
-  { name: 'Garlic Butter Pasta', cuisine: 'Italian', time: '20 min', level: 'Easy', required: ['Pasta', 'Garlic', 'Butter', 'Parmesan'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBQx6IFzupngMkrD6RsZWCX1YCv_KK9ocT1wJnj3EDSCdZMTzJCyeSkUFbUlsm_1L-_9L0G7EC6u12o7kykr4n_N9RG1-Jxbpxod2BpkpmhS6bne9iCyxtWzSFz_q0GQeDBSNIOIyjoYg_btBKtkeFZw0uiS3UaaYxy8iRkdZXAUX2l0TIli57VTbTx4dYyepLNSIqyBjBy8rDGD7AGjfpjpJ9JdekPYA5mXxxj_sRTue6mczocc6fT-A' },
-  { name: 'Mushroom Parmesan Risotto', cuisine: 'Italian', time: '40 min', level: 'Medium', required: ['Rice', 'Mushrooms', 'Parmesan', 'Butter'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDHgfbGFOU427_NIqHYi1bgf-FAqgHkuKtmIbVLNp4dX1C4C-2hmunkWRjs_9d0zAsBewvMFbTm0VTqn7NiI8dm9ksK_MqF_tIOgm79k2_OM3AgUUSEyCE1LkwFgk8cyphiD6gBTl5txcFXE0KXQe67SbZcWq_UXv7cfgPnOU03tsqhEQZQmMUQDjiNr1dfvsHgPkOt7-J785Lic1MbkuwUkUgp3OaNbi2bkL4vedCbI2efLCVpiKkE' },
-  { name: 'Lemon Herb Salmon Bowl', cuisine: 'Mediterranean', time: '30 min', level: 'Easy', required: ['Salmon', 'Lemon', 'Rice', 'Broccoli'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBjrI-OVs9zQ-mSylOVzLI6uLOO96uXA3KFhlBXuFX1hcxNXATXECJyqpTpDaqtTmHWDZXmt4idA7Oi4WuMVTRQbhjbsq_rFuQ2eWmhXYCWXOYwSW0HJK5DOGdE_lcYZmLLW0hZXSwnjSKwfv8kbwn0VDxm3iHHUcinBYaZ-WDK01-FqMv0U4as3obyn7PKJV0DPP_isEPM00sdoul6zA22eLoxLlMcvBwHCC2D5RDUCtBquv2e3PugwA' },
-  { name: 'Vegetable Fried Rice', cuisine: 'Asian', time: '20 min', level: 'Easy', required: ['Rice', 'Eggs', 'Carrot', 'Bell Pepper', 'Soy Sauce'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD9mf6yiXrdyuHHLU1DZBG2DqtiDSlXoIwz_3NZGKHiWClspgzmTtq2yBwvpZ0vXa6DqvetHi9e-NuBIlfpPtX0RxgcEixiwMc7VkNpC39rgJO_YMDJiug5CuI4Khe0064odYR3jRUVi3Hj5L_X14DQ-EFtD2__Ai4YvMdHhEqeIhdy1uFxaHB1nk7AtHwqykb-PxTeePMLYs5eQ8NwDnmdTW5wR95v55HMySgLbULT2qQY-C3n0oYcLw' },
-  { name: 'Tomato Basil Pasta', cuisine: 'Italian', time: '25 min', level: 'Easy', required: ['Pasta', 'Tomato Sauce', 'Basil', 'Garlic'], image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCFn6ZrUtuTa-oAN-BXRQGNm_hyTQVBMmr_vp87zbXtl78mQMkHI_l_mo2NSELU1desWQltfnqcjPyXIoCxq2iNwWeqxZlVqkz00CNP8jp1VvMJ09a0qmWXBy8mAyjg07LCDs5hNrds4gRxBjU_kWCR50J15yQ11UrnhSldezLP0O7cpFdFYYkSy0Xuf2v3Aj9fVu-eZxsUQzxXz878wyWTPh-OleTo3c8J7RcjgjRNK6GvS-MorZkZGQ' },
-]
+  {
+    name: "Creamy Garlic Spinach Chicken",
+    cuisine: "Italian-inspired",
+    time: "25 min",
+    level: "Easy",
+    required: [
+      "Chicken Breast",
+      "Garlic",
+      "Heavy Cream",
+      "Spinach",
+      "Parmesan",
+    ],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCZN4eH2nUnlQm0HMpEgEXScl2Cx5vXaWg1t_GUnDDG3NVqPXOLAwGAcDKR1xzggOkE1c67yp3FWJ1Ar_q685bjIUYk_ofjR7zh1Lg7wvD5WgC1pE3a2d8hIcvhMlpYg6gcLL57sAApyWfoLyunC9R9NTTqABBsgfHCXHti7Ksig_jIg5zwR9PQgUKFfmcJT4aAPW3TC8kR-yT9SndLYvqRuV7hzI-7JSWzcBFjhU37u3KpvRrCUiTUCA",
+  },
+  {
+    name: "Chicken Spinach Parmesan Bake",
+    cuisine: "Italian-inspired",
+    time: "45 min",
+    level: "Medium",
+    required: ["Chicken Breast", "Spinach", "Parmesan", "Pasta"],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCzJV-flC8zvXxCwTDTo_AUwAk7Yav57A4np5AYbzu6fHBpoAKYUZbcdTkbJh-i8EiKiBrJ46TH_afn678Ndandcw9bsi7vMmNnDme8c3khwHB_9HrRZUpYUN-ALQSaosE9xmzA0k86xxItSZTW6XH_q3agW3NrMmA6h4fyB41gZ97O8lUlquVSebjDY4I5djk_TBQ9CSeXPODslJoSUIlw-Lr9EUGihFFEAnFezxRyb9G1IivKKIGx5Q",
+  },
+  {
+    name: "Grilled Chicken Spinach Salad",
+    cuisine: "Mediterranean",
+    time: "15 min",
+    level: "Easy",
+    required: [
+      "Chicken Breast",
+      "Spinach",
+      "Cherry Tomatoes",
+      "Balsamic Vinegar",
+    ],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuA7yfFyoVxj02jNGTBRYUyQ4mRv1kR01-7PReoyPYfAhwDOYjJrDLHMignva2Y6CohyA3YAKd4oitMqpD1jG_5qT8mVWIRkFGFGvuaploprYLMDny8wnDyOZiXqnZScfiSWYW0IMKw_qsPcOmslzAnktxbxHhwfJVraBHZNwxxf377iaOmmMM0FmQAgs-FN3I2fKudPmUbRwV3jlw6wzhILD1flDkYty9Ws-gk1SBJ_9PIMIZtJ70YUwQ",
+  },
+  {
+    name: "Garlic Butter Pasta",
+    cuisine: "Italian",
+    time: "20 min",
+    level: "Easy",
+    required: ["Pasta", "Garlic", "Butter", "Parmesan"],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBQx6IFzupngMkrD6RsZWCX1YCv_KK9ocT1wJnj3EDSCdZMTzJCyeSkUFbUlsm_1L-_9L0G7EC6u12o7kykr4n_N9RG1-Jxbpxod2BpkpmhS6bne9iCyxtWzSFz_q0GQeDBSNIOIyjoYg_btBKtkeFZw0uiS3UaaYxy8iRkdZXAUX2l0TIli57VTbTx4dYyepLNSIqyBjBy8rDGD7AGjfpjpJ9JdekPYA5mXxxj_sRTue6mczocc6fT-A",
+  },
+  {
+    name: "Mushroom Parmesan Risotto",
+    cuisine: "Italian",
+    time: "40 min",
+    level: "Medium",
+    required: ["Rice", "Mushrooms", "Parmesan", "Butter"],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDHgfbGFOU427_NIqHYi1bgf-FAqgHkuKtmIbVLNp4dX1C4C-2hmunkWRjs_9d0zAsBewvMFbTm0VTqn7NiI8dm9ksK_MqF_tIOgm79k2_OM3AgUUSEyCE1LkwFgk8cyphiD6gBTl5txcFXE0KXQe67SbZcWq_UXv7cfgPnOU03tsqhEQZQmMUQDjiNr1dfvsHgPkOt7-J785Lic1MbkuwUkUgp3OaNbi2bkL4vedCbI2efLCVpiKkE",
+  },
+  {
+    name: "Lemon Herb Salmon Bowl",
+    cuisine: "Mediterranean",
+    time: "30 min",
+    level: "Easy",
+    required: ["Salmon", "Lemon", "Rice", "Broccoli"],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBjrI-OVs9zQ-mSylOVzLI6uLOO96uXA3KFhlBXuFX1hcxNXATXECJyqpTpDaqtTmHWDZXmt4idA7Oi4WuMVTRQbhjbsq_rFuQ2eWmhXYCWXOYwSW0HJK5DOGdE_lcYZmLLW0hZXSwnjSKwfv8kbwn0VDxm3iHHUcinBYaZ-WDK01-FqMv0U4as3obyn7PKJV0DPP_isEPM00sdoul6zA22eLoxLlMcvBwHCC2D5RDUCtBquv2e3PugwA",
+  },
+  {
+    name: "Vegetable Fried Rice",
+    cuisine: "Asian",
+    time: "20 min",
+    level: "Easy",
+    required: ["Rice", "Eggs", "Carrot", "Bell Pepper", "Soy Sauce"],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuD9mf6yiXrdyuHHLU1DZBG2DqtiDSlXoIwz_3NZGKHiWClspgzmTtq2yBwvpZ0vXa6DqvetHi9e-NuBIlfpPtX0RxgcEixiwMc7VkNpC39rgJO_YMDJiug5CuI4Khe0064odYR3jRUVi3Hj5L_X14DQ-EFtD2__Ai4YvMdHhEqeIhdy1uFxaHB1nk7AtHwqykb-PxTeePMLYs5eQ8NwDnmdTW5wR95v55HMySgLbULT2qQY-C3n0oYcLw",
+  },
+  {
+    name: "Tomato Basil Pasta",
+    cuisine: "Italian",
+    time: "25 min",
+    level: "Easy",
+    required: ["Pasta", "Tomato Sauce", "Basil", "Garlic"],
+    image:
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuCFn6ZrUtuTa-oAN-BXRQGNm_hyTQVBMmr_vp87zbXtl78mQMkHI_l_mo2NSELU1desWQltfnqcjPyXIoCxq2iNwWeqxZlVqkz00CNP8jp1VvMJ09a0qmWXBy8mAyjg07LCDs5hNrds4gRxBjU_kWCR50J15yQ11UrnhSldezLP0O7cpFdFYYkSy0Xuf2v3Aj9fVu-eZxsUQzxXz878wyWTPh-OleTo3c8J7RcjgjRNK6GvS-MorZkZGQ",
+  },
+];
