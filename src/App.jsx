@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import SignIn from "./pages/SignIn";
+import Login from "./pages/Login";
 import Community from "./pages/Community";
 import Saved from "./pages/Saved";
 import {
@@ -14,6 +15,11 @@ import {
 
 const pathToPage = {
   "/": "home",
+  "/explore": "explore",
+  "/sign-in": "login",
+  "/signin": "login",
+  "/login": "login",
+  "/sign-up": "signup",
   "/community": "community",
   "/about": "about",
   "/privacy": "privacy",
@@ -22,9 +28,19 @@ const pathToPage = {
   "/careers": "careers",
   "/saved": "saved",
 };
-const pageToPath = Object.fromEntries(
-  Object.entries(pathToPage).map(([path, page]) => [page, path]),
-);
+const pageToPath = {
+  home: "/",
+  explore: "/explore",
+  login: "/login",
+  signup: "/sign-up",
+  community: "/community",
+  saved: "/saved",
+  about: "/about",
+  privacy: "/privacy",
+  terms: "/terms",
+  help: "/help",
+  careers: "/careers",
+};
 
 function App() {
   const [page, setPage] = useState(
@@ -39,7 +55,10 @@ function App() {
   ]);
   const [saved, setSaved] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("flavor-fusion-saved")) || [];
+      const storedSaved = JSON.parse(
+        localStorage.getItem("flavor-fusion-saved"),
+      );
+      return Array.isArray(storedSaved) ? storedSaved : [];
     } catch {
       return [];
     }
@@ -78,13 +97,27 @@ function App() {
     return (
       <Home
         onExplore={() => navigate("explore")}
-        onSignIn={() => navigate("signin")}
+        onSignIn={() => navigate("login")}
         selected={selected}
         onToggleIngredient={toggleIngredient}
         navigate={navigate}
       />
     );
-  if (page === "signin") return <SignIn onHome={() => navigate("home")} />;
+  if (page === "signup")
+    return (
+      <SignIn
+        onHome={() => navigate("home")}
+        onLogin={() => navigate("login")}
+        navigate={navigate}
+      />
+    );
+  if (page === "login")
+    return (
+      <Login
+        onHome={() => navigate("home")}
+        onSignUp={() => navigate("signup")}
+      />
+    );
   if (page === "saved")
     return (
       <Saved
@@ -100,7 +133,7 @@ function App() {
         onHome={() => navigate("home")}
         onExplore={() => navigate("explore")}
         onCommunity={() => navigate("community")}
-        onSignIn={() => navigate("signin")}
+        onSignIn={() => navigate("login")}
         navigate={navigate}
       />
     );

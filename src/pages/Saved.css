@@ -204,6 +204,7 @@
   line-height: 1.55;
   font-size: 14px;
   display: -webkit-box;
+  line-clamp: 3;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;

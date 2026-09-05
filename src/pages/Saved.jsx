@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { dishes } from "../data/dishes";
@@ -12,9 +12,7 @@ function Saved({ saved, onToggleSave, onSetSaved, navigate }) {
   const [cuisine, setCuisine] = useState("All");
   const [sort, setSort] = useState("recent");
   const [notice, setNotice] = useState("");
-  const lastRemoved = useRef(null);
-  const clearedBackup = useRef(null);
-  const lastRemovedPost = useRef(null);
+  const [undo, setUndo] = useState(null);
   const [posts, setPosts] = useState(() => {
     try {
       return (
@@ -34,7 +32,10 @@ function Saved({ saved, onToggleSave, onSetSaved, navigate }) {
 
   useEffect(() => {
     if (!notice) return;
-    const timer = setTimeout(() => setNotice(""), 4500);
+    const timer = setTimeout(() => {
+      setNotice("");
+      setUndo(null);
+    }, 4500);
     return () => clearTimeout(timer);
   }, [notice]);
 
@@ -84,43 +85,23 @@ function Saved({ saved, onToggleSave, onSetSaved, navigate }) {
   );
 
   const removeRecipe = (name) => {
-    lastRemoved.current = { name };
+    setUndo({ type: "recipe", name });
     onToggleSave(name);
     setNotice(`Removed “${name}” from your collection.`);
-  };
-
-  const undoRemove = () => {
-    if (!lastRemoved.current) return;
-    onSetSaved((current) =>
-      current.includes(lastRemoved.current.name)
-        ? current
-        : [...current, lastRemoved.current.name],
-    );
-    setNotice("Restored to your collection.");
-    lastRemoved.current = null;
   };
 
   const clearAll = () => {
     if (!saved.length) return;
     const backup = saved;
-    lastRemoved.current = null;
     onSetSaved([]);
-    clearedBackup.current = backup;
+    setUndo({ type: "clear", recipes: backup });
     setNotice(
       `Cleared ${backup.length} recipe${backup.length === 1 ? "" : "s"} from your collection.`,
     );
   };
 
-  const undoClear = () => {
-    if (clearedBackup.current?.length) {
-      onSetSaved(clearedBackup.current);
-      clearedBackup.current = null;
-      setNotice("Collection restored.");
-    }
-  };
-
   const unsavePost = (id) => {
-    lastRemovedPost.current = id;
+    setUndo({ type: "post", id });
     setPosts((current) =>
       current.map((post) =>
         post.id === id ? { ...post, saved: false } : post,
@@ -129,14 +110,25 @@ function Saved({ saved, onToggleSave, onSetSaved, navigate }) {
     setNotice("Removed post from your collection.");
   };
 
-  const undoUnsavePost = () => {
-    if (!lastRemovedPost.current) return;
-    const id = lastRemovedPost.current;
-    setPosts((current) =>
-      current.map((post) => (post.id === id ? { ...post, saved: true } : post)),
-    );
+  const undoLastChange = () => {
+    if (!undo) return;
+
+    if (undo.type === "recipe") {
+      onSetSaved((current) =>
+        current.includes(undo.name) ? current : [...current, undo.name],
+      );
+    } else if (undo.type === "clear") {
+      onSetSaved(undo.recipes);
+    } else {
+      setPosts((current) =>
+        current.map((post) =>
+          post.id === undo.id ? { ...post, saved: true } : post,
+        ),
+      );
+    }
+
     setNotice("Restored to your collection.");
-    lastRemovedPost.current = null;
+    setUndo(null);
   };
 
   return (
@@ -146,7 +138,7 @@ function Saved({ saved, onToggleSave, onSetSaved, navigate }) {
         onExplore={() => navigate("explore")}
         onHome={() => navigate("home")}
         onCommunity={() => navigate("community")}
-        onSignIn={() => navigate("signin")}
+        onSignIn={() => navigate("login")}
         onSaved={() => window.scrollTo(0, 0)}
       />
       <main className="container saved-page">
@@ -204,18 +196,10 @@ function Saved({ saved, onToggleSave, onSetSaved, navigate }) {
         {notice && (
           <div className="saved-notice" role="status">
             <span>{notice}</span>
-            {(lastRemoved.current ||
-              clearedBackup.current ||
-              lastRemovedPost.current) && (
+            {undo && (
               <button
                 type="button"
-                onClick={
-                  lastRemoved.current
-                    ? undoRemove
-                    : lastRemovedPost.current
-                      ? undoUnsavePost
-                      : undoClear
-                }
+                onClick={undoLastChange}
               >
                 Undo
               </button>

@@ -28,7 +28,9 @@ function Home({ onExplore, onSignIn, selected, onToggleIngredient, navigate }) {
         activePage="home"
         onExplore={onExplore}
         onHome={() => window.scrollTo(0, 0)}
+        onCommunity={() => navigate("community")}
         onSignIn={onSignIn}
+        onSaved={() => navigate("saved")}
       />
       <main>
         <section className="landing-hero container">

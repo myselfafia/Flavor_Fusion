@@ -45,7 +45,7 @@ function Header({
           Saved
         </button>
       </nav>
-      {activePage !== "signin" && (
+      {!['signup', 'login'].includes(activePage) && (
         <button type="button" className="signin-button" onClick={onSignIn}>
           Sign in
         </button>

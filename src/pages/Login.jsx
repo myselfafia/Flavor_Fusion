@@ -2,7 +2,7 @@ import Header from "../components/Header";
 import { useState } from "react";
 import "./SignIn.css";
 
-function SignIn({ onHome, onLogin, navigate }) {
+function Login({ onHome, onSignUp }) {
   const [showPassword, setShowPassword] = useState(false);
 
   const submitForm = (event) => {
@@ -12,23 +12,22 @@ function SignIn({ onHome, onLogin, navigate }) {
 
   return (
     <div className="app sign-in-app">
-      <Header activePage="signup" onHome={onHome} />
+      <Header activePage="login" onHome={onHome} />
       <main className="sign-in-page">
         <section className="sign-in-card">
           <div className="sign-in-image">
             <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhKUTMfq6lp07QjBHdQBbr9ZlfuMwTJws6k31c9-gxqkR2QzGKMWEJQ-UO9AoU6NbYn5aCdM0Xw8HKdqeHkNCViuiITk0lieh3y_SQ6iWMmdcXslm04NVQBeonPGGuJFHMvUGOUB2-TztvswZHllaIEoX-DNMo5Sd1UPIgQQQyic6LB2SnSEAbwEkMFbrAGJ1AQKSWhrBNYceatGTExcXiMGJQ-GHagcVPLknMvE-6poI1CdWk8ugY" alt="Fresh basil and ingredients" />
-            <div><strong>Flavor Fusion</strong><p>Culinary Clarity for Every Cook. Join our community to discover, save, and share your favorite recipes.</p></div>
+            <div><strong>Flavor Fusion</strong><p>Pick up where you left off and keep your favorite recipes close.</p></div>
           </div>
-          <form className="create-account-form" onSubmit={submitForm}>
-            <h1>Create an account</h1><p>Please enter your details to create an account.</p>
-            <label>Name<input type="text" placeholder="Enter your name" required /></label>
+          <form onSubmit={submitForm}>
+            <h1>Welcome back</h1><p>Please enter your details to log in.</p>
             <label>Email<input type="email" placeholder="Enter your email" required /></label>
             <label>
               Password
               <span className="password-field">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create a password"
+                  placeholder="••••••••"
                   required
                 />
                 <button
@@ -52,9 +51,11 @@ function SignIn({ onHome, onLogin, navigate }) {
                 </button>
               </span>
             </label>
-            <button className="submit-signin">Create account</button>
-            <p className="terms">By creating an account, you agree to our <button type="button" onClick={() => navigate("terms")}>Terms of Service</button> and <button type="button" onClick={() => navigate("privacy")}>Privacy Policy</button>.</p>
-            <p className="sign-up">Already have an account? <button type="button" onClick={onLogin}>Log in</button></p>
+            <div className="form-options"><label><input type="checkbox" /> Remember me</label><button type="button">Forgot password?</button></div>
+            <button className="submit-signin">Log in</button>
+            <div className="divider"><span>or continue with</span></div>
+            <div className="social-buttons"><button type="button">◎ &nbsp; Google</button><button type="button">▣ &nbsp; Apple</button></div>
+            <p className="sign-up">Don&apos;t have an account? <button type="button" onClick={onSignUp}>Sign up</button></p>
           </form>
         </section>
       </main>
@@ -62,4 +63,4 @@ function SignIn({ onHome, onLogin, navigate }) {
   );
 }
 
-export default SignIn;
+export default Login;

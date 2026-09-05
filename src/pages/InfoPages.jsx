@@ -11,7 +11,7 @@ function PageShell({ children, navigate, title, intro }) {
         onHome={() => navigate("home")}
         onExplore={() => navigate("explore")}
         onCommunity={() => navigate("community")}
-        onSignIn={() => navigate("signin")}
+        onSignIn={() => navigate("login")}
       />
       <main className="info-main container">
         <section className="info-hero">

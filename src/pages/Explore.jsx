@@ -72,7 +72,7 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate }) {
         onExplore={() => navigate("explore")}
         onHome={() => navigate("home")}
         onCommunity={() => navigate("community")}
-        onSignIn={() => navigate("signin")}
+        onSignIn={() => navigate("login")}
         onSaved={() => navigate("saved")}
       />
       <main className="container dashboard">
