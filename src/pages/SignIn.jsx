@@ -1,13 +1,28 @@
 import Header from "../components/Header";
 import { useState } from "react";
 import "./SignIn.css";
+import { api } from "../services/api";
 
 function SignIn({ onHome, onLogin, navigate }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submitForm = (event) => {
+  const submitForm = async (event) => {
     event.preventDefault();
-    onHome();
+    setError("");
+    setIsSubmitting(true);
+    const form = new FormData(event.currentTarget);
+    try {
+      const data = await api("/auth/register", { method: "POST", body: JSON.stringify({ name: form.get("name"), email: form.get("email"), password: form.get("password") }) });
+      localStorage.setItem("flavor-fusion-token", data.token);
+      localStorage.setItem("flavor-fusion-user", JSON.stringify(data.user));
+      onHome();
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -21,12 +36,13 @@ function SignIn({ onHome, onLogin, navigate }) {
           </div>
           <form className="create-account-form" onSubmit={submitForm}>
             <h1>Create an account</h1><p>Please enter your details to create an account.</p>
-            <label>Name<input type="text" placeholder="Enter your name" required /></label>
-            <label>Email<input type="email" placeholder="Enter your email" required /></label>
+            <label>Name<input name="name" type="text" placeholder="Enter your name" required /></label>
+            <label>Email<input name="email" type="email" placeholder="Enter your email" required /></label>
             <label>
               Password
               <span className="password-field">
                 <input
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
                   required
@@ -52,7 +68,8 @@ function SignIn({ onHome, onLogin, navigate }) {
                 </button>
               </span>
             </label>
-            <button className="submit-signin">Create account</button>
+            {error && <p className="form-error" role="alert">{error}</p>}
+            <button className="submit-signin" disabled={isSubmitting}>{isSubmitting ? "Creating account…" : "Create account"}</button>
             <p className="terms">By creating an account, you agree to our <button type="button" onClick={() => navigate("terms")}>Terms of Service</button> and <button type="button" onClick={() => navigate("privacy")}>Privacy Policy</button>.</p>
             <p className="sign-up">Already have an account? <button type="button" onClick={onLogin}>Log in</button></p>
           </form>

@@ -1,13 +1,28 @@
 import Header from "../components/Header";
 import { useState } from "react";
 import "./SignIn.css";
+import { api } from "../services/api";
 
 function Login({ onHome, onSignUp }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submitForm = (event) => {
+  const submitForm = async (event) => {
     event.preventDefault();
-    onHome();
+    setError("");
+    setIsSubmitting(true);
+    const form = new FormData(event.currentTarget);
+    try {
+      const data = await api("/auth/login", { method: "POST", body: JSON.stringify({ email: form.get("email"), password: form.get("password") }) });
+      localStorage.setItem("flavor-fusion-token", data.token);
+      localStorage.setItem("flavor-fusion-user", JSON.stringify(data.user));
+      onHome();
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -21,11 +36,12 @@ function Login({ onHome, onSignUp }) {
           </div>
           <form onSubmit={submitForm}>
             <h1>Welcome back</h1><p>Please enter your details to log in.</p>
-            <label>Email<input type="email" placeholder="Enter your email" required /></label>
+            <label>Email<input name="email" type="email" placeholder="Enter your email" required /></label>
             <label>
               Password
               <span className="password-field">
                 <input
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
@@ -52,7 +68,8 @@ function Login({ onHome, onSignUp }) {
               </span>
             </label>
             <div className="form-options"><label><input type="checkbox" /> Remember me</label><button type="button">Forgot password?</button></div>
-            <button className="submit-signin">Log in</button>
+            {error && <p className="form-error" role="alert">{error}</p>}
+            <button className="submit-signin" disabled={isSubmitting}>{isSubmitting ? "Logging in…" : "Log in"}</button>
             <div className="divider"><span>or continue with</span></div>
             <div className="social-buttons"><button type="button">◎ &nbsp; Google</button><button type="button">▣ &nbsp; Apple</button></div>
             <p className="sign-up">Don&apos;t have an account? <button type="button" onClick={onSignUp}>Sign up</button></p>
