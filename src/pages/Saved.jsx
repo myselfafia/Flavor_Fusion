@@ -6,7 +6,7 @@ import "./Saved.css";
 
 const byMinutes = (time) => parseInt(time) || 0;
 
-function Saved({ saved, onToggleSave, onSetSaved, navigate }) {
+function Saved({ saved, onToggleSave, onSetSaved, navigate, isLoggedIn, onLogout }) {
   const [tab, setTab] = useState("recipes");
   const [query, setQuery] = useState("");
   const [cuisine, setCuisine] = useState("All");
@@ -140,6 +140,8 @@ function Saved({ saved, onToggleSave, onSetSaved, navigate }) {
         onCommunity={() => navigate("community")}
         onSignIn={() => navigate("login")}
         onSaved={() => window.scrollTo(0, 0)}
+        isLoggedIn={isLoggedIn}
+        onLogout={onLogout}
       />
       <main className="container saved-page">
         <section className="saved-hero">

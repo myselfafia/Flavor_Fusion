@@ -7,7 +7,7 @@ import { dishes } from "../data/dishes";
 import { normalize } from "../utils/strings";
 import "./Explore.css";
 
-function Explore({ selected, onSelected, saved, onToggleSave, navigate }) {
+function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
   const [query, setQuery] = useState("");
   const [addedMessage, setAddedMessage] = useState("");
 
@@ -74,6 +74,8 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate }) {
         onCommunity={() => navigate("community")}
         onSignIn={() => navigate("login")}
         onSaved={() => navigate("saved")}
+        isLoggedIn={isLoggedIn}
+        onLogout={onLogout}
       />
       <main className="container dashboard">
         <section className="pantry-grid">

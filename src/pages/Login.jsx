@@ -3,7 +3,7 @@ import { useState } from "react";
 import "./SignIn.css";
 import { api } from "../services/api";
 
-function Login({ onHome, onSignUp }) {
+function Login({ onHome, onSignUp, onAuthChange }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,6 +17,7 @@ function Login({ onHome, onSignUp }) {
       const data = await api("/auth/login", { method: "POST", body: JSON.stringify({ email: form.get("email"), password: form.get("password") }) });
       localStorage.setItem("flavor-fusion-token", data.token);
       localStorage.setItem("flavor-fusion-user", JSON.stringify(data.user));
+      if (onAuthChange) onAuthChange();
       onHome();
     } catch (requestError) {
       setError(requestError.message);

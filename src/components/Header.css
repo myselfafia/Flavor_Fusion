@@ -83,8 +83,23 @@
   color: #fff;
   font-size: 14px;
   font-weight: 700;
+  cursor: pointer;
 }
 .signin-button:hover {
+  background: #064c33;
+}
+.logout-button {
+  min-width: 96px;
+  padding: 11px 19px;
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.logout-button:hover {
   background: #064c33;
 }
 @media (max-width: 900px) {

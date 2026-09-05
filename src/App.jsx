@@ -46,6 +46,37 @@ function App() {
   const [page, setPage] = useState(
     () => pathToPage[window.location.pathname] || "home",
   );
+
+  // Auth status - check if user is logged in
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem("flavor-fusion-token");
+  });
+
+  // Update auth status when page changes or storage changes
+  useEffect(() => {
+    const checkAuth = () => {
+      setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
+    };
+    checkAuth();
+    window.addEventListener("storage", checkAuth);
+    return () => window.removeEventListener("storage", checkAuth);
+  }, [page]);
+
+  // Also check on mount and when token changes
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
+  }, [page]);
+
+  const handleAuthChange = () => {
+    setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("flavor-fusion-token");
+    localStorage.removeItem("flavor-fusion-user");
+    setIsLoggedIn(false);
+    navigate("home");
+  };
   const [selected, setSelected] = useState([
     "Chicken Breast",
     "Garlic",
@@ -101,21 +132,32 @@ function App() {
         selected={selected}
         onToggleIngredient={toggleIngredient}
         navigate={navigate}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+        onAuthChange={handleAuthChange}
       />
     );
   if (page === "signup")
     return (
       <SignIn
-        onHome={() => navigate("home")}
+        onHome={() => {
+          handleAuthChange();
+          navigate("home");
+        }}
         onLogin={() => navigate("login")}
         navigate={navigate}
+        onAuthChange={handleAuthChange}
       />
     );
   if (page === "login")
     return (
       <Login
-        onHome={() => navigate("home")}
+        onHome={() => {
+          handleAuthChange();
+          navigate("home");
+        }}
         onSignUp={() => navigate("signup")}
+        onAuthChange={handleAuthChange}
       />
     );
   if (page === "saved")
@@ -125,6 +167,8 @@ function App() {
         onToggleSave={toggleSave}
         onSetSaved={setSaved}
         navigate={navigate}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
       />
     );
   if (page === "community")
@@ -135,6 +179,8 @@ function App() {
         onCommunity={() => navigate("community")}
         onSignIn={() => navigate("login")}
         navigate={navigate}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
       />
     );
   if (page === "about") return <About navigate={navigate} />;
@@ -149,6 +195,8 @@ function App() {
       saved={saved}
       onToggleSave={toggleSave}
       navigate={navigate}
+      isLoggedIn={isLoggedIn}
+      onLogout={handleLogout}
     />
   );
 }

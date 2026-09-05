@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "./Home.css";
 
-function Home({ onExplore, onSignIn, selected, onToggleIngredient, navigate }) {
+function Home({ onExplore, onSignIn, selected, onToggleIngredient, navigate, isLoggedIn, onLogout }) {
   const heroIngredients = [
     { name: "Spinach", position: "spinach" },
     { name: "Chicken Breast", position: "chicken" },
@@ -31,6 +31,8 @@ function Home({ onExplore, onSignIn, selected, onToggleIngredient, navigate }) {
         onCommunity={() => navigate("community")}
         onSignIn={onSignIn}
         onSaved={() => navigate("saved")}
+        isLoggedIn={isLoggedIn}
+        onLogout={onLogout}
       />
       <main>
         <section className="landing-hero container">

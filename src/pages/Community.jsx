@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import { communityPosts } from "../data/communityPosts";
 import "./Community.css";
 
-function Community({ onHome, onExplore, onCommunity, onSignIn, navigate }) {
+function Community({ onHome, onExplore, onCommunity, onSignIn, navigate, isLoggedIn, onLogout }) {
   const [posts, setPosts] = useState(() => {
     try {
       return (
@@ -69,6 +69,8 @@ function Community({ onHome, onExplore, onCommunity, onSignIn, navigate }) {
         onExplore={onExplore}
         onCommunity={onCommunity}
         onSignIn={onSignIn}
+        isLoggedIn={isLoggedIn}
+        onLogout={onLogout}
       />
       <main className="community-layout container">
         <CommunitySidebar />
