@@ -71,10 +71,26 @@ function App() {
     setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
   };
 
+  const [welcomeName, setWelcomeName] = useState(null);
+
+  const handleSignupWelcome = () => {
+    handleAuthChange();
+    try {
+      const user = JSON.parse(localStorage.getItem("flavor-fusion-user"));
+      setWelcomeName(user?.name || "there");
+    } catch {
+      setWelcomeName("there");
+    }
+    navigate("home");
+    // Auto hide after 7 seconds
+    setTimeout(() => setWelcomeName(null), 7000);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("flavor-fusion-token");
     localStorage.removeItem("flavor-fusion-user");
     setIsLoggedIn(false);
+    setWelcomeName(null);
     navigate("home");
   };
   const [selected, setSelected] = useState([
@@ -135,15 +151,14 @@ function App() {
         isLoggedIn={isLoggedIn}
         onLogout={handleLogout}
         onAuthChange={handleAuthChange}
+        welcomeName={welcomeName}
+        onDismissWelcome={() => setWelcomeName(null)}
       />
     );
   if (page === "signup")
     return (
       <SignIn
-        onHome={() => {
-          handleAuthChange();
-          navigate("home");
-        }}
+        onHome={handleSignupWelcome}
         onLogin={() => navigate("login")}
         navigate={navigate}
         onAuthChange={handleAuthChange}

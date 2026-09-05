@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "./Home.css";
 
-function Home({ onExplore, onSignIn, selected, onToggleIngredient, navigate, isLoggedIn, onLogout }) {
+function Home({ onExplore, onSignIn, selected, onToggleIngredient, navigate, isLoggedIn, onLogout, welcomeName, onDismissWelcome }) {
   const heroIngredients = [
     { name: "Spinach", position: "spinach" },
     { name: "Chicken Breast", position: "chicken" },
@@ -34,6 +34,17 @@ function Home({ onExplore, onSignIn, selected, onToggleIngredient, navigate, isL
         isLoggedIn={isLoggedIn}
         onLogout={onLogout}
       />
+      {/* Beautiful Welcome Message after Sign Up */}
+      {welcomeName && (
+        <div className="welcome-banner" role="status" aria-live="polite">
+          <div className="welcome-icon">🎉</div>
+          <div className="welcome-text">
+            <h2>Welcome to Flavor Fusion, {welcomeName}!</h2>
+            <p>We're so happy you're here — discover, save, and share amazing recipes with our community.</p>
+          </div>
+          <button className="welcome-close" onClick={onDismissWelcome} aria-label="Close welcome message">×</button>
+        </div>
+      )}
       <main>
         <section className="landing-hero container">
           <div>
