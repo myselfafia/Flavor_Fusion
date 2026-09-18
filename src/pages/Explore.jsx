@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { quickAdds } from "../data/ingredients";
 import { api } from "../services/api";
 import "./Explore.css";
 
-function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
+const POPULAR_STAPLES = [
+  { name: "Olive Oil", icon: "🫒" },
+  { name: "Garlic", icon: "🧄" },
+  { name: "Eggs", icon: "🥚" },
+  { name: "Onion", icon: "🧅" },
+  { name: "Butter", icon: "🧈" },
+  { name: "Rice", icon: "🍚" },
+  { name: "Pasta", icon: "🍝" },
+  { name: "Tomato", icon: "🍅" },
+];
+
+function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -86,14 +96,41 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
     }
   };
 
-  const handleQuickAdd = (ingredient) => {
-    setQuery((prev) => {
-      const trimmed = prev.trim();
-      if (!trimmed) return ingredient;
-      if (trimmed.toLowerCase().includes(ingredient.toLowerCase())) return prev;
-      return `${trimmed}, ${ingredient}`;
-    });
+  const isStapleActive = (name) => {
+    if (!query) return false;
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`\\b${escaped}\\b`, "i").test(query);
+  };
+
+  const handleToggleStaple = (name) => {
     setErrorMessage("");
+    if (isStapleActive(name)) {
+      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`(^|,\\s*)?${escaped}(\\s*,|$)`, "gi");
+      let updated = query.replace(regex, (match, p1, p2) => {
+        if (p1 && p1.includes(",") && p2 && p2.includes(",")) return ", ";
+        return "";
+      }).trim();
+      updated = updated.replace(/\s*,\s*,/g, ", ").replace(/^[\s,]+|[\s,]+$/g, "").trim();
+      setQuery(updated);
+    } else {
+      const trimmed = query.trim();
+      if (!trimmed) {
+        setQuery(name);
+      } else {
+        setQuery(`${trimmed}, ${name}`);
+      }
+    }
+  };
+
+  const handleSelectRecipe = (recipe) => {
+    setSelectedRecipe(recipe);
+    setTimeout(() => {
+      const el = document.getElementById("recipe-detail-section");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 60);
   };
 
   const clearRecents = () => {
@@ -119,8 +156,9 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
       />
 
       <main className="container dashboard">
-        <section className="pantry-grid">
-          <div className="pantry-card">
+        {/* UNIFIED HERO CARD */}
+        <section className="explore-hero">
+          <div className="explore-hero-card">
             <span className="label">✦ AI RECIPE ASSISTANT</span>
             <h1>What&apos;s in your kitchen?</h1>
             <p>
@@ -128,7 +166,7 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
             </p>
 
             <div className="ingredient-input-wrap">
-              <span aria-hidden="true">⌕</span>
+              <span className="search-icon" aria-hidden="true">⌕</span>
               <input
                 value={query}
                 onChange={(event) => {
@@ -140,6 +178,20 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
                 aria-label="Enter ingredients or recipe prompt"
                 disabled={loading}
               />
+              {query && (
+                <button
+                  type="button"
+                  className="clear-input-btn"
+                  onClick={() => {
+                    setQuery("");
+                    setErrorMessage("");
+                  }}
+                  aria-label="Clear input"
+                  title="Clear input"
+                >
+                  ✕
+                </button>
+              )}
               <button
                 type="button"
                 className="go-btn"
@@ -184,57 +236,28 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
               </div>
             )}
 
-            <div className="example-prompts">
-              <small>Try asking:</small>
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("chicken, rice, onion, garlic, egg");
-                  handleSearch("chicken, rice, onion, garlic, egg");
-                }}
-              >
-                &ldquo;chicken, rice, onion, garlic, egg&rdquo;
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("pasta, tomato, garlic, olive oil, parmesan");
-                  handleSearch("pasta, tomato, garlic, olive oil, parmesan");
-                }}
-              >
-                &ldquo;pasta, tomato, garlic, parmesan&rdquo;
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("Quick 15-minute healthy breakfast with eggs");
-                  handleSearch("Quick 15-minute healthy breakfast with eggs");
-                }}
-              >
-                &ldquo;Quick 15-min breakfast&rdquo;
-              </button>
+            {/* QUICK STAPLES ROW */}
+            <div className="staples-toolbar">
+              <span className="toolbar-label">Quick Staples:</span>
+              <div className="staple-chips-group">
+                {POPULAR_STAPLES.map(({ name, icon }) => {
+                  const active = isStapleActive(name);
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      className={`staple-chip ${active ? "active" : ""}`}
+                      onClick={() => handleToggleStaple(name)}
+                      title={active ? `Remove ${name}` : `Add ${name} to search`}
+                    >
+                      <span className="staple-icon">{active ? "✓" : icon}</span>
+                      <span>{name}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-
-          <aside className="quick-adds">
-            <div className="quick-heading">
-              <span>▣</span>
-              <h2>Quick staples</h2>
-            </div>
-            <p>Tap common pantry staples to add them to your ingredients prompt.</p>
-            <div className="quick-add-chips">
-              {quickAdds.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => handleQuickAdd(item)}
-                  title={`Add ${item} to prompt`}
-                >
-                  + {item}
-                </button>
-              ))}
-            </div>
-          </aside>
         </section>
 
         {/* LOADING STATE */}
@@ -248,7 +271,7 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
 
         {/* RECIPE DETAIL VIEW (User will customize later) */}
         {selectedRecipe && !loading && (
-          <section className="recipe-detail-card" aria-label="Recipe details">
+          <section id="recipe-detail-section" className="recipe-detail-card" aria-label="Recipe details">
             <div className="recipe-detail-header">
               <div>
                 <span className="cuisine-badge">{selectedRecipe.cuisine}</span>
@@ -329,11 +352,6 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
                 </ul>
               </div>
             )}
-
-            {/* Placeholder for custom recipe interface to be provided later */}
-            <div className="custom-interface-placeholder">
-              <small>Interface ready for custom viewer extension</small>
-            </div>
           </section>
         )}
 
@@ -358,6 +376,38 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
           </section>
         )}
 
+        {/* NO MATCHES FOUND STATE */}
+        {aiRecipes && aiRecipes.length === 0 && !loading && (
+          <section className="no-matches-section" aria-live="polite">
+            <div className="no-matches-card">
+              <div className="no-matches-icon">🍽️</div>
+              <h2>No recipe matches found</h2>
+              <p>
+                We couldn&apos;t find any recipes for <strong>&ldquo;{searchedPrompt}&rdquo;</strong>.
+                Please try searching for recognizable cooking ingredients or a dish name.
+              </p>
+              <div className="no-matches-suggestions">
+                <span className="suggestion-title">Try searching for:</span>
+                <div className="suggestion-chips-row">
+                  {["Potato", "Chicken", "Pasta", "Eggs", "Mango", "Rice", "Salmon"].map((staple) => (
+                    <button
+                      key={staple}
+                      type="button"
+                      className="suggestion-chip"
+                      onClick={() => {
+                        setQuery(staple);
+                        handleSearch(staple);
+                      }}
+                    >
+                      + {staple}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* SEARCH RESULTS: MATCHING RECIPES */}
         {aiRecipes && aiRecipes.length > 0 && !loading && (
           <section className="matches-section">
@@ -374,8 +424,22 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
                 <article
                   key={recipe.id || recipe.recipeName}
                   className={`ai-recipe-card ${selectedRecipe?.recipeName === recipe.recipeName ? "selected" : ""}`}
-                  onClick={() => setSelectedRecipe(recipe)}
+                  onClick={() => handleSelectRecipe(recipe)}
                 >
+                  {onToggleSave && (
+                    <button
+                      type="button"
+                      className={`card-save-btn ${saved?.includes(recipe.recipeName) ? "saved" : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleSave(recipe.recipeName);
+                      }}
+                      aria-label={saved?.includes(recipe.recipeName) ? "Remove from saved" : "Save recipe"}
+                      title={saved?.includes(recipe.recipeName) ? "Saved" : "Save recipe"}
+                    >
+                      {saved?.includes(recipe.recipeName) ? "★" : "☆"}
+                    </button>
+                  )}
                   {recipe.image && (
                     <div className="ai-card-image-wrap">
                       <img
@@ -402,7 +466,7 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
                         className="view-recipe-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedRecipe(recipe);
+                          handleSelectRecipe(recipe);
                         }}
                       >
                         View Recipe →
@@ -446,8 +510,22 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
                   <article
                     key={`${item.recipeName}-${idx}`}
                     className="ai-recipe-card recent-card"
-                    onClick={() => setSelectedRecipe(item)}
+                    onClick={() => handleSelectRecipe(item)}
                   >
+                    {onToggleSave && (
+                      <button
+                        type="button"
+                        className={`card-save-btn ${saved?.includes(item.recipeName) ? "saved" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleSave(item.recipeName);
+                        }}
+                        aria-label={saved?.includes(item.recipeName) ? "Remove from saved" : "Save recipe"}
+                        title={saved?.includes(item.recipeName) ? "Saved" : "Save recipe"}
+                      >
+                        {saved?.includes(item.recipeName) ? "★" : "☆"}
+                      </button>
+                    )}
                     {item.image && (
                       <div className="ai-card-image-wrap">
                         <img
@@ -476,7 +554,7 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
                           className="view-recipe-btn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedRecipe(item);
+                            handleSelectRecipe(item);
                           }}
                         >
                           View Recipe →

@@ -71,8 +71,8 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
     const potatoImages = [
       "/crispy_chili_potatoes.jpg",
       "/roasted_potato_wedges.jpg",
-      "https://images.unsplash.com/photo-1518013034458-30b0ee243591?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1707616954324-99c89a78a20d?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1633436375153-d7045cb93e38?auto=format&fit=crop&w=800&q=80",
     ];
     // Always assign index-differentiated photos so dishes never duplicate
     return potatoImages[index % potatoImages.length];
@@ -100,7 +100,7 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   // 4. Pasta dishes
   if (combined.includes("pasta") || combined.includes("spaghetti") || combined.includes("penne") || combined.includes("fettuccine") || combined.includes("noodle")) {
     const pastaImages = [
-      "https://images.unsplash.com/photo-1621996346565-e3d5d6281691?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80",
     ];
@@ -175,6 +175,53 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
     return eggImages[index % eggImages.length];
   }
 
+  // 12. Mango dishes
+  if (combined.includes("mango")) {
+    const mangoImages = [
+      "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=800&q=80",
+    ];
+    return mangoImages[index % mangoImages.length];
+  }
+
+  // 13. Fruit / Smoothie / Parfait / Sweet Bowls
+  // 13. Apple dishes
+  if (combined.includes("apple")) {
+    const appleImages = [
+      "https://images.unsplash.com/photo-1575549592564-4d50aa43b3af?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1589462286900-15610446ff76?auto=format&fit=crop&w=800&q=80",
+    ];
+    return appleImages[index % appleImages.length];
+  }
+
+  // 14. Fruit / Smoothie / Parfait / Sweet Bowls
+  if (
+    combined.includes("smoothie") ||
+    combined.includes("parfait") ||
+    combined.includes("chia") ||
+    combined.includes("oat") ||
+    combined.includes("berry") ||
+    combined.includes("fruit") ||
+    combined.includes("banana") ||
+    combined.includes("strawberry")
+  ) {
+    const fruitImages = [
+      "https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1589462286900-15610446ff76?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    ];
+    return fruitImages[index % fruitImages.length];
+  }
+
+  // 14. Avocado dishes
+  if (combined.includes("avocado") || combined.includes("guacamole")) {
+    return "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80";
+  }
+
   // Diverse natural culinary fallbacks (guaranteed distinct per index)
   const fallbacks = [
     "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
@@ -183,8 +230,55 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   ];
   return fallbacks[index % fallbacks.length];
 }
+
+/**
+ * Check if the prompt appears to contain culinary words, foods, or cooking terms
+ */
+function isRecognizableFoodQuery(prompt = "") {
+  const p = prompt.toLowerCase().trim();
+  if (p.length < 3) return false;
+
+  // Single or double random letters
+  if (/^[a-z]{1,2}$/i.test(p)) return false;
+
+  // Detect strings with no vowels
+  if (!/[aeiouy]/i.test(p)) return false;
+
+  // Obvious keyboard mashing patterns
+  if (/\b(asdf|asdfg|qwerty|zxcv|jkl|hjkl|qwer|poiuy|lkjh)\b/i.test(p)) {
+    return false;
+  }
+
+  // Common culinary terms, categories, and ingredients
+  const foodTerms = [
+    "potat", "aloo", "spud", "tater", "fries",
+    "beef", "steak", "meat", "burger", "mince",
+    "chick", "poultry", "thigh", "breast", "wing",
+    "egg", "omelet", "scramble",
+    "rice", "risotto", "grain", "quinoa",
+    "pasta", "spaghetti", "penne", "noodle", "macaroni", "fettuccine", "linguine",
+    "salmon", "fish", "tuna", "shrimp", "prawn", "seafood", "cod", "crab", "lobster",
+    "mushroom", "tomato", "spinach", "greens", "kale", "lettuce", "cabbage",
+    "carrot", "onion", "garlic", "ginger", "pepper", "chili", "broccoli", "cauliflower",
+    "cheese", "cheddar", "mozzarella", "parmesan", "feta", "butter", "milk", "cream", "yogurt",
+    "bread", "toast", "sandwich", "flour", "dough",
+    "soup", "stew", "broth", "curry", "sauce",
+    "mango", "banana", "apple", "berry", "strawberr", "blueberr", "raspberr", "fruit",
+    "avocado", "guacamole", "lime", "lemon", "citrus", "orange", "pineapple", "coconut",
+    "peach", "watermelon", "melon", "grape", "kiwi", "papaya", "guava", "plum", "cherry",
+    "oat", "oatmeal", "chia", "honey", "cinnamon", "sugar", "sweet", "dessert", "smoothie",
+    "pancake", "waffle", "parfait", "chocolate", "vanilla", "nut", "peanut", "almond", "walnut",
+    "oil", "olive", "basil", "oregano", "parsley", "cilantro", "thyme", "rosemary",
+    "bean", "beans", "chickpea", "lentil", "corn", "peas", "cucumber", "zucchini", "eggplant",
+    "tofu", "bacon", "sausage", "ham", "turkey", "pork", "lamb", "duck",
+    "cook", "recipe", "dish", "meal", "dinner", "lunch", "breakfast", "bake", "fry"
+  ];
+
+  return foodTerms.some((term) => p.includes(term));
+}
+
 function generateFallbackRecipes(prompt) {
-  const p = prompt.toLowerCase();
+  const p = prompt.toLowerCase().trim();
 
   // Check if it's an advice/technique question rather than ingredient list
   const isQuestion =
@@ -194,6 +288,14 @@ function generateFallbackRecipes(prompt) {
     p.includes("difference between") ||
     p.includes("why does") ||
     p.includes("cooking tip");
+
+  // If it is not a culinary question and does not contain recognizable foods, return empty
+  if (!isQuestion && !isRecognizableFoodQuery(prompt)) {
+    return {
+      type: "recipes",
+      recipes: [],
+    };
+  }
 
   if (isQuestion) {
     if (p.includes("substitute") && (p.includes("cream") || p.includes("heavy cream"))) {
@@ -220,43 +322,42 @@ function generateFallbackRecipes(prompt) {
     };
   }
 
-  // Extract identified food items from user prompt
-  const knownItems = [
-    "chicken", "beef", "salmon", "egg", "eggs", "tuna", "rice", "pasta",
-    "garlic", "onion", "tomato", "tomatoes", "spinach", "broccoli",
-    "mushrooms", "bell pepper", "carrot", "potato", "butter", "cheese",
-    "parmesan", "soy sauce", "lemon", "basil", "avocado", "bread",
-    "olive oil", "cream", "heavy cream", "shrimp", "pork", "chickpeas"
-  ];
+  // Typo-tolerant ingredient detection with root stems
+  const isPotato = /potat|patat|aloo|spud|tater|hashbrown|fries/i.test(p);
+  const isBeef = /\b(beef|steak|mince|ground beef|burger)\b/i.test(p) && !/no beef|meatless|vegetarian/i.test(p);
+  const isChicken = /chick|poultry|thigh|breast|wing/i.test(p);
+  const isEgg = /\b(egg|eggs|omelet|omelette|scramble|scrambled)\b/i.test(p);
+  const isRice = /\b(rice|risotto)\b/i.test(p);
+  const isPasta = /\b(pasta|spaghetti|penne|noodle|noodles|macaroni|fettuccine|linguine)\b/i.test(p);
+  const isSalmon = /\b(salmon|fish|tuna|shrimp|prawn|seafood|cod)\b/i.test(p);
+  const isMushroom = /mushroom/i.test(p);
+  const isTomato = /tomat/i.test(p);
+  const isSpinach = /spinach|greens|kale/i.test(p);
+  const isCheese = /cheese|cheddar|mozzarella|parmesan/i.test(p);
+  const isBread = /\b(bread|toast|sandwich)\b/i.test(p);
+  const isSoup = /\b(soup|stew|broth)\b/i.test(p);
+  const isGarlic = /garlic/i.test(p);
+  const isMango = /\b(mango|mangoes|mangos)\b/i.test(p);
+  const isBanana = /\b(banana|bananas)\b/i.test(p);
+  const isApple = /\b(apple|apples|applesauce)\b/i.test(p);
+  const isBerry = /\b(berry|berries|strawberry|strawberries|blueberry|blueberries|raspberry|raspberries|blackberry)\b/i.test(p);
+  const isAvocado = /\b(avocado|avocados|guacamole)\b/i.test(p);
+  const isGenericFruitSearch = /\b(fruit|fruits)\b/i.test(p);
+  const isFruit = /fruit|berry|melon|citrus|mango|banana|apple|peach|pear|plum|cherry|pineapple|orange|grape|kiwi|lemon|lime|coconut|papaya|guava|lychee|fig|date|apricot/i.test(p);
+  const isSweetOrDessert = /sweet|dessert|smoothie|shake|parfait|pudding|pancake|waffle|oat|chia|yogurt|honey|cinnamon|ice cream|chocolate|cocoa|sugar|syrup|custard/i.test(p);
 
-  const foundItems = knownItems.filter((item) => p.includes(item));
-  const mainIngredients = foundItems.length > 0 ? foundItems : ["Fresh Ingredients", "Pantry Staples"];
-
-  const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-  const formattedItems = mainIngredients.map(capitalize);
-
-  const hasChicken = p.includes("chicken");
-  const hasRice = p.includes("rice");
-  const hasPasta = p.includes("pasta");
-  const hasEgg = p.includes("egg");
-  const hasGarlic = p.includes("garlic");
-  const hasTomato = p.includes("tomato");
-  const hasPotato = p.includes("potato") || p.includes("potatoes") || p.includes("aloo");
-
-  const recipes = [];
-
-  // Recipe 1
-  if (hasPotato) {
-    recipes.push({
-      id: `recipe-${Date.now()}-1`,
+  // Curated database with full ingredients, steps, and authentic photos
+  const CATALOG = [
+    // --- POTATO RECIPES ---
+    {
+      tags: ["potato", "aloo", "spud"],
       recipeName: "Crispy Pan-Seared Chili Potatoes",
       cuisine: "Homestyle Skillet",
-      description:
-        "Golden diced potatoes shallow-seared until delightfully crunchy on the outside and tender inside, seasoned with chili powder, sea salt, and fresh herbs.",
+      description: "Golden diced potatoes shallow-seared until delightfully crunchy on the outside and tender inside, seasoned with chili powder, sea salt, and fresh herbs.",
       cookingTime: "20 min",
       difficulty: "Easy",
       ingredients: [
-        { name: "Potatoes", quantity: "3 medium, peeled and diced into 1/2-inch cubes" },
+        { name: "Potatoes", quantity: "3 medium, peeled & diced" },
         { name: "Cooking Oil", quantity: "3 tbsp" },
         { name: "Chili Powder", quantity: "1.5 tsp" },
         { name: "Coarse Salt", quantity: "1 tsp" },
@@ -275,14 +376,149 @@ function generateFallbackRecipes(prompt) {
         "A squeeze of fresh lemon or lime balances the chili heat wonderfully.",
       ],
       image: "/crispy_chili_potatoes.jpg",
-    });
-  } else if (hasChicken && hasRice) {
-    recipes.push({
-      id: `recipe-${Date.now()}-1`,
+    },
+    {
+      tags: ["potato", "aloo", "spud", "garlic"],
+      recipeName: "Herb-Roasted Garlic & Rosemary Potato Wedges",
+      cuisine: "Rustic Oven / Skillet",
+      description: "Crispy-edged thick potato wedges seasoned with aromatic rosemary, crushed garlic, and a touch of paprika for savory crunch.",
+      cookingTime: "30 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Potatoes", quantity: "3 large, cut into thick wedges" },
+        { name: "Olive Oil", quantity: "2.5 tbsp" },
+        { name: "Garlic", quantity: "3 cloves, minced" },
+        { name: "Paprika", quantity: "1 tsp" },
+        { name: "Dried Rosemary or Thyme", quantity: "1 tsp" },
+        { name: "Sea Salt & Black Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Preheat oven or heavy skillet to 400°F (200°C).",
+        "Toss potato wedges with olive oil, garlic, paprika, herbs, salt, and pepper in a bowl.",
+        "Arrange cut-side down in a single layer on a baking sheet or hot cast-iron skillet.",
+        "Roast for 25-30 minutes, turning halfway through, until crispy and deep golden.",
+        "Serve hot alongside garlic aioli, sour cream, or ketchup.",
+      ],
+      tips: [
+        "Leaving skins on adds rustic texture and extra crispiness.",
+        "Make sure wedges do not overlap so they roast rather than steam.",
+      ],
+      image: "/roasted_potato_wedges.jpg",
+    },
+    {
+      tags: ["potato", "aloo", "cheese", "butter", "garlic"],
+      recipeName: "Creamy Garlic & Cheddar Mashed Potatoes",
+      cuisine: "Comfort Kitchen",
+      description: "Velvety, buttery mashed potatoes whipped with roasted garlic, warm cream, and rich melted cheddar cheese.",
+      cookingTime: "25 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Potatoes", quantity: "4 large, peeled & cubed" },
+        { name: "Butter", quantity: "4 tbsp" },
+        { name: "Heavy Cream or Milk", quantity: "1/2 cup (warm)" },
+        { name: "Garlic", quantity: "3 cloves, minced" },
+        { name: "Cheddar Cheese", quantity: "1/2 cup, shredded" },
+        { name: "Salt & Black Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Boil cubed potatoes in salted water for 15 minutes until fork-tender. Drain well.",
+        "In a small pan, warm butter and minced garlic over low heat until fragrant.",
+        "Mash hot potatoes, gradually pouring in warm garlic butter and cream.",
+        "Fold in shredded cheddar until melted and silky smooth. Season with salt and pepper.",
+      ],
+      tips: [
+        "Use warm butter and cream so the potatoes absorb them smoothly without turning gummy.",
+      ],
+      image: "https://images.unsplash.com/photo-1707616954324-99c89a78a20d?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["potato", "aloo", "egg", "onion"],
+      recipeName: "Classic Spanish Potato & Onion Tortilla",
+      cuisine: "Mediterranean",
+      description: "A beloved traditional Spanish omelet made with tender simmered potatoes and sweet caramelized onions bound in fluffy eggs.",
+      cookingTime: "25 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Potatoes", quantity: "3 medium, thinly sliced" },
+        { name: "Eggs", quantity: "4 large, whisked" },
+        { name: "Onion", quantity: "1 medium, thinly sliced" },
+        { name: "Olive Oil", quantity: "4 tbsp" },
+        { name: "Sea Salt", quantity: "1 tsp" },
+      ],
+      steps: [
+        "Heat olive oil in a nonstick skillet. Add potatoes and onions with salt.",
+        "Cook gently for 12-15 minutes until fork-tender (do not brown heavily). Drain excess oil.",
+        "Combine potatoes and onions with beaten eggs in a bowl. Let sit 5 minutes to absorb.",
+        "Pour into skillet over medium-low heat. Cook 4-5 minutes until edges set.",
+        "Carefully flip using a plate and cook the other side 3 minutes until golden and custardy.",
+      ],
+      tips: [
+        "Letting cooked potatoes sit in raw egg for 5 minutes creates an ultra-tender, creamy interior.",
+      ],
+      image: "https://images.unsplash.com/photo-1633436375153-d7045cb93e38?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["potato", "aloo", "garlic", "butter"],
+      recipeName: "Crispy Garlic Butter Smashed Potatoes",
+      cuisine: "Steakhouse Side",
+      description: "Boiled baby potatoes crushed flat and roasted until ultra-crispy, brushed with sizzling garlic herb butter.",
+      cookingTime: "35 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Potatoes", quantity: "500g baby potatoes, washed" },
+        { name: "Butter", quantity: "3 tbsp, melted" },
+        { name: "Garlic", quantity: "3 cloves, finely grated" },
+        { name: "Olive Oil", quantity: "1.5 tbsp" },
+        { name: "Fresh Parsley or Chives", quantity: "2 tbsp, chopped" },
+        { name: "Flaky Sea Salt & Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Boil potatoes in salted water for 15-18 minutes until completely fork-tender. Drain.",
+        "Place on a baking sheet and use a flat glass to gently press each potato flat.",
+        "Whisk melted butter, olive oil, garlic, salt, and pepper. Generously brush over potatoes.",
+        "Bake at 425°F (220°C) for 20-25 minutes until deeply golden and shatteringly crisp.",
+        "Garnish with fresh parsley or chives and serve hot.",
+      ],
+      tips: [
+        "Let boiled potatoes steam dry for 3 minutes before smashing so they crisp up better.",
+      ],
+      image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["potato", "aloo", "soup", "onion"],
+      recipeName: "Cozy Golden Potato & Leek Soup",
+      cuisine: "Cozy Kitchen",
+      description: "Warm, velvety pureed potato soup simmered with sweet onions, garlic, and rich stock with a hint of cream.",
+      cookingTime: "30 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Potatoes", quantity: "3 medium, peeled and diced" },
+        { name: "Onion", quantity: "1 large, chopped" },
+        { name: "Garlic", quantity: "3 cloves, minced" },
+        { name: "Vegetable or Chicken Broth", quantity: "3 cups" },
+        { name: "Butter", quantity: "2 tbsp" },
+        { name: "Cream or Milk", quantity: "1/4 cup" },
+        { name: "Salt, Pepper & Dried Thyme", quantity: "To taste" },
+      ],
+      steps: [
+        "Melt butter in a soup pot over medium heat. Sauté onions and garlic for 4 minutes until soft.",
+        "Add diced potatoes, thyme, salt, and pepper. Pour in broth and bring to a boil.",
+        "Reduce heat, cover, and simmer for 18 minutes until potatoes fall apart easily.",
+        "Blend with an immersion blender until silky smooth.",
+        "Stir in cream, adjust seasoning, and serve with crusty bread.",
+      ],
+      tips: [
+        "Top with extra cracked black pepper or chives for contrasting flavor.",
+      ],
+      image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
+    },
+
+    // --- CHICKEN RECIPES ---
+    {
+      tags: ["chicken", "rice", "garlic", "onion"],
       recipeName: "Savory Garlic Butter Chicken & Fragrant Rice",
       cuisine: "Homestyle Skillet",
-      description:
-        "Tender golden-brown chicken bites tossed with caramelized onions and garlic, served over fluffy seasoned rice.",
+      description: "Tender golden-brown chicken bites tossed with caramelized onions and garlic, served over fluffy seasoned rice.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
@@ -290,246 +526,771 @@ function generateFallbackRecipes(prompt) {
         { name: "Rice (Jasmine or Basmati)", quantity: "1 cup (rinsed)" },
         { name: "Garlic", quantity: "4 cloves, minced" },
         { name: "Onion", quantity: "1 medium, finely sliced" },
-        { name: "Cooking Oil or Butter", quantity: "2 tbsp" },
+        { name: "Butter or Cooking Oil", quantity: "2 tbsp" },
         { name: "Salt & Fresh Cracked Pepper", quantity: "To taste" },
-        { name: "Fresh Parsley or Green Onion", quantity: "Optional garnish" },
       ],
       steps: [
-        "Rinse the rice until water runs clear and cook with 2 cups of salted water until fluffy (approx. 15 minutes).",
+        "Rinse rice until water runs clear and cook with 2 cups salted water for 15 minutes.",
         "Season chicken cubes evenly with salt and freshly cracked black pepper.",
-        "Heat 1 tbsp oil in a large skillet over medium-high heat. Sear chicken until golden on all sides (6-7 minutes). Set chicken aside.",
-        "In the same skillet, reduce heat to medium and add remaining oil/butter with sliced onions and minced garlic. Sauté until fragrant and lightly caramelized.",
-        "Return the chicken to the skillet with any juices, tossing together for 2 minutes to let flavors meld.",
-        "Serve warm chicken directly over the bed of fluffy seasoned rice with chopped greens.",
+        "Heat oil in a skillet over medium-high heat. Sear chicken 6-7 minutes until golden on all sides. Set aside.",
+        "Reduce heat to medium, add butter, onions, and garlic. Sauté 3 minutes until fragrant.",
+        "Return chicken to the skillet with any pan juices, tossing for 2 minutes to meld.",
+        "Serve warm chicken directly over the bed of fluffy rice.",
       ],
       tips: [
-        "Deglaze the skillet with a splash of water or broth to lift the flavorful browned bits into the sauce.",
-        "Squeeze a wedge of fresh lemon over the top before serving for brightness.",
+        "Deglaze skillet with a splash of water or broth to lift the flavorful browned bits.",
       ],
-    });
-  } else if (hasPasta) {
-    recipes.push({
-      id: `recipe-${Date.now()}-1`,
-      recipeName: "Rustic Garlic & Herb Skillet Pasta",
+      image: "/garlic_chicken_rice.jpg",
+    },
+    {
+      tags: ["chicken", "spinach", "garlic", "cream", "tomato"],
+      recipeName: "Creamy Tuscan Garlic & Spinach Chicken",
       cuisine: "Italian-inspired",
-      description:
-        "Al dente pasta tossed in an aromatic garlic-infused sauce with sweet blistered tomatoes and herbs.",
-      cookingTime: "20 min",
-      difficulty: "Easy",
-      ingredients: [
-        { name: "Pasta (Penne, Spaghetti, or Fettuccine)", quantity: "250g" },
-        { name: "Garlic", quantity: "4 cloves, thinly sliced" },
-        { name: "Olive Oil or Butter", quantity: "3 tbsp" },
-        { name: hasTomato ? "Tomatoes" : "Cherry Tomatoes", quantity: "1 cup, halved" },
-        { name: "Parmesan Cheese", quantity: "1/4 cup, freshly grated" },
-        { name: "Salt & Black Pepper", quantity: "To taste" },
-      ],
-      steps: [
-        "Bring a large pot of salted water to a rolling boil. Cook pasta until al dente, reserving 1/2 cup pasta cooking water before draining.",
-        "In a large skillet, gently warm olive oil over medium-low heat. Add sliced garlic and cook until pale golden (do not burn).",
-        "Add tomatoes and a pinch of salt. Cook over medium heat for 4 minutes until tomatoes soften and release their sweet juices.",
-        "Add drained pasta to the skillet along with 3-4 tablespoons of reserved starchy pasta water.",
-        "Toss vigorously to create a silky coating. Remove from heat and stir in grated parmesan and black pepper.",
-      ],
-      tips: [
-        "The starchy pasta cooking water is the secret to emulsifying the olive oil into a glossy sauce.",
-        "Top with fresh basil or crushed red pepper flakes for heat.",
-      ],
-    });
-  } else if (hasEgg && (p.includes("bread") || p.includes("toast"))) {
-    recipes.push({
-      id: `recipe-${Date.now()}-1`,
-      recipeName: "Artisan Smashed Egg & Butter Toast",
-      cuisine: "Café Breakfast",
-      description:
-        "Thick golden toasted bread buttered to perfection, topped with soft-cooked seasoned eggs, cracked black pepper, and herbs.",
-      cookingTime: "10 min",
-      difficulty: "Easy",
-      ingredients: [
-        { name: "Bread", quantity: "2 thick slices (sourdough or brioche)" },
-        { name: "Eggs", quantity: "2 large" },
-        { name: "Butter", quantity: "2 tbsp" },
-        { name: "Salt & Cracked Black Pepper", quantity: "To taste" },
-      ],
-      steps: [
-        "Melt 1 tbsp butter in a skillet over medium heat. Toast bread slices on both sides until golden and crisp.",
-        "Melt remaining butter in the skillet, crack eggs in, and cook sunny-side-up or soft-scrambled.",
-        "Layer the warm eggs on top of the buttery toast and season with coarse salt and pepper.",
-      ],
-      tips: [
-        "Toast slowly over medium-low heat with plenty of butter for that bakery-style crunch.",
-      ],
-      image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
-    });
-  } else if (p.includes("salmon") || p.includes("fish")) {
-    recipes.push({
-      id: `recipe-${Date.now()}-1`,
-      recipeName: "Pan-Seared Lemon Butter Salmon",
-      cuisine: "Coastal Skillet",
-      description:
-        "Crispy-skinned tender salmon fillets basted in luscious lemon garlic butter with fresh cracked pepper.",
-      cookingTime: "15 min",
-      difficulty: "Easy",
-      ingredients: [
-        { name: "Salmon Fillet", quantity: "2 portions (approx. 150g each)" },
-        { name: "Butter or Olive Oil", quantity: "2 tbsp" },
-        { name: "Garlic", quantity: "2 cloves, minced" },
-        { name: "Lemon", quantity: "1/2, juiced" },
-        { name: "Salt & Pepper", quantity: "To taste" },
-      ],
-      steps: [
-        "Pat salmon completely dry and season flesh with salt and pepper.",
-        "Heat skillet with oil on medium-high until hot. Sear salmon skin-side down for 4-5 minutes until crispy.",
-        "Flip, add butter, garlic, and lemon juice. Baste salmon with the foaming butter for 3-4 minutes until cooked through.",
-      ],
-      tips: [
-        "Basting with foaming butter keeps the fish exceptionally moist and flavorful.",
-      ],
-      image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
-    });
-  } else if (p.includes("beef") || p.includes("steak")) {
-    recipes.push({
-      id: `recipe-${Date.now()}-1`,
-      recipeName: "Garlic Butter Seared Beef Skillet",
-      cuisine: "Steakhouse",
-      description:
-        "Juicy bite-sized beef seared hot and fast in garlic herb butter with caramelized edges.",
-      cookingTime: "15 min",
-      difficulty: "Easy",
-      ingredients: [
-        { name: "Beef / Steak", quantity: "300g, cut into bite-sized cubes" },
-        { name: "Butter", quantity: "2 tbsp" },
-        { name: "Garlic", quantity: "3 cloves, minced" },
-        { name: "Salt & Black Pepper", quantity: "To taste" },
-      ],
-      steps: [
-        "Season beef cubes generously with salt and coarse pepper.",
-        "Get skillet searing hot with 1 tbsp oil. Cook beef in a single layer for 3-4 minutes until nicely browned.",
-        "Add butter and minced garlic during the final minute, tossing constantly.",
-        "Remove from heat immediately and rest 3 minutes before serving.",
-      ],
-      tips: [
-        "Keep the heat high and pan hot so the beef sears quickly without turning tough.",
-      ],
-      image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
-    });
-  } else {
-    recipes.push({
-      id: `recipe-${Date.now()}-1`,
-      recipeName: `Crispy Pan-Seared ${formattedItems[0] || "Chef's"} Medley`,
-      cuisine: "Comfort Kitchen",
-      description: `A fast and nourishing meal highlighting ${formattedItems.slice(0, 3).join(", ")}, prepared in a single pan for maximum flavor.`,
-      cookingTime: "20 min",
-      difficulty: "Easy",
-      ingredients: formattedItems.map((name, i) => ({
-        name,
-        quantity: i === 0 ? "300g portion" : "1 cup or 2-3 pieces",
-      })).concat([
-        { name: "Olive Oil or Butter", quantity: "2 tbsp" },
-        { name: "Salt & Black Pepper", quantity: "To taste" },
-      ]),
-      steps: [
-        "Prep and slice all ingredients into uniform bite-sized pieces.",
-        "Heat a wide skillet over medium-high heat with cooking oil or butter.",
-        "Add base ingredients in order of cooking time: denser items first, followed by softer aromatics.",
-        "Sauté until tender and golden, seasoning with salt, black pepper, and herbs.",
-        "Plate immediately while piping hot with your favorite side or bread.",
-      ],
-      tips: [
-        "Do not overcrowd the pan so ingredients brown properly rather than steaming.",
-      ],
-    });
-  }
-
-  // Recipe 2 (Potato, Egg/Rice, or Skillet Option)
-  if (hasPotato) {
-    recipes.push({
-      id: `recipe-${Date.now()}-2`,
-      recipeName: "Herb-Roasted Garlic & Chili Potato Wedges",
-      cuisine: "Rustic Oven / Skillet",
-      description:
-        "Oven-roasted thick potato wedges seasoned with aromatic herbs, crushed garlic, and a touch of fiery chili for a savory, crispy edge.",
-      cookingTime: "30 min",
-      difficulty: "Easy",
-      ingredients: [
-        { name: "Potatoes", quantity: "3 large, scrubbed & cut into thick wedges" },
-        { name: "Cooking Oil or Olive Oil", quantity: "2.5 tbsp" },
-        { name: "Chili Powder or Paprika", quantity: "1 tsp" },
-        { name: "Garlic", quantity: "3 cloves, minced or crushed" },
-        { name: "Dried Rosemary or Oregano", quantity: "1 tsp" },
-        { name: "Sea Salt & Black Pepper", quantity: "To taste" },
-      ],
-      steps: [
-        "Preheat oven or heavy skillet to 400°F (200°C).",
-        "Toss the potato wedges with oil, chili powder, crushed garlic, dried herbs, and sea salt in a large bowl.",
-        "Arrange wedges cut-side down in a single layer so they brown evenly without steaming.",
-        "Roast for 25-30 minutes, turning halfway through, until deep golden brown and crispy.",
-        "Serve hot with garlic dip, ketchup, or sour cream.",
-      ],
-      tips: [
-        "Leave the skin on the potatoes for rustic texture and extra crispiness.",
-        "Ensure wedges don't overlap on the baking sheet so they roast evenly.",
-      ],
-      image: "/roasted_potato_wedges.jpg",
-    });
-  } else if (hasEgg || hasRice) {
-    recipes.push({
-      id: `recipe-${Date.now()}-2`,
-      recipeName: "Golden Scrambled Egg & Aromatic Rice Bowl",
-      cuisine: "Quick & Easy",
-      description:
-        "Fluffy seasoned eggs scrambled alongside savory onions and garlic, folded over warm rice.",
-      cookingTime: "15 min",
-      difficulty: "Easy",
-      ingredients: [
-        { name: "Eggs", quantity: "2 large, whisked with a pinch of salt" },
-        { name: "Cooked Rice", quantity: "1.5 cups" },
-        { name: "Onion / Scallions", quantity: "1/2 cup, chopped" },
-        { name: "Garlic", quantity: "2 cloves, minced" },
-        { name: "Butter or Cooking Oil", quantity: "1.5 tbsp" },
-        { name: "Soy Sauce (or Salt)", quantity: "1 tbsp" },
-      ],
-      steps: [
-        "Whisk eggs in a bowl with a pinch of salt and a splash of water for fluffiness.",
-        "Heat 1 tbsp oil in a nonstick pan over medium heat. Pour in eggs and gently fold for 60 seconds until softly set. Remove eggs.",
-        "Add remaining oil to pan, add garlic and onion, and cook 2 minutes until fragrant.",
-        "Add cooked rice and soy sauce, pressing with a spatula to break up clumps and heat through.",
-        "Fold the soft scrambled eggs back into the rice and serve warm.",
-      ],
-      tips: [
-        "Using day-old chilled rice gives the best texture for frying.",
-        "Drizzle with toasted sesame oil or hot sauce for extra kick.",
-      ],
-    });
-  } else {
-    recipes.push({
-      id: `recipe-${Date.now()}-2`,
-      recipeName: `Herb-Roasted ${formattedItems[0] || "Pantry"} & Garlic Skillet`,
-      cuisine: "Mediterranean",
-      description:
-        "Tender roasted ingredients infused with fragrant garlic, olive oil, and kitchen spices.",
+      description: "Pan-seared seasoned chicken cutlets simmered in a luscious garlic cream sauce with wilted spinach and sweet cherry tomatoes.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
-        { name: formattedItems[0] || "Main protein/veggie", quantity: "300g" },
-        { name: "Garlic", quantity: "3 cloves, crushed" },
-        { name: "Olive Oil", quantity: "2 tbsp" },
-        { name: "Salt, Pepper, & Dried Oregano", quantity: "1 tsp each" },
+        { name: "Chicken Breast", quantity: "2 fillets, pounded to even thickness" },
+        { name: "Spinach", quantity: "2 cups, fresh" },
+        { name: "Cherry Tomatoes", quantity: "1 cup, halved" },
+        { name: "Heavy Cream or Milk", quantity: "1/2 cup" },
+        { name: "Garlic", quantity: "3 cloves, minced" },
+        { name: "Parmesan Cheese", quantity: "1/4 cup, grated" },
+        { name: "Olive Oil & Butter", quantity: "1 tbsp each" },
       ],
       steps: [
-        "Preheat skillet or oven to 400°F (200°C).",
-        "Toss ingredients with olive oil, garlic, salt, and herbs in a bowl.",
-        "Cook in the hot pan until caramelized and cooked through.",
-        "Rest 3 minutes before serving.",
+        "Season chicken breasts with salt, pepper, and Italian seasoning.",
+        "Heat olive oil in a skillet over medium-high heat. Sear chicken 5-6 minutes per side until golden. Remove.",
+        "Melt butter in the same pan. Sauté garlic and cherry tomatoes for 2 minutes until blistered.",
+        "Pour in cream and simmer gently. Stir in parmesan until smooth and slightly thickened.",
+        "Add fresh spinach and let wilt. Return chicken to the pan and spoon sauce over the top.",
       ],
       tips: [
-        "Add a splash of vinegar or lemon juice at the end to lift the roasted flavors.",
+        "Serve over pasta, rice, or with warm garlic bread to soak up the sauce.",
       ],
+      image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["chicken", "lemon", "garlic"],
+      recipeName: "Crispy Lemon Herb Baked Chicken Breast",
+      cuisine: "Comfort Kitchen",
+      description: "Juicy, tender baked chicken breasts marinated in zesty lemon juice, crushed garlic, and aromatic herbs.",
+      cookingTime: "25 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Chicken Breast", quantity: "2 large fillets" },
+        { name: "Lemon", quantity: "1 whole (juice & zest)" },
+        { name: "Garlic", quantity: "3 cloves, minced" },
+        { name: "Olive Oil", quantity: "2 tbsp" },
+        { name: "Dried Oregano & Thyme", quantity: "1 tsp each" },
+        { name: "Salt & Black Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Preheat oven to 400°F (200°C).",
+        "Whisk lemon juice, zest, olive oil, garlic, herbs, salt, and pepper in a bowl.",
+        "Coat chicken breasts in the marinade for at least 10 minutes.",
+        "Bake in a baking dish for 20-22 minutes until cooked through.",
+        "Rest 5 minutes before slicing to keep juices locked in.",
+      ],
+      tips: [
+        "Resting the chicken before cutting prevents juices from escaping.",
+      ],
+      image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["chicken", "pasta", "tomato", "garlic"],
+      recipeName: "One-Pot Chicken & Tomato Basil Pasta",
+      cuisine: "Quick & Easy",
+      description: "Seared seasoned chicken tossed with penne pasta, sweet cherry tomatoes, and fresh basil in a light olive oil garlic sauce.",
+      cookingTime: "20 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Chicken Breast", quantity: "250g, diced" },
+        { name: "Pasta (Penne or Rigatoni)", quantity: "200g" },
+        { name: "Tomatoes or Cherry Tomatoes", quantity: "1 cup, chopped" },
+        { name: "Garlic", quantity: "3 cloves, sliced" },
+        { name: "Olive Oil", quantity: "2 tbsp" },
+        { name: "Parmesan & Fresh Basil", quantity: "For serving" },
+      ],
+      steps: [
+        "Boil pasta in salted water until al dente. Reserve 1/3 cup cooking water and drain.",
+        "In a large skillet, heat 1 tbsp oil. Cook diced chicken 5-6 minutes until golden. Set aside.",
+        "Add remaining oil to the pan with garlic and tomatoes. Cook 3 minutes until tomatoes burst.",
+        "Toss pasta and chicken back into the pan with reserved pasta water.",
+        "Stir over low heat for 2 minutes, finishing with parmesan and fresh basil.",
+      ],
+      tips: [
+        "Using reserved pasta water coats the pasta perfectly without needing heavy cream.",
+      ],
+      image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80",
+    },
+
+    // --- BEEF RECIPES (ONLY WHEN BEEF/STEAK IS SEARCHED) ---
+    {
+      tags: ["beef", "steak", "garlic", "butter"],
+      recipeName: "Garlic Butter Seared Steak Bites",
+      cuisine: "Steakhouse",
+      description: "Juicy bite-sized beef seared hot and fast in garlic herb butter with deeply caramelized edges.",
+      cookingTime: "15 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Beef / Steak", quantity: "350g, cut into bite-sized cubes" },
+        { name: "Butter", quantity: "2.5 tbsp" },
+        { name: "Garlic", quantity: "4 cloves, minced" },
+        { name: "Cooking Oil", quantity: "1 tbsp" },
+        { name: "Salt & Coarse Black Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Pat beef cubes dry and season generously with coarse salt and black pepper.",
+        "Heat a heavy skillet with oil over high heat until smoking hot.",
+        "Add beef in a single layer without crowding. Sear undisturbed for 2 minutes, then flip and sear another 2 minutes.",
+        "Drop heat to low, add butter and minced garlic, tossing constantly for 60 seconds to coat.",
+        "Remove immediately from heat and rest 3 minutes before serving.",
+      ],
+      tips: [
+        "Keep heat high so the beef browns nicely without steaming.",
+      ],
+      image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["beef", "broccoli", "soy sauce", "garlic"],
+      recipeName: "Classic Beef & Broccoli Stir-Fry",
+      cuisine: "Asian-inspired",
+      description: "Tender flank steak slices and crisp broccoli florets wok-tossed in a rich savory garlic soy sauce.",
+      cookingTime: "20 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Beef", quantity: "300g, thinly sliced" },
+        { name: "Broccoli", quantity: "2 cups, florets" },
+        { name: "Soy Sauce", quantity: "3 tbsp" },
+        { name: "Garlic & Ginger", quantity: "2 cloves & 1 tsp grated" },
+        { name: "Brown Sugar or Honey", quantity: "1 tbsp" },
+      ],
+      steps: [
+        "Whisk soy sauce, sugar, garlic, ginger, and 3 tbsp water to make the sauce.",
+        "Heat oil in a wok or skillet over high heat. Sear beef slices 3 minutes until browned. Remove beef.",
+        "Add broccoli with 2 tbsp water to the pan, cover and steam 2 minutes.",
+        "Return beef, pour in sauce, and stir 2 minutes until glossy and thick.",
+      ],
+      tips: [
+        "Slice beef thinly across the grain for tender results.",
+      ],
+      image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["beef", "pasta", "tomato", "garlic", "onion"],
+      recipeName: "Hearty Beef Bolognese & Garlic Pasta",
+      cuisine: "Italian-inspired",
+      description: "Savory minced beef simmered with sweet tomatoes, garlic, onion, and herbs folded over al dente pasta.",
+      cookingTime: "25 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Ground Beef", quantity: "300g" },
+        { name: "Pasta", quantity: "250g" },
+        { name: "Tomato Sauce or Crushed Tomatoes", quantity: "1.5 cups" },
+        { name: "Garlic & Onion", quantity: "3 cloves & 1 small diced" },
+        { name: "Olive Oil", quantity: "1 tbsp" },
+      ],
+      steps: [
+        "Boil pasta in salted water until al dente; drain.",
+        "Heat olive oil in a saucepan. Sauté diced onions and garlic for 3 minutes.",
+        "Add ground beef, breaking up until browned throughout. Drain excess fat.",
+        "Pour in tomato sauce and herbs. Simmer over medium-low heat 10 minutes.",
+        "Toss pasta directly into the rich meat sauce and serve.",
+      ],
+      tips: [
+        "Simmer gently so the beef absorbs all the garlic and tomato flavors.",
+      ],
+      image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80",
+    },
+
+    // --- EGG & BREAKFAST RECIPES ---
+    {
+      tags: ["egg", "rice", "onion", "garlic"],
+      recipeName: "Golden Scrambled Egg & Aromatic Rice Bowl",
+      cuisine: "Quick & Easy",
+      description: "Fluffy seasoned eggs scrambled alongside savory onions and garlic, folded over warm rice with soy butter.",
+      cookingTime: "15 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Eggs", quantity: "3 large, whisked" },
+        { name: "Cooked Rice", quantity: "1.5 cups" },
+        { name: "Onion or Scallions", quantity: "1/2 cup, chopped" },
+        { name: "Garlic", quantity: "2 cloves, minced" },
+        { name: "Butter or Oil", quantity: "1.5 tbsp" },
+        { name: "Soy Sauce", quantity: "1 tbsp" },
+      ],
+      steps: [
+        "Whisk eggs in a bowl with a pinch of salt.",
+        "Heat 1 tbsp oil in a nonstick pan over medium heat. Pour in eggs, softly scramble for 60 seconds, and remove.",
+        "Add remaining oil to pan, sauté garlic and onions 2 minutes until fragrant.",
+        "Add cooked rice and soy sauce, breaking up any clumps with a spatula.",
+        "Fold the soft scrambled eggs back into the rice and serve hot.",
+      ],
+      tips: [
+        "Chilled day-old rice fries best without becoming mushy.",
+      ],
+      image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["egg", "bread", "butter"],
+      recipeName: "Artisan Smashed Egg & Butter Toast",
+      cuisine: "Café Breakfast",
+      description: "Thick golden toast buttered to perfection, topped with soft-cooked seasoned eggs, sea salt, and fresh pepper.",
+      cookingTime: "10 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Bread", quantity: "2 thick slices" },
+        { name: "Eggs", quantity: "2 large" },
+        { name: "Butter", quantity: "2 tbsp" },
+        { name: "Salt & Fresh Cracked Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Melt 1 tbsp butter in a skillet. Toast bread slices on both sides until deep golden and crunchy.",
+        "Melt remaining butter in the pan, crack in the eggs, and fry to desired doneness.",
+        "Layer eggs onto hot buttered toast and season with coarse salt and pepper.",
+      ],
+      tips: [
+        "A light dusting of paprika or herbs elevates this simple classic.",
+      ],
+      image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["egg", "spinach", "cheese", "garlic"],
+      recipeName: "Mediterranean Spinach & Feta Scramble",
+      cuisine: "Healthy & Fresh",
+      description: "Fluffy eggs scrambled with tender wilted spinach, garlic, and creamy crumbled feta cheese.",
+      cookingTime: "10 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Eggs", quantity: "3 large" },
+        { name: "Fresh Spinach", quantity: "1.5 cups" },
+        { name: "Feta or Cheddar Cheese", quantity: "3 tbsp, crumbled" },
+        { name: "Olive Oil or Butter", quantity: "1 tbsp" },
+        { name: "Garlic", quantity: "1 clove, minced" },
+      ],
+      steps: [
+        "Heat olive oil in a skillet over medium heat. Sauté garlic and spinach for 2 minutes until wilted.",
+        "Whisk eggs with a pinch of pepper and pour directly into the pan.",
+        "Gently stir with a spatula over medium-low heat until soft curds form.",
+        "Sprinkle cheese over the warm scramble just before pulling off the heat.",
+      ],
+      tips: [
+        "Pull eggs off the stove while still slightly glossy so they stay soft.",
+      ],
+      image: "https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80",
+    },
+
+    // --- PASTA RECIPES ---
+    {
+      tags: ["pasta", "garlic", "olive oil"],
+      recipeName: "Rustic Garlic & Herb Olive Oil Pasta (Aglio e Olio)",
+      cuisine: "Italian Classic",
+      description: "Al dente spaghetti tossed in golden toasted garlic slices, extra virgin olive oil, and crushed chili flakes.",
+      cookingTime: "15 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Pasta (Spaghetti or Linguine)", quantity: "250g" },
+        { name: "Garlic", quantity: "5 cloves, thinly sliced" },
+        { name: "Olive Oil", quantity: "1/4 cup" },
+        { name: "Red Pepper Flakes", quantity: "1/2 tsp" },
+        { name: "Fresh Parsley & Parmesan", quantity: "To garnish" },
+      ],
+      steps: [
+        "Cook pasta in salted water until al dente. Reserve 1/2 cup pasta water before draining.",
+        "In a wide skillet, heat olive oil over medium-low heat. Add sliced garlic and chili flakes.",
+        "Gently cook garlic until pale golden (do not let it burn).",
+        "Add drained pasta and 3-4 tbsp reserved pasta water to the pan.",
+        "Toss vigorously for 1 minute until a glossy sauce coats the noodles. Finish with parsley and cheese.",
+      ],
+      tips: [
+        "Low heat is essential so the garlic infuses the oil gently without scorching.",
+      ],
+      image: "https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["pasta", "mushroom", "cream", "garlic", "cheese"],
+      recipeName: "Creamy Parmesan & Mushroom Fettuccine",
+      cuisine: "Italian-inspired",
+      description: "Sautéed earthy mushrooms tossed with fettuccine in a rich garlic parmesan cream sauce.",
+      cookingTime: "20 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Pasta", quantity: "250g" },
+        { name: "Mushrooms", quantity: "200g, sliced" },
+        { name: "Heavy Cream or Milk", quantity: "1/2 cup" },
+        { name: "Garlic", quantity: "3 cloves, minced" },
+        { name: "Butter", quantity: "2 tbsp" },
+        { name: "Parmesan Cheese", quantity: "1/3 cup, grated" },
+      ],
+      steps: [
+        "Boil pasta until al dente; drain.",
+        "Melt butter in a skillet over medium-high heat. Add mushrooms and sauté 5 minutes until browned.",
+        "Add minced garlic and cook 1 minute until fragrant.",
+        "Pour in cream and bring to a simmer. Stir in parmesan until melted into a silky sauce.",
+        "Toss hot pasta into the sauce until thoroughly coated.",
+      ],
+      tips: [
+        "Do not salt the mushrooms until browned so they don't release water too early.",
+      ],
+      image: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=800&q=80",
+    },
+
+    // --- SEAFOOD RECIPES ---
+    {
+      tags: ["salmon", "fish", "lemon", "butter", "garlic"],
+      recipeName: "Pan-Seared Lemon Butter Salmon",
+      cuisine: "Coastal Skillet",
+      description: "Crispy-skinned tender salmon fillets basted in luscious lemon garlic butter with fresh cracked pepper.",
+      cookingTime: "15 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Salmon Fillets", quantity: "2 portions (150g each)" },
+        { name: "Butter", quantity: "2 tbsp" },
+        { name: "Garlic", quantity: "2 cloves, minced" },
+        { name: "Lemon", quantity: "1/2, juiced" },
+        { name: "Olive Oil", quantity: "1 tbsp" },
+      ],
+      steps: [
+        "Pat salmon completely dry with paper towels. Season both sides with salt and pepper.",
+        "Heat olive oil in a skillet on medium-high until shimmering. Place salmon skin-side down.",
+        "Sear undisturbed for 4-5 minutes until skin is deeply crisp.",
+        "Flip salmon, add butter, garlic, and lemon juice. Baste foaming butter over fillets for 3 minutes.",
+      ],
+      tips: [
+        "Drying salmon thoroughly is the key to ultra-crispy skin.",
+      ],
+      image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
+    },
+
+    // --- VEGETABLE & PANTRY DISHES ---
+    {
+      tags: ["mushroom", "spinach", "garlic", "butter"],
+      recipeName: "Garlic Butter Sautéed Mushrooms & Spinach",
+      cuisine: "Quick & Easy",
+      description: "Tender caramelized mushrooms and vibrant spinach sautéed with rich garlic butter and a touch of lemon.",
+      cookingTime: "12 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Mushrooms", quantity: "250g, sliced" },
+        { name: "Spinach", quantity: "3 cups, fresh" },
+        { name: "Butter", quantity: "2 tbsp" },
+        { name: "Garlic", quantity: "3 cloves, minced" },
+        { name: "Salt, Pepper & Lemon Juice", quantity: "To taste" },
+      ],
+      steps: [
+        "Melt butter in a wide skillet over medium-high heat. Add mushrooms in a single layer.",
+        "Cook undisturbed for 4 minutes until golden, then stir and cook 2 more minutes.",
+        "Add minced garlic and sauté 1 minute until fragrant.",
+        "Add fresh spinach in batches, tossing until just wilted. Season with salt, pepper, and lemon juice.",
+      ],
+      tips: [
+        "Delicious served as a side, over rice, or spooned onto toasted sourdough.",
+      ],
+      image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["rice", "egg", "onion", "garlic"],
+      recipeName: "Classic Vegetable & Egg Fried Rice",
+      cuisine: "Asian-inspired",
+      description: "A quick wok-fried rice with fluffy scrambled eggs, crisp garlic, and savory soy sauce.",
+      cookingTime: "15 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Cooked Rice", quantity: "2 cups (preferably chilled)" },
+        { name: "Eggs", quantity: "2 large, beaten" },
+        { name: "Garlic & Onion", quantity: "2 cloves & 1/2 onion, minced" },
+        { name: "Soy Sauce", quantity: "1.5 tbsp" },
+        { name: "Cooking Oil", quantity: "2 tbsp" },
+      ],
+      steps: [
+        "Heat 1 tbsp oil in a wok or skillet over high heat. Scramble eggs for 45 seconds; set aside.",
+        "Heat remaining oil, add garlic and onion, sautéing for 2 minutes until aromatic.",
+        "Add cold cooked rice, pressing with a spatula to separate grains.",
+        "Drizzle soy sauce around the rim of the pan, tossing vigorously to coat.",
+        "Fold scrambled eggs back in and serve hot.",
+      ],
+      tips: [
+        "Keep the wok hot so the rice gets a slight smoky char.",
+      ],
+      image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+    },
+    // --- MANGO & FRESH FRUIT DISHES ---
+    {
+      tags: ["mango", "rice", "coconut", "sweet", "dessert", "fruit"],
+      recipeName: "Thai Coconut Sticky Rice with Sweet Mango",
+      cuisine: "Southeast Asian",
+      description: "Warm, sweet coconut infused sticky rice paired with chilled ripe mango slices and toasted sesame seeds.",
+      cookingTime: "25 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Ripe Sweet Mangoes", quantity: "2, sliced into fans" },
+        { name: "Glutinous Rice or Jasmine Rice", quantity: "1 cup (cooked tender)" },
+        { name: "Coconut Milk or Cream", quantity: "3/4 cup" },
+        { name: "Sugar or Honey", quantity: "2 tbsp" },
+        { name: "Salt", quantity: "1/4 tsp" },
+        { name: "Toasted Sesame Seeds", quantity: "1 tsp, for garnish" },
+      ],
+      steps: [
+        "In a small saucepan over medium-low heat, combine coconut milk, sugar, and salt until gently dissolved.",
+        "Fold 2/3 of the warm coconut sauce into the freshly cooked rice. Let rest covered for 10 minutes to absorb.",
+        "Peel and slice ripe mangoes into thin presentation fans.",
+        "Plate warm sticky rice next to the mango slices, drizzle with remaining coconut cream, and top with toasted sesame seeds.",
+      ],
+      tips: [
+        "Use fragrant, deeply ripe mangoes for natural honey sweetness.",
+      ],
+      image: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["mango", "salsa", "lime", "cilantro", "onion", "fruit"],
+      recipeName: "Fresh Zesty Mango & Lime Salsa",
+      cuisine: "Tropical & Mexican",
+      description: "A vibrant, refreshing tropical salsa bursting with sweet diced mango, crisp red onion, fresh cilantro, and lime juice.",
+      cookingTime: "10 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Ripe Mangoes", quantity: "2 large, finely diced" },
+        { name: "Red Onion", quantity: "1/4 cup, finely chopped" },
+        { name: "Fresh Cilantro", quantity: "3 tbsp, chopped" },
+        { name: "Lime", quantity: "1 whole, freshly juiced" },
+        { name: "Sea Salt & Red Chili Flakes", quantity: "A pinch each" },
+      ],
+      steps: [
+        "Dice peeled mangoes into small, uniform cubes.",
+        "In a medium bowl, gently combine diced mango, red onion, and chopped cilantro.",
+        "Squeeze fresh lime juice over the mixture and season with a pinch of sea salt and chili flakes.",
+        "Toss lightly with a wooden spoon. Chill in the refrigerator for 10 minutes before serving.",
+        "Serve with crispy tortilla chips, grilled tacos, or spoon over salmon.",
+      ],
+      tips: [
+        "Letting the salsa sit for 10 minutes allows the lime juice to marry the sweet mango and savory onion.",
+      ],
+      image: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["mango", "smoothie", "chia", "yogurt", "breakfast", "fruit"],
+      recipeName: "Tropical Mango & Chia Smoothie Bowl",
+      cuisine: "Café Breakfast",
+      description: "Velvety thick blended golden mango spooned into a chilled bowl, topped with chia seeds, coconut flakes, and fresh fruit.",
+      cookingTime: "10 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Frozen Mango Chunks", quantity: "2 cups" },
+        { name: "Greek Yogurt or Coconut Milk", quantity: "1/2 cup" },
+        { name: "Honey or Agave", quantity: "1 tbsp" },
+        { name: "Chia Seeds", quantity: "1 tbsp" },
+        { name: "Toasted Coconut Flakes & Fresh Berries", quantity: "For topping" },
+      ],
+      steps: [
+        "Add frozen mango chunks, yogurt, and honey into a blender.",
+        "Blend on low, gradually increasing to high until thick, creamy, and spoonable.",
+        "Pour into a wide chilled breakfast bowl.",
+        "Arrange chia seeds, coconut flakes, and fruit slices in neat rows across the top.",
+      ],
+      tips: [
+        "Use frozen mango chunks to get a thick, sorbet-like texture without needing crushed ice.",
+      ],
+      image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["mango", "yogurt", "drink", "sweet", "fruit"],
+      recipeName: "Chilled Traditional Mango Lassi",
+      cuisine: "Indian-inspired",
+      description: "A velvety, refreshing chilled yogurt drink blended with ripe sweet mango, a whisper of ground cardamom, and honey.",
+      cookingTime: "5 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Ripe Mango Flesh", quantity: "1.5 cups, chopped" },
+        { name: "Plain Greek or Natural Yogurt", quantity: "1 cup" },
+        { name: "Milk", quantity: "1/4 cup (to adjust thickness)" },
+        { name: "Honey or Sugar", quantity: "1.5 tbsp" },
+        { name: "Ground Cardamom", quantity: "A pinch (optional)" },
+      ],
+      steps: [
+        "Place chopped mango, chilled yogurt, milk, and honey into a blender.",
+        "Blend on high speed for 60 seconds until completely silky and frothy.",
+        "Taste and adjust sweetness or add a splash more milk if you prefer a lighter drink.",
+        "Pour into chilled glasses and finish with a dusting of ground cardamom on top.",
+      ],
+      tips: [
+        "A pinch of cardamom elevates the floral aroma of fresh mango.",
+      ],
+      image: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["berry", "yogurt", "breakfast", "sweet", "fruit"],
+      recipeName: "Layered Berry & Greek Yogurt Parfait",
+      cuisine: "Café Breakfast",
+      description: "Layers of thick creamy Greek yogurt, sweet strawberries, blueberries, crunchy granola, and golden honey.",
+      cookingTime: "8 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Mixed Fresh Berries (Strawberries, Blueberries)", quantity: "1.5 cups" },
+        { name: "Greek Yogurt", quantity: "1 cup" },
+        { name: "Granola or Rolled Oats", quantity: "1/2 cup" },
+        { name: "Honey", quantity: "1.5 tbsp" },
+      ],
+      steps: [
+        "Spoon 1/3 of the Greek yogurt into the base of a glass.",
+        "Layer with fresh berries and a generous sprinkle of crunchy granola.",
+        "Repeat the layers once more and drizzle pure honey across the top before serving.",
+      ],
+      tips: [
+        "Layer just before eating to ensure the granola stays crunchy.",
+      ],
+      image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["apple", "oats", "cinnamon", "honey", "breakfast", "sweet", "fruit"],
+      recipeName: "Warm Caramelized Apple & Cinnamon Oatmeal",
+      cuisine: "Comfort Kitchen",
+      description: "Hearty rolled oats cooked tender, topped with skillet-caramelized cinnamon apples and warm honey.",
+      cookingTime: "15 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Apple", quantity: "1 large (Honeycrisp or Gala), diced" },
+        { name: "Rolled Oats", quantity: "1 cup" },
+        { name: "Milk or Water", quantity: "2 cups" },
+        { name: "Butter", quantity: "1 tbsp" },
+        { name: "Cinnamon", quantity: "1 tsp" },
+        { name: "Honey or Brown Sugar", quantity: "1.5 tbsp" },
+      ],
+      steps: [
+        "In a small skillet, melt butter over medium heat. Sauté diced apples with cinnamon and honey for 6 minutes until tender and caramelized.",
+        "In a small pot, simmer rolled oats in milk with a pinch of salt for 5 minutes until creamy.",
+        "Spoon warm oatmeal into bowls and crown with warm caramelized apples and their pan syrup.",
+      ],
+      tips: [
+        "Sautéing the apples first creates a rich spiced syrup that flavors the whole bowl.",
+      ],
+      image: "https://images.unsplash.com/photo-1575549592564-4d50aa43b3af?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      tags: ["avocado", "bread", "toast", "lime"],
+      recipeName: "Artisan Smashed Avocado & Lime Sourdough Toast",
+      cuisine: "Café Classic",
+      description: "Creamy ripe avocado coarsely mashed with fresh lime juice, flaky sea salt, and chili flakes on golden toasted artisan bread.",
+      cookingTime: "10 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Ripe Avocado", quantity: "1 large" },
+        { name: "Sourdough or Artisan Bread", quantity: "2 thick slices" },
+        { name: "Lime", quantity: "1/2, freshly squeezed" },
+        { name: "Extra Virgin Olive Oil", quantity: "1 tbsp" },
+        { name: "Flaky Sea Salt & Chili Flakes", quantity: "To taste" },
+      ],
+      steps: [
+        "Toast sourdough slices until crunchy and golden brown.",
+        "In a small bowl, coarsely mash avocado with fresh lime juice and a drizzle of olive oil, keeping some texture.",
+        "Generously mound mashed avocado onto warm toast.",
+        "Season with flaky sea salt and a light sprinkle of red chili flakes.",
+      ],
+      tips: [
+        "Do not over-mash; retaining chunky pieces gives superior texture.",
+      ],
+      image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80",
+    },
+  ];
+
+  // STRICT FILTERING:
+  // 1. NEVER include beef recipes unless the user specifically typed beef/steak
+  // 2. NEVER include savory meats/alliums for sweet/fruit searches unless explicitly asked
+  let matchingPool = CATALOG.filter((r) => {
+    if (!isBeef && r.tags.includes("beef")) {
+      return false;
+    }
+    if ((isFruit || isSweetOrDessert) && !isBeef && !isChicken && !isSalmon) {
+      if (r.tags.includes("beef") || r.tags.includes("chicken") || r.tags.includes("salmon") || r.tags.includes("fish")) {
+        return false;
+      }
+    }
+
+    if (isMango && r.tags.includes("mango")) return true;
+    if (isBerry && r.tags.includes("berry")) return true;
+    if (isApple && r.tags.includes("apple")) return true;
+    if (isBanana && r.tags.includes("banana")) return true;
+    if (isAvocado && r.tags.includes("avocado")) return true;
+    if (isGenericFruitSearch && r.tags.includes("fruit")) return true;
+    if (isSweetOrDessert && (r.tags.includes("sweet") || r.tags.includes("smoothie") || r.tags.includes("breakfast"))) return true;
+    if (isPotato && r.tags.includes("potato")) return true;
+    if (isBeef && r.tags.includes("beef")) return true;
+    if (isChicken && r.tags.includes("chicken")) return true;
+    if (isEgg && r.tags.includes("egg")) return true;
+    if (isRice && r.tags.includes("rice")) return true;
+    if (isPasta && r.tags.includes("pasta")) return true;
+    if (isSalmon && (r.tags.includes("salmon") || r.tags.includes("fish"))) return true;
+    if (isMushroom && r.tags.includes("mushroom")) return true;
+    if (isTomato && r.tags.includes("tomato")) return true;
+    if (isSpinach && r.tags.includes("spinach")) return true;
+    if (isSoup && r.tags.includes("soup")) return true;
+    if (isBread && r.tags.includes("bread")) return true;
+
+    return false;
+  });
+
+  let selectedRecipes;
+
+  if (matchingPool.length > 0) {
+    // Score based on multi-ingredient overlap
+    const scoredPool = matchingPool.map((recipe) => {
+      let s = 0;
+      if (isMango && recipe.tags.includes("mango")) s += 10;
+      if (isBerry && recipe.tags.includes("berry")) s += 8;
+      if (isApple && recipe.tags.includes("apple")) s += 8;
+      if (isBanana && recipe.tags.includes("banana")) s += 8;
+      if (isAvocado && recipe.tags.includes("avocado")) s += 8;
+      if (isGenericFruitSearch && recipe.tags.includes("fruit")) s += 4;
+      if (isSweetOrDessert && (recipe.tags.includes("sweet") || recipe.tags.includes("smoothie") || recipe.tags.includes("breakfast"))) s += 4;
+      if (isPotato && recipe.tags.includes("potato")) s += 6;
+      if (isBeef && recipe.tags.includes("beef")) s += 6;
+      if (isChicken && recipe.tags.includes("chicken")) s += 6;
+      if (isEgg && recipe.tags.includes("egg")) s += 4;
+      if (isRice && recipe.tags.includes("rice")) s += 4;
+      if (isPasta && recipe.tags.includes("pasta")) s += 4;
+      if (isSalmon && (recipe.tags.includes("salmon") || recipe.tags.includes("fish"))) s += 6;
+      if (isCheese && recipe.tags.includes("cheese")) s += 2;
+      if (isGarlic && recipe.tags.includes("garlic")) s += 2;
+      if (isTomato && recipe.tags.includes("tomato")) s += 2;
+      return { recipe, score: s };
     });
+
+    scoredPool.sort((a, b) => b.score - a.score);
+
+    // Pick top-tier items so high-confidence matches (e.g. 100% mango) are prioritized
+    const maxScore = scoredPool[0]?.score || 0;
+    const topTier = scoredPool.filter((item) => item.score === maxScore).map((item) => item.recipe);
+
+    if (topTier.length >= 3) {
+      const shuffled = topTier.sort(() => 0.5 - Math.random());
+      selectedRecipes = shuffled.slice(0, 3);
+    } else {
+      const candidateList = scoredPool.slice(0, Math.min(scoredPool.length, 5)).map((item) => item.recipe);
+      selectedRecipes = candidateList.slice(0, Math.min(candidateList.length, 3));
+    }
+  } else {
+    // Dynamic generation strictly tailored to what the user typed (NEVER default to beef or savory garlic for sweet foods)
+    const cleanWords = prompt
+      .replace(/[^a-zA-Z\s]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length > 2 && !["with", "and", "make", "cook", "want", "some", "like", "recipe", "recipes"].includes(w.toLowerCase()));
+
+    if (cleanWords.length === 0) {
+      return {
+        type: "recipes",
+        recipes: [],
+      };
+    }
+
+    const primaryItem = cleanWords[0].charAt(0).toUpperCase() + cleanWords[0].slice(1);
+    const secondaryItem = cleanWords[1]
+      ? cleanWords[1].charAt(0).toUpperCase() + cleanWords[1].slice(1)
+      : (isFruit || isSweetOrDessert ? "Honey" : "Garlic");
+
+    if (isFruit || isSweetOrDessert) {
+      selectedRecipes = [
+        {
+          recipeName: `Refreshing Chilled ${primaryItem} & Mint Fruit Bowl`,
+          cuisine: "Tropical & Fresh",
+          description: `A bright, revitalizing bowl of fresh sliced ${primaryItem} dressed with zesty lime, pure honey, and fragrant garden mint.`,
+          cookingTime: "10 min",
+          difficulty: "Easy",
+          ingredients: [
+            { name: primaryItem, quantity: "2 cups, freshly sliced" },
+            { name: "Honey or Maple Syrup", quantity: "1.5 tbsp" },
+            { name: "Lime Juice", quantity: "1 tbsp, freshly squeezed" },
+            { name: "Fresh Mint Leaves", quantity: "A small handful, torn" },
+            { name: "Greek Yogurt or Coconut Flakes", quantity: "For serving (optional)" },
+          ],
+          steps: [
+            `Wash, peel, and slice the ${primaryItem} into neat bite-sized pieces.`,
+            "Place the sliced fruit into a chilled serving bowl.",
+            "Whisk the honey and fresh lime juice together in a small ramekin until blended.",
+            `Drizzle the citrus-honey dressing over the ${primaryItem} and toss gently.`,
+            "Garnish with torn fresh mint and chill for 5 minutes before enjoying.",
+          ],
+          tips: [
+            "Chill the fruit in the refrigerator for 20 minutes beforehand for maximum crisp refreshment.",
+          ],
+        },
+        {
+          recipeName: `Creamy ${primaryItem} & Chia Smoothie Parfait`,
+          cuisine: "Healthy Breakfast",
+          description: `A silky blended ${primaryItem} smoothie layered over rich yogurt with chia seeds and a touch of sweetness.`,
+          cookingTime: "10 min",
+          difficulty: "Easy",
+          ingredients: [
+            { name: primaryItem, quantity: "1.5 cups, chopped" },
+            { name: "Greek Yogurt or Almond Milk", quantity: "3/4 cup" },
+            { name: "Honey", quantity: "1 tbsp" },
+            { name: "Chia Seeds or Granola", quantity: "2 tbsp" },
+          ],
+          steps: [
+            `Add the chopped ${primaryItem}, yogurt (or milk), and honey into a blender.`,
+            "Blend on high speed for 45-60 seconds until thick, velvety, and completely smooth.",
+            "Pour half into a tall glass or bowl, add a layer of chia seeds or granola.",
+            "Top with the remaining smoothie and garnish with fresh fruit slices.",
+          ],
+          tips: [
+            "Use frozen fruit for a thicker, ice-cream-like smoothie texture.",
+          ],
+        },
+      ];
+    } else {
+      selectedRecipes = [
+        {
+          recipeName: `Crispy Pan-Seared ${primaryItem} Skillet`,
+          cuisine: "Comfort Kitchen",
+          description: `A fast and delicious meal highlighting ${primaryItem}, seared golden in olive oil and seasoned with kitchen aromatics.`,
+          cookingTime: "20 min",
+          difficulty: "Easy",
+          ingredients: [
+            { name: primaryItem, quantity: "2 cups or 300g, prepared" },
+            { name: secondaryItem, quantity: "2 cloves or 1/2 cup" },
+            { name: "Olive Oil or Butter", quantity: "2 tbsp" },
+            { name: "Salt & Black Pepper", quantity: "To taste" },
+          ],
+          steps: [
+            `Chop ${primaryItem} and ${secondaryItem} into uniform bite-sized pieces.`,
+            "Heat olive oil or butter in a wide skillet over medium heat.",
+            `Add ${primaryItem} and sauté for 6-8 minutes until tender and golden.`,
+            `Stir in ${secondaryItem}, season with salt and pepper, and cook 2 more minutes.`,
+            "Serve warm as a nourishing main or side dish.",
+          ],
+          tips: [
+            "A squeeze of fresh lemon juice brightens up the flavors before serving.",
+          ],
+        },
+        {
+          recipeName: `Herb-Roasted ${primaryItem} & ${secondaryItem} Bowl`,
+          cuisine: "Healthy & Fresh",
+          description: `Oven-roasted ${primaryItem} infused with aromatic herbs, sweet caramelized notes, and a touch of sea salt.`,
+          cookingTime: "25 min",
+          difficulty: "Easy",
+          ingredients: [
+            { name: primaryItem, quantity: "300g, sliced" },
+            { name: secondaryItem, quantity: "1 cup, chopped" },
+            { name: "Cooking Oil", quantity: "2 tbsp" },
+            { name: "Dried Herbs & Sea Salt", quantity: "1 tsp each" },
+          ],
+          steps: [
+            "Preheat oven to 400°F (200°C).",
+            `Toss ${primaryItem} and ${secondaryItem} with oil, dried herbs, and sea salt in a bowl.`,
+            "Spread in a single layer on a baking sheet.",
+            "Roast for 20-25 minutes until tender with caramelized edges.",
+            "Enjoy immediately with rice, toast, or your favorite dip.",
+          ],
+          tips: [
+            "Do not crowd the baking sheet so ingredients roast with crispy edges instead of steaming.",
+          ],
+        },
+      ];
+    }
   }
 
-  const enrichedRecipes = recipes.map((r, index) => ({
+  const enrichedRecipes = selectedRecipes.map((r, index) => ({
     ...r,
+    id: `recipe-${Date.now()}-${index}`,
     image: r.image || getImageForRecipe(r.recipeName, r.cuisine, r.ingredients, index),
   }));
 
@@ -545,6 +1306,13 @@ function generateFallbackRecipes(prompt) {
  * @returns {Promise<Object>} Structured recipe or advice response
  */
 export async function generateRecipe(prompt) {
+  if (!prompt || prompt.trim().length < 2) {
+    return {
+      type: "recipes",
+      recipes: [],
+    };
+  }
+
   // Dynamically re-read backend/.env on each request so that adding or updating
   // GEMINI_API_KEY takes effect immediately without needing a server restart.
   dotenv.config({ path: path.join(__dirname, "../.env"), override: true });
