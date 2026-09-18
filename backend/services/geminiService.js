@@ -58,8 +58,131 @@ For general cooking advice, technique questions, or ingredient substitutions (no
 `;
 
 /**
- * Intelligent culinary generator fallback for instant responses when GEMINI_API_KEY is pending
+ * Return an authentic, natural photograph matching the dish keywords and index
  */
+export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [], index = 0) {
+  const ingStr = Array.isArray(ingredients)
+    ? ingredients.map((i) => (typeof i === "string" ? i : i.name || "")).join(" ")
+    : "";
+  const combined = `${recipeName} ${cuisine} ${ingStr}`.toLowerCase();
+
+  // 1. Potato / Aloo dishes
+  if (combined.includes("potato") || combined.includes("potatoes") || combined.includes("aloo")) {
+    const potatoImages = [
+      "/crispy_chili_potatoes.jpg",
+      "/roasted_potato_wedges.jpg",
+      "https://images.unsplash.com/photo-1518013034458-30b0ee243591?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80",
+    ];
+    // Always assign index-differentiated photos so dishes never duplicate
+    return potatoImages[index % potatoImages.length];
+  }
+
+  // 2. Chicken & Rice
+  if (combined.includes("chicken") && combined.includes("rice")) {
+    const chickenRiceImages = [
+      "/garlic_chicken_rice.jpg",
+      "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80",
+    ];
+    return chickenRiceImages[index % chickenRiceImages.length];
+  }
+
+  // 3. Fried Rice / Egg & Rice
+  if (combined.includes("fried rice") || (combined.includes("egg") && combined.includes("rice"))) {
+    const eggRiceImages = [
+      "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=800&q=80",
+    ];
+    return eggRiceImages[index % eggRiceImages.length];
+  }
+
+  // 4. Pasta dishes
+  if (combined.includes("pasta") || combined.includes("spaghetti") || combined.includes("penne") || combined.includes("fettuccine") || combined.includes("noodle")) {
+    const pastaImages = [
+      "https://images.unsplash.com/photo-1621996346565-e3d5d6281691?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80",
+    ];
+    return pastaImages[index % pastaImages.length];
+  }
+
+  // 5. Chicken dishes
+  if (combined.includes("chicken")) {
+    const chickenImages = [
+      "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=800&q=80",
+    ];
+    return chickenImages[index % chickenImages.length];
+  }
+
+  // 6. Fish / Seafood
+  if (combined.includes("salmon") || combined.includes("fish") || combined.includes("tuna") || combined.includes("seafood") || combined.includes("shrimp")) {
+    const seafoodImages = [
+      "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80",
+    ];
+    return seafoodImages[index % seafoodImages.length];
+  }
+
+  // 7. Beef / Steak
+  if (combined.includes("steak") || combined.includes("beef") || combined.includes("meat")) {
+    const beefImages = [
+      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
+    ];
+    return beefImages[index % beefImages.length];
+  }
+
+  // 8. Soup / Stew / Broth
+  if (combined.includes("soup") || combined.includes("stew") || combined.includes("broth")) {
+    const soupImages = [
+      "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=800&q=80",
+    ];
+    return soupImages[index % soupImages.length];
+  }
+
+  // 9. Curry / Masala
+  if (combined.includes("curry") || combined.includes("tikka") || combined.includes("masala")) {
+    const curryImages = [
+      "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80",
+    ];
+    return curryImages[index % curryImages.length];
+  }
+
+  // 10. Salad / Greens / Vegetarian
+  if (combined.includes("salad") || combined.includes("lettuce") || combined.includes("spinach") || combined.includes("veggie") || combined.includes("vegetable")) {
+    const saladImages = [
+      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    ];
+    return saladImages[index % saladImages.length];
+  }
+
+  // 11. Egg / Breakfast / Toast
+  if (combined.includes("egg") || combined.includes("omelet") || combined.includes("breakfast") || combined.includes("toast")) {
+    const eggImages = [
+      "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80",
+    ];
+    return eggImages[index % eggImages.length];
+  }
+
+  // Diverse natural culinary fallbacks (guaranteed distinct per index)
+  const fallbacks = [
+    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+  ];
+  return fallbacks[index % fallbacks.length];
+}
 function generateFallbackRecipes(prompt) {
   const p = prompt.toLowerCase();
 
@@ -118,11 +241,42 @@ function generateFallbackRecipes(prompt) {
   const hasEgg = p.includes("egg");
   const hasGarlic = p.includes("garlic");
   const hasTomato = p.includes("tomato");
+  const hasPotato = p.includes("potato") || p.includes("potatoes") || p.includes("aloo");
 
   const recipes = [];
 
   // Recipe 1
-  if (hasChicken && hasRice) {
+  if (hasPotato) {
+    recipes.push({
+      id: `recipe-${Date.now()}-1`,
+      recipeName: "Crispy Pan-Seared Chili Potatoes",
+      cuisine: "Homestyle Skillet",
+      description:
+        "Golden diced potatoes shallow-seared until delightfully crunchy on the outside and tender inside, seasoned with chili powder, sea salt, and fresh herbs.",
+      cookingTime: "20 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Potatoes", quantity: "3 medium, peeled and diced into 1/2-inch cubes" },
+        { name: "Cooking Oil", quantity: "3 tbsp" },
+        { name: "Chili Powder", quantity: "1.5 tsp" },
+        { name: "Coarse Salt", quantity: "1 tsp" },
+        { name: "Fresh Parsley or Cilantro", quantity: "Chopped, for garnish" },
+      ],
+      steps: [
+        "Peel and dice the potatoes into uniform cubes. Pat thoroughly dry with a paper towel for maximum crunch.",
+        "Heat 2 tbsp oil in a wide skillet over medium-high heat until shimmering.",
+        "Add diced potatoes in a single layer. Let sear undisturbed for 4-5 minutes until golden on the bottom.",
+        "Flip and sauté for another 7-8 minutes, stirring occasionally until crispy and fork-tender.",
+        "Reduce heat to low, drizzle the remaining oil, sprinkle chili powder and salt, tossing for 60 seconds to coat evenly without scorching.",
+        "Transfer to a bowl and garnish with fresh herbs. Serve piping hot.",
+      ],
+      tips: [
+        "Drying the potatoes completely before cooking guarantees a crunchy exterior.",
+        "A squeeze of fresh lemon or lime balances the chili heat wonderfully.",
+      ],
+      image: "/crispy_chili_potatoes.jpg",
+    });
+  } else if (hasChicken && hasRice) {
     recipes.push({
       id: `recipe-${Date.now()}-1`,
       recipeName: "Savory Garlic Butter Chicken & Fragrant Rice",
@@ -182,6 +336,83 @@ function generateFallbackRecipes(prompt) {
         "Top with fresh basil or crushed red pepper flakes for heat.",
       ],
     });
+  } else if (hasEgg && (p.includes("bread") || p.includes("toast"))) {
+    recipes.push({
+      id: `recipe-${Date.now()}-1`,
+      recipeName: "Artisan Smashed Egg & Butter Toast",
+      cuisine: "Café Breakfast",
+      description:
+        "Thick golden toasted bread buttered to perfection, topped with soft-cooked seasoned eggs, cracked black pepper, and herbs.",
+      cookingTime: "10 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Bread", quantity: "2 thick slices (sourdough or brioche)" },
+        { name: "Eggs", quantity: "2 large" },
+        { name: "Butter", quantity: "2 tbsp" },
+        { name: "Salt & Cracked Black Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Melt 1 tbsp butter in a skillet over medium heat. Toast bread slices on both sides until golden and crisp.",
+        "Melt remaining butter in the skillet, crack eggs in, and cook sunny-side-up or soft-scrambled.",
+        "Layer the warm eggs on top of the buttery toast and season with coarse salt and pepper.",
+      ],
+      tips: [
+        "Toast slowly over medium-low heat with plenty of butter for that bakery-style crunch.",
+      ],
+      image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+    });
+  } else if (p.includes("salmon") || p.includes("fish")) {
+    recipes.push({
+      id: `recipe-${Date.now()}-1`,
+      recipeName: "Pan-Seared Lemon Butter Salmon",
+      cuisine: "Coastal Skillet",
+      description:
+        "Crispy-skinned tender salmon fillets basted in luscious lemon garlic butter with fresh cracked pepper.",
+      cookingTime: "15 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Salmon Fillet", quantity: "2 portions (approx. 150g each)" },
+        { name: "Butter or Olive Oil", quantity: "2 tbsp" },
+        { name: "Garlic", quantity: "2 cloves, minced" },
+        { name: "Lemon", quantity: "1/2, juiced" },
+        { name: "Salt & Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Pat salmon completely dry and season flesh with salt and pepper.",
+        "Heat skillet with oil on medium-high until hot. Sear salmon skin-side down for 4-5 minutes until crispy.",
+        "Flip, add butter, garlic, and lemon juice. Baste salmon with the foaming butter for 3-4 minutes until cooked through.",
+      ],
+      tips: [
+        "Basting with foaming butter keeps the fish exceptionally moist and flavorful.",
+      ],
+      image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
+    });
+  } else if (p.includes("beef") || p.includes("steak")) {
+    recipes.push({
+      id: `recipe-${Date.now()}-1`,
+      recipeName: "Garlic Butter Seared Beef Skillet",
+      cuisine: "Steakhouse",
+      description:
+        "Juicy bite-sized beef seared hot and fast in garlic herb butter with caramelized edges.",
+      cookingTime: "15 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Beef / Steak", quantity: "300g, cut into bite-sized cubes" },
+        { name: "Butter", quantity: "2 tbsp" },
+        { name: "Garlic", quantity: "3 cloves, minced" },
+        { name: "Salt & Black Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Season beef cubes generously with salt and coarse pepper.",
+        "Get skillet searing hot with 1 tbsp oil. Cook beef in a single layer for 3-4 minutes until nicely browned.",
+        "Add butter and minced garlic during the final minute, tossing constantly.",
+        "Remove from heat immediately and rest 3 minutes before serving.",
+      ],
+      tips: [
+        "Keep the heat high and pan hot so the beef sears quickly without turning tough.",
+      ],
+      image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+    });
   } else {
     recipes.push({
       id: `recipe-${Date.now()}-1`,
@@ -210,8 +441,38 @@ function generateFallbackRecipes(prompt) {
     });
   }
 
-  // Recipe 2 (Egg or Stir-Fry Option)
-  if (hasEgg || hasRice) {
+  // Recipe 2 (Potato, Egg/Rice, or Skillet Option)
+  if (hasPotato) {
+    recipes.push({
+      id: `recipe-${Date.now()}-2`,
+      recipeName: "Herb-Roasted Garlic & Chili Potato Wedges",
+      cuisine: "Rustic Oven / Skillet",
+      description:
+        "Oven-roasted thick potato wedges seasoned with aromatic herbs, crushed garlic, and a touch of fiery chili for a savory, crispy edge.",
+      cookingTime: "30 min",
+      difficulty: "Easy",
+      ingredients: [
+        { name: "Potatoes", quantity: "3 large, scrubbed & cut into thick wedges" },
+        { name: "Cooking Oil or Olive Oil", quantity: "2.5 tbsp" },
+        { name: "Chili Powder or Paprika", quantity: "1 tsp" },
+        { name: "Garlic", quantity: "3 cloves, minced or crushed" },
+        { name: "Dried Rosemary or Oregano", quantity: "1 tsp" },
+        { name: "Sea Salt & Black Pepper", quantity: "To taste" },
+      ],
+      steps: [
+        "Preheat oven or heavy skillet to 400°F (200°C).",
+        "Toss the potato wedges with oil, chili powder, crushed garlic, dried herbs, and sea salt in a large bowl.",
+        "Arrange wedges cut-side down in a single layer so they brown evenly without steaming.",
+        "Roast for 25-30 minutes, turning halfway through, until deep golden brown and crispy.",
+        "Serve hot with garlic dip, ketchup, or sour cream.",
+      ],
+      tips: [
+        "Leave the skin on the potatoes for rustic texture and extra crispiness.",
+        "Ensure wedges don't overlap on the baking sheet so they roast evenly.",
+      ],
+      image: "/roasted_potato_wedges.jpg",
+    });
+  } else if (hasEgg || hasRice) {
     recipes.push({
       id: `recipe-${Date.now()}-2`,
       recipeName: "Golden Scrambled Egg & Aromatic Rice Bowl",
@@ -267,9 +528,14 @@ function generateFallbackRecipes(prompt) {
     });
   }
 
+  const enrichedRecipes = recipes.map((r, index) => ({
+    ...r,
+    image: r.image || getImageForRecipe(r.recipeName, r.cuisine, r.ingredients, index),
+  }));
+
   return {
     type: "recipes",
-    recipes,
+    recipes: enrichedRecipes,
   };
 }
 
@@ -380,6 +646,14 @@ export async function generateRecipe(prompt) {
         ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
         steps: Array.isArray(recipe.steps) ? recipe.steps : [],
         tips: Array.isArray(recipe.tips) ? recipe.tips : [],
+        image:
+          recipe.image ||
+          getImageForRecipe(
+            recipe.recipeName,
+            recipe.cuisine,
+            recipe.ingredients,
+            index
+          ),
       }));
     }
 

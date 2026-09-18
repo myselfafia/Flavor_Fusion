@@ -279,6 +279,18 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
               </div>
             </div>
 
+            {selectedRecipe.image && (
+              <div className="recipe-detail-image-banner">
+                <img
+                  src={selectedRecipe.image}
+                  alt={selectedRecipe.recipeName}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              </div>
+            )}
+
             <p className="recipe-description">{selectedRecipe.description}</p>
 
             <div className="recipe-detail-grid">
@@ -364,6 +376,18 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
                   className={`ai-recipe-card ${selectedRecipe?.recipeName === recipe.recipeName ? "selected" : ""}`}
                   onClick={() => setSelectedRecipe(recipe)}
                 >
+                  {recipe.image && (
+                    <div className="ai-card-image-wrap">
+                      <img
+                        src={recipe.image}
+                        alt={recipe.recipeName}
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.parentElement.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  )}
                   <div className="ai-card-content">
                     <div className="ai-card-header">
                       <span className="cuisine-badge">{recipe.cuisine}</span>
@@ -424,6 +448,18 @@ function Explore({ selected, onSelected, saved, onToggleSave, navigate, isLogged
                     className="ai-recipe-card recent-card"
                     onClick={() => setSelectedRecipe(item)}
                   >
+                    {item.image && (
+                      <div className="ai-card-image-wrap">
+                        <img
+                          src={item.image}
+                          alt={item.recipeName}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.parentElement.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    )}
                     <div className="ai-card-content">
                       <div className="ai-card-header">
                         <span className="cuisine-badge">{item.cuisine || "Recipe"}</span>
