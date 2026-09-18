@@ -211,9 +211,9 @@
   text-transform: uppercase;
 }
 .dish-content h3 {
-  min-height: 52px;
+  min-height: auto;
   margin: 6px 0 8px;
-  font: 700 22px/1.2 Manrope;
+  font: 700 clamp(18px, 2.2vw, 22px)/1.2 Manrope;
   letter-spacing: -0.04em;
 }
 .meta {
@@ -229,9 +229,9 @@
   vertical-align: middle;
 }
 .missing-area {
-  min-height: 59px;
-  margin-top: 28px;
-  padding-top: 16px;
+  min-height: auto;
+  margin-top: 18px;
+  padding-top: 14px;
   border-top: 1px solid #dddeda;
 }
 .missing-area small {
@@ -242,7 +242,7 @@
 .missing-area span {
   display: inline-block;
   margin: 0 5px 5px 0;
-  padding: 5px 9px;
+  padding: 4px 8px;
   border-radius: 4px;
   background: #fde7e4;
   color: #a31212;
@@ -253,9 +253,15 @@
   color: #305a43;
   font-size: 13px;
 }
+@media (hover: none), (max-width: 768px) {
+  .image-preview-button {
+    opacity: 0.95;
+    transform: translateY(0);
+  }
+}
 @media (max-width: 620px) {
   .dish-image {
-    height: 235px;
+    height: 200px;
   }
 }
 @keyframes dish-enter {

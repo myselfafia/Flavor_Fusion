@@ -11,6 +11,7 @@ function PageShell({ children, navigate, title, intro }) {
         onHome={() => navigate("home")}
         onExplore={() => navigate("explore")}
         onCommunity={() => navigate("community")}
+        onSaved={() => navigate("saved")}
         onSignIn={() => navigate("login")}
       />
       <main className="info-main container">

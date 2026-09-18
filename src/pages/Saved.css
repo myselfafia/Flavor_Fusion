@@ -18,7 +18,7 @@
 }
 .saved-hero h1 {
   margin: 9px 0 10px;
-  font: 700 45px/1.1 Manrope;
+  font: 700 clamp(28px, 4.5vw, 45px)/1.1 Manrope;
   letter-spacing: -0.05em;
 }
 .saved-hero p {
@@ -26,7 +26,7 @@
   max-width: 520px;
   color: #3d4a44;
   line-height: 1.55;
-  font-size: 17px;
+  font-size: clamp(15px, 1.5vw, 17px);
 }
 .saved-stats {
   display: flex;
@@ -392,12 +392,12 @@
 }
 .saved-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: clamp(18px, 2.5vw, 28px);
   margin-top: 32px;
 }
 .saved-grid.posts {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 }
 .saved-card {
   overflow: hidden;
@@ -611,72 +611,92 @@
     animation: none;
   }
 }
-@media (max-width: 1080px) {
-  .saved-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .sort-select {
-    margin-left: auto;
-  }
-}
 @media (max-width: 900px) {
   .saved-hero {
     flex-direction: column;
-    align-items: start;
+    align-items: stretch;
+    gap: 24px;
   }
   .saved-page {
-    padding-top: 30px;
-  }
-  .saved-grid.posts {
-    grid-template-columns: 1fr;
-  }
-}
-@media (max-width: 620px) {
-  .saved-page {
-    padding-bottom: 68px;
-  }
-  .saved-hero h1 {
-    font-size: 36px;
-  }
-  .saved-hero p {
-    font-size: 15px;
+    padding-top: 28px;
   }
   .saved-stats {
-    flex-wrap: wrap;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
   }
   .stat {
-    min-width: calc(50% - 6px);
+    min-width: 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .saved-page {
+    padding-bottom: 60px;
+  }
+  .saved-hero h1 {
+    font-size: clamp(28px, 6vw, 36px);
+  }
+  .saved-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .stat {
+    padding: 12px 10px;
+  }
+  .stat strong {
+    font-size: 22px;
+  }
+  .stat small {
+    font-size: 11px;
   }
   .saved-tabs {
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 8px;
   }
   .saved-tabs button {
-    flex: 1;
+    width: 100%;
     justify-content: center;
-    padding: 10px 12px;
-    font-size: 13px;
+    padding: 11px 14px;
   }
   .saved-toolbar {
-    gap: 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
   .saved-search {
     width: 100%;
+    min-width: 0;
   }
   .saved-search input {
     width: 100%;
   }
+  .cuisine-pills {
+    width: 100%;
+    gap: 6px;
+  }
+  .pill {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
   .sort-select {
     margin-left: 0;
     width: 100%;
+    justify-content: space-between;
   }
   .sort-select select {
     flex: 1;
   }
   .clear-button {
     width: 100%;
+    text-align: center;
   }
   .saved-grid {
     grid-template-columns: 1fr;
-    gap: 19px;
+    gap: 18px;
+  }
+  .saved-grid.posts {
+    grid-template-columns: 1fr;
   }
 }

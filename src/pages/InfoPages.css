@@ -20,18 +20,18 @@
 }
 .info-hero h1 {
   margin: 15px 0 13px;
-  font: 700 52px/1.08 Manrope;
-  letter-spacing: -0.06em;
+  font: 700 clamp(30px, 5vw, 52px)/1.1 Manrope;
+  letter-spacing: -0.05em;
 }
 .info-hero p {
   margin: 0;
   color: #3d5c4c;
-  font-size: 18px;
+  font-size: clamp(15px, 1.6vw, 18px);
   line-height: 1.6;
 }
 .step-flow {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 18px;
 }
 .step-flow article,

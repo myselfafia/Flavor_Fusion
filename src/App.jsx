@@ -55,7 +55,7 @@ function App() {
   const verifyAuth = async () => {
     const token = localStorage.getItem("flavor-fusion-token");
     if (!token) {
-      setIsLoggedIn(false);
+      if (isLoggedIn) setIsLoggedIn(false);
       return;
     }
 
@@ -86,7 +86,9 @@ function App() {
 
   // Check auth on mount, focus, storage change, and periodic poll
   useEffect(() => {
-    verifyAuth();
+    const mountTimer = setTimeout(() => {
+      verifyAuth();
+    }, 0);
 
     const onStorage = () => verifyAuth();
     const onFocus = () => verifyAuth();
@@ -96,9 +98,10 @@ function App() {
     window.addEventListener("focus", onFocus);
     window.addEventListener("auth-logout", onAuthLogout);
 
-    const interval = setInterval(verifyAuth, 1500);
+    const interval = setInterval(verifyAuth, 2500);
 
     return () => {
+      clearTimeout(mountTimer);
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("auth-logout", onAuthLogout);

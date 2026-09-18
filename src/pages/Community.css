@@ -3,14 +3,17 @@
 }
 .community-layout {
   display: grid;
-  grid-template-columns: 260px minmax(0, 620px) 1fr;
+  grid-template-columns: 260px 1fr;
+  max-width: 980px;
+  margin: 0 auto;
   gap: 28px;
   min-height: calc(100vh - 80px);
-  padding-top: 38px;
+  padding-top: 36px;
   padding-bottom: 70px;
 }
 .community-feed {
   grid-column: 2;
+  min-width: 0;
 }
 .community-sidebar {
   grid-column: 1;
@@ -392,14 +395,11 @@
 }
 @media (max-width: 900px) {
   .community-layout {
-    grid-template-columns: 190px minmax(0, 1fr);
-    gap: 22px;
-  }
-  .community-feed {
-    grid-column: 2;
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
   }
   .community-sidebar {
-    padding-top: 34px;
+    padding-top: 20px;
   }
   .community-sidebar h2 {
     font-size: 17px;
@@ -408,11 +408,12 @@
     height: 240px;
   }
 }
-@media (max-width: 650px) {
+
+@media (max-width: 720px) {
   .community-layout {
     display: block;
     padding-top: 18px;
-    padding-bottom: 38px;
+    padding-bottom: 40px;
   }
   .community-feed {
     width: 100%;
@@ -421,16 +422,18 @@
     display: flex;
     gap: 10px;
     padding: 0;
-    margin-bottom: 14px;
-    overflow: auto;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .community-sidebar section {
-    min-width: 190px;
+    min-width: 200px;
     margin: 0;
     padding: 13px;
+    flex-shrink: 0;
   }
   .community-sidebar h2 {
-    font-size: 16px;
+    font-size: 15px;
   }
   .community-sidebar > section > p {
     margin-bottom: 6px;
@@ -440,24 +443,31 @@
     margin-top: 7px;
   }
   .composer-actions {
+    flex-wrap: wrap;
     gap: 8px;
   }
   .composer-actions > input {
-    max-width: 142px;
+    width: 100%;
+    order: 3;
+    padding: 8px 0;
+    border-top: 1px solid #f0f0f0;
+  }
+  .composer-actions button {
+    margin-left: auto;
   }
   .post-image {
     height: 220px;
   }
   .post-actions {
     gap: 10px;
+    flex-wrap: wrap;
+    padding: 8px 12px;
   }
   .post-actions button {
-    font-size: 10px;
-  }
-  .post-actions button:nth-last-child(1) {
-    margin-left: 0;
+    font-size: 11px;
+    padding: 4px 6px;
   }
   .community-post > header {
-    padding-top: 11px;
+    padding-top: 12px;
   }
 }

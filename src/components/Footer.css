@@ -2,12 +2,13 @@ footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 25px;
-  padding: 31px 30px;
+  gap: 20px;
+  padding: 28px clamp(16px, 3.5vw, 32px);
   color: #265844;
   background: #caffdf;
   font-size: 14px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
+  width: 100%;
 }
 footer strong {
   color: var(--green);

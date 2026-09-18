@@ -1,20 +1,34 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap");
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 body {
   margin: 0;
   min-width: 320px;
+  width: 100%;
+  overflow-x: hidden;
   color: #062d20;
   background: #fff;
   font-family: "Work Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+img,
+svg,
+video {
+  max-width: 100%;
 }
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 button {
@@ -34,14 +48,13 @@ a {
 }
 .app {
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 .container {
   max-width: 1420px;
   margin: auto;
-  padding: 0 30px;
+  padding: 0 clamp(16px, 3.5vw, 32px);
+  width: 100%;
 }
-@media (max-width: 620px) {
-  .container {
-    padding-inline: 17px;
-  }
-}
+
