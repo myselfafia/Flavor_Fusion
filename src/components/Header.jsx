@@ -30,13 +30,13 @@ function Header({
     }
   };
 
-  const handleSignUp = () => {
+  const handleLogin = () => {
     if (onSignIn) {
       onSignIn();
     } else if (onSignUp) {
       onSignUp();
     } else {
-      window.location.assign("/sign-up");
+      window.location.assign("/login");
     }
   };
 
@@ -72,15 +72,15 @@ function Header({
           Saved
         </button>
       </nav>
-      {/* Show Log Out if logged in, Sign Up if not logged in */}
+      {/* Show Log Out if logged in, Log In if not logged in */}
       {!['signup', 'login'].includes(activePage) && (
         loggedIn ? (
           <button type="button" className="logout-button" onClick={handleLogout}>
             Log Out
           </button>
         ) : (
-          <button type="button" className="signin-button" onClick={handleSignUp}>
-            Sign Up
+          <button type="button" className="signin-button" onClick={handleLogin}>
+            Log In
           </button>
         )
       )}

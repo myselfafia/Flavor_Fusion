@@ -52,23 +52,63 @@ function App() {
     return !!localStorage.getItem("flavor-fusion-token");
   });
 
-  // Update auth status when page changes or storage changes
-  useEffect(() => {
-    const checkAuth = () => {
-      setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
-    };
-    checkAuth();
-    window.addEventListener("storage", checkAuth);
-    return () => window.removeEventListener("storage", checkAuth);
-  }, [page]);
+  const verifyAuth = async () => {
+    const token = localStorage.getItem("flavor-fusion-token");
+    if (!token) {
+      setIsLoggedIn(false);
+      return;
+    }
 
-  // Also check on mount and when token changes
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/me`,
+        {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        // If token was changed, tampered with, or expired, automatically log out
+        localStorage.removeItem("flavor-fusion-token");
+        localStorage.removeItem("flavor-fusion-user");
+        setIsLoggedIn(false);
+      } else {
+        setIsLoggedIn(true);
+      }
+    } catch {
+      // Server error or network issue
+    }
+  };
+
+  // Check auth on mount, focus, storage change, and periodic poll
   useEffect(() => {
-    setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
-  }, [page]);
+    verifyAuth();
+
+    const onStorage = () => verifyAuth();
+    const onFocus = () => verifyAuth();
+    const onAuthLogout = () => setIsLoggedIn(false);
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("auth-logout", onAuthLogout);
+
+    const interval = setInterval(verifyAuth, 1500);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("auth-logout", onAuthLogout);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleAuthChange = () => {
     setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
+    verifyAuth();
   };
 
   const [welcomeName, setWelcomeName] = useState(null);
@@ -86,7 +126,18 @@ function App() {
     setTimeout(() => setWelcomeName(null), 7000);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch(
+        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+    } catch {
+      // Ignore network errors on logout
+    }
     localStorage.removeItem("flavor-fusion-token");
     localStorage.removeItem("flavor-fusion-user");
     setIsLoggedIn(false);

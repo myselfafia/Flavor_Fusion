@@ -34,10 +34,10 @@ function Home({ onExplore, onSignIn, selected, onToggleIngredient, navigate, isL
         isLoggedIn={isLoggedIn}
         onLogout={onLogout}
       />
-      {/* Beautiful Welcome Message after Sign Up */}
+      {/* Welcome Message after Sign Up */}
       {welcomeName && (
         <div className="welcome-banner" role="status" aria-live="polite">
-          <div className="welcome-icon">🎉</div>
+          <div className="welcome-icon">😁</div>
           <div className="welcome-text">
             <h2>Welcome to Flavor Fusion, {welcomeName}!</h2>
             <p>We're so happy you're here — discover, save, and share amazing recipes with our community.</p>
