@@ -45,7 +45,9 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
   const handleSearch = async (promptOverride) => {
     const promptToSearch = (promptOverride || query || "").trim();
     if (!promptToSearch) {
-      setErrorMessage("Please enter some ingredients or what you'd like to cook.");
+      setErrorMessage(
+        "Please enter some ingredients or what you'd like to cook.",
+      );
       return;
     }
 
@@ -75,7 +77,12 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
           setRecents((prev) => {
             // Keep unique by recipeName and cap at 15 items
             const filtered = prev.filter(
-              (item) => !newRecentItems.some((n) => n.recipeName.toLowerCase() === item.recipeName.toLowerCase())
+              (item) =>
+                !newRecentItems.some(
+                  (n) =>
+                    n.recipeName.toLowerCase() ===
+                    item.recipeName.toLowerCase(),
+                ),
             );
             return [...newRecentItems, ...filtered].slice(0, 15);
           });
@@ -87,10 +94,14 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
           setAdviceData(null);
         }
       } else {
-        setErrorMessage(res?.error || "Could not generate recipes. Please try again.");
+        setErrorMessage(
+          res?.error || "Could not generate recipes. Please try again.",
+        );
       }
     } catch (err) {
-      setErrorMessage(err.message || "Failed to reach AI recipe service. Please try again.");
+      setErrorMessage(
+        err.message || "Failed to reach AI recipe service. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -107,11 +118,16 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
     if (isStapleActive(name)) {
       const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const regex = new RegExp(`(^|,\\s*)?${escaped}(\\s*,|$)`, "gi");
-      let updated = query.replace(regex, (match, p1, p2) => {
-        if (p1 && p1.includes(",") && p2 && p2.includes(",")) return ", ";
-        return "";
-      }).trim();
-      updated = updated.replace(/\s*,\s*,/g, ", ").replace(/^[\s,]+|[\s,]+$/g, "").trim();
+      let updated = query
+        .replace(regex, (match, p1, p2) => {
+          if (p1 && p1.includes(",") && p2 && p2.includes(",")) return ", ";
+          return "";
+        })
+        .trim();
+      updated = updated
+        .replace(/\s*,\s*,/g, ", ")
+        .replace(/^[\s,]+|[\s,]+$/g, "")
+        .trim();
       setQuery(updated);
     } else {
       const trimmed = query.trim();
@@ -162,18 +178,23 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
             <span className="label">✦ AI RECIPE ASSISTANT</span>
             <h1>What&apos;s in your kitchen?</h1>
             <p>
-              Enter any ingredients you have on hand or describe what you want to cook. Our AI assistant will create tailored recipes for you.
+              Enter any ingredients you have on hand or describe what you want
+              to cook. Our AI assistant will create tailored recipes for you.
             </p>
 
             <div className="ingredient-input-wrap">
-              <span className="search-icon" aria-hidden="true">⌕</span>
+              <span className="search-icon" aria-hidden="true">
+                ⌕
+              </span>
               <input
                 value={query}
                 onChange={(event) => {
                   setQuery(event.target.value);
                   setErrorMessage("");
                 }}
-                onKeyDown={(event) => event.key === "Enter" && !loading && handleSearch()}
+                onKeyDown={(event) =>
+                  event.key === "Enter" && !loading && handleSearch()
+                }
                 placeholder="Enter ingredients (e.g., chicken, rice, onion, garlic, egg)..."
                 aria-label="Enter ingredients or recipe prompt"
                 disabled={loading}
@@ -226,9 +247,12 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                           Open <code>backend/.env</code> in your editor.
                         </li>
                         <li>
-                          Set <code>GEMINI_API_KEY=your_key_here</code> and save.
+                          Set <code>GEMINI_API_KEY=your_key_here</code> and
+                          save.
                         </li>
-                        <li>Click <strong>Go</strong> again!</li>
+                        <li>
+                          Click <strong>Go</strong> again!
+                        </li>
                       </ol>
                     </div>
                   )}
@@ -248,7 +272,9 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                       type="button"
                       className={`staple-chip ${active ? "active" : ""}`}
                       onClick={() => handleToggleStaple(name)}
-                      title={active ? `Remove ${name}` : `Add ${name} to search`}
+                      title={
+                        active ? `Remove ${name}` : `Add ${name} to search`
+                      }
                     >
                       <span className="staple-icon">{active ? "✓" : icon}</span>
                       <span>{name}</span>
@@ -271,7 +297,11 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
 
         {/* RECIPE DETAIL VIEW (User will customize later) */}
         {selectedRecipe && !loading && (
-          <section id="recipe-detail-section" className="recipe-detail-card" aria-label="Recipe details">
+          <section
+            id="recipe-detail-section"
+            className="recipe-detail-card"
+            aria-label="Recipe details"
+          >
             <div className="recipe-detail-header">
               <div>
                 <span className="cuisine-badge">{selectedRecipe.cuisine}</span>
@@ -288,7 +318,9 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                     className={`save-detail-btn ${saved?.includes(selectedRecipe.recipeName) ? "saved" : ""}`}
                     onClick={() => onToggleSave(selectedRecipe.recipeName)}
                   >
-                    {saved?.includes(selectedRecipe.recipeName) ? "★ Saved" : "☆ Save Recipe"}
+                    {saved?.includes(selectedRecipe.recipeName)
+                      ? "★ Saved"
+                      : "☆ Save Recipe"}
                   </button>
                 )}
                 <button
@@ -334,7 +366,9 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                 <ol>
                   {selectedRecipe.steps?.map((step, idx) => (
                     <li key={idx}>
-                      <span className="step-num">{(idx + 1).toString().padStart(2, "0")}</span>
+                      <span className="step-num">
+                        {(idx + 1).toString().padStart(2, "0")}
+                      </span>
                       <p>{step}</p>
                     </li>
                   ))}
@@ -383,13 +417,22 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
               <div className="no-matches-icon">🍽️</div>
               <h2>No recipe matches found</h2>
               <p>
-                We couldn&apos;t find any recipes for <strong>&ldquo;{searchedPrompt}&rdquo;</strong>.
-                Please try searching for recognizable cooking ingredients or a dish name.
+                We couldn&apos;t find any recipes for{" "}
+                <strong>&ldquo;{searchedPrompt}&rdquo;</strong>. Please try
+                searching for recognizable cooking ingredients or a dish name.
               </p>
               <div className="no-matches-suggestions">
                 <span className="suggestion-title">Try searching for:</span>
                 <div className="suggestion-chips-row">
-                  {["Potato", "Chicken", "Pasta", "Eggs", "Mango", "Rice", "Salmon"].map((staple) => (
+                  {[
+                    "Potato",
+                    "Chicken",
+                    "Pasta",
+                    "Eggs",
+                    "Mango",
+                    "Rice",
+                    "Salmon",
+                  ].map((staple) => (
                     <button
                       key={staple}
                       type="button"
@@ -434,8 +477,16 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                         e.stopPropagation();
                         onToggleSave(recipe.recipeName);
                       }}
-                      aria-label={saved?.includes(recipe.recipeName) ? "Remove from saved" : "Save recipe"}
-                      title={saved?.includes(recipe.recipeName) ? "Saved" : "Save recipe"}
+                      aria-label={
+                        saved?.includes(recipe.recipeName)
+                          ? "Remove from saved"
+                          : "Save recipe"
+                      }
+                      title={
+                        saved?.includes(recipe.recipeName)
+                          ? "Saved"
+                          : "Save recipe"
+                      }
                     >
                       {saved?.includes(recipe.recipeName) ? "★" : "☆"}
                     </button>
@@ -460,7 +511,9 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                     <h3 className="recipe-name-title">{recipe.recipeName}</h3>
                     <p className="recipe-short-desc">{recipe.description}</p>
                     <div className="recipe-card-footer">
-                      <span className="difficulty-tag">◒ {recipe.difficulty}</span>
+                      <span className="difficulty-tag">
+                        ◒ {recipe.difficulty}
+                      </span>
                       <button
                         type="button"
                         className="view-recipe-btn"
@@ -520,8 +573,16 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                           e.stopPropagation();
                           onToggleSave(item.recipeName);
                         }}
-                        aria-label={saved?.includes(item.recipeName) ? "Remove from saved" : "Save recipe"}
-                        title={saved?.includes(item.recipeName) ? "Saved" : "Save recipe"}
+                        aria-label={
+                          saved?.includes(item.recipeName)
+                            ? "Remove from saved"
+                            : "Save recipe"
+                        }
+                        title={
+                          saved?.includes(item.recipeName)
+                            ? "Saved"
+                            : "Save recipe"
+                        }
                       >
                         {saved?.includes(item.recipeName) ? "★" : "☆"}
                       </button>
@@ -533,21 +594,28 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                           alt={item.recipeName}
                           loading="lazy"
                           onError={(e) => {
-                            e.currentTarget.parentElement.style.display = "none";
+                            e.currentTarget.parentElement.style.display =
+                              "none";
                           }}
                         />
                       </div>
                     )}
                     <div className="ai-card-content">
                       <div className="ai-card-header">
-                        <span className="cuisine-badge">{item.cuisine || "Recipe"}</span>
+                        <span className="cuisine-badge">
+                          {item.cuisine || "Recipe"}
+                        </span>
                         <span className="time-badge">◷ {item.cookingTime}</span>
                       </div>
                       <h3 className="recipe-name-title">{item.recipeName}</h3>
                       <p className="recipe-short-desc">{item.description}</p>
                       <div className="recipe-card-footer">
                         <span className="prompt-source-tag">
-                          🔍 {item.prompt ? item.prompt.slice(0, 30) + (item.prompt.length > 30 ? "..." : "") : "Search"}
+                          🔍{" "}
+                          {item.prompt
+                            ? item.prompt.slice(0, 30) +
+                              (item.prompt.length > 30 ? "..." : "")
+                            : "Search"}
                         </span>
                         <button
                           type="button"
@@ -569,7 +637,8 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                 <span>✦</span>
                 <h3>Start exploring with AI</h3>
                 <p>
-                  Type the ingredients in your fridge or pantry above and click <strong>&ldquo;Go&rdquo;</strong> to generate custom recipes!
+                  Type the ingredients in your fridge or pantry above and click{" "}
+                  <strong>&ldquo;Go&rdquo;</strong> to generate custom recipes!
                 </p>
               </div>
             )}

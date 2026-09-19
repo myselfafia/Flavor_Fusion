@@ -6,7 +6,14 @@ import "./Saved.css";
 
 const byMinutes = (time) => parseInt(time) || 0;
 
-function Saved({ saved, onToggleSave, onSetSaved, navigate, isLoggedIn, onLogout }) {
+function Saved({
+  saved,
+  onToggleSave,
+  onSetSaved,
+  navigate,
+  isLoggedIn,
+  onLogout,
+}) {
   const [tab, setTab] = useState("recipes");
   const [query, setQuery] = useState("");
   const [cuisine, setCuisine] = useState("All");
@@ -199,10 +206,7 @@ function Saved({ saved, onToggleSave, onSetSaved, navigate, isLoggedIn, onLogout
           <div className="saved-notice" role="status">
             <span>{notice}</span>
             {undo && (
-              <button
-                type="button"
-                onClick={undoLastChange}
-              >
+              <button type="button" onClick={undoLastChange}>
                 Undo
               </button>
             )}

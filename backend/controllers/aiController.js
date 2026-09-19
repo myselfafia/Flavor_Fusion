@@ -29,7 +29,9 @@ export const getRecipeFromAi = async (req, res) => {
     const statusCode = error.status || 500;
     return res.status(statusCode).json({
       success: false,
-      error: error.message || "Something went wrong while communicating with the AI service.",
+      error:
+        error.message ||
+        "Something went wrong while communicating with the AI service.",
     });
   }
 };

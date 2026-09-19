@@ -19,15 +19,25 @@ export const register = async (req, res) => {
     const userName = name || displayName || username;
 
     if (!userIdentifier || !password) {
-      return res.status(400).json({ error: "All fields are required", message: "All fields are required" });
+      return res
+        .status(400)
+        .json({
+          error: "All fields are required",
+          message: "All fields are required",
+        });
     }
 
     const existingUser = await User.findOne({
-      $or: [{ email: userIdentifier.toLowerCase() }, { username: userIdentifier }],
+      $or: [
+        { email: userIdentifier.toLowerCase() },
+        { username: userIdentifier },
+      ],
     });
 
     if (existingUser) {
-      return res.status(400).json({ error: "User already exists", message: "User already exists" });
+      return res
+        .status(400)
+        .json({ error: "User already exists", message: "User already exists" });
     }
 
     const hashedPassword = await hashPassword(password);
@@ -48,7 +58,7 @@ export const register = async (req, res) => {
         username: savedUser.username || savedUser.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: lifetime }
+      { expiresIn: lifetime },
     );
 
     res.cookie("token", token, cookieOptions);
@@ -71,7 +81,12 @@ export const login = async (req, res) => {
     const { password } = req.body;
 
     if (!identifier || !password) {
-      return res.status(400).json({ error: "Please provide credentials", message: "Please provide credentials" });
+      return res
+        .status(400)
+        .json({
+          error: "Please provide credentials",
+          message: "Please provide credentials",
+        });
     }
 
     const user = await User.findOne({
@@ -79,12 +94,16 @@ export const login = async (req, res) => {
     }).select("-__v");
 
     if (!user) {
-      return res.status(404).json({ error: "User not found", message: "User not found" });
+      return res
+        .status(404)
+        .json({ error: "User not found", message: "User not found" });
     }
 
     const isSame = await comparePassword(password, user.password);
     if (!isSame) {
-      return res.status(400).json({ error: "Wrong password", message: "Wrong password" });
+      return res
+        .status(400)
+        .json({ error: "Wrong password", message: "Wrong password" });
     }
 
     const token = jwt.sign(
@@ -93,7 +112,7 @@ export const login = async (req, res) => {
         username: user.username || user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: lifetime }
+      { expiresIn: lifetime },
     );
 
     res.cookie("token", token, cookieOptions);
@@ -124,7 +143,9 @@ export const getProfile = async (req, res) => {
     const userId = req.user?.id || req.user?._id;
     const user = await User.findById(userId).select("-password -__v");
     if (!user) {
-      return res.status(404).json({ error: "User not found", message: "User not found" });
+      return res
+        .status(404)
+        .json({ error: "User not found", message: "User not found" });
     }
     const userObj = user.toObject();
     return res.status(200).json({ ...userObj, user: userObj });

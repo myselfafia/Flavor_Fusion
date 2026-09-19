@@ -4,7 +4,15 @@ import Footer from "../components/Footer";
 import { communityPosts } from "../data/communityPosts";
 import "./Community.css";
 
-function Community({ onHome, onExplore, onCommunity, onSignIn, navigate, isLoggedIn, onLogout }) {
+function Community({
+  onHome,
+  onExplore,
+  onCommunity,
+  onSignIn,
+  navigate,
+  isLoggedIn,
+  onLogout,
+}) {
   const [posts, setPosts] = useState(() => {
     try {
       return (

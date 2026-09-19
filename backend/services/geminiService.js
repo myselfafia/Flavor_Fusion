@@ -60,14 +60,25 @@ For general cooking advice, technique questions, or ingredient substitutions (no
 /**
  * Return an authentic, natural photograph matching the dish keywords and index
  */
-export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [], index = 0) {
+export function getImageForRecipe(
+  recipeName = "",
+  cuisine = "",
+  ingredients = [],
+  index = 0,
+) {
   const ingStr = Array.isArray(ingredients)
-    ? ingredients.map((i) => (typeof i === "string" ? i : i.name || "")).join(" ")
+    ? ingredients
+        .map((i) => (typeof i === "string" ? i : i.name || ""))
+        .join(" ")
     : "";
   const combined = `${recipeName} ${cuisine} ${ingStr}`.toLowerCase();
 
   // 1. Potato / Aloo dishes
-  if (combined.includes("potato") || combined.includes("potatoes") || combined.includes("aloo")) {
+  if (
+    combined.includes("potato") ||
+    combined.includes("potatoes") ||
+    combined.includes("aloo")
+  ) {
     const potatoImages = [
       "/crispy_chili_potatoes.jpg",
       "/roasted_potato_wedges.jpg",
@@ -89,7 +100,10 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   }
 
   // 3. Fried Rice / Egg & Rice
-  if (combined.includes("fried rice") || (combined.includes("egg") && combined.includes("rice"))) {
+  if (
+    combined.includes("fried rice") ||
+    (combined.includes("egg") && combined.includes("rice"))
+  ) {
     const eggRiceImages = [
       "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=800&q=80",
@@ -98,7 +112,13 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   }
 
   // 4. Pasta dishes
-  if (combined.includes("pasta") || combined.includes("spaghetti") || combined.includes("penne") || combined.includes("fettuccine") || combined.includes("noodle")) {
+  if (
+    combined.includes("pasta") ||
+    combined.includes("spaghetti") ||
+    combined.includes("penne") ||
+    combined.includes("fettuccine") ||
+    combined.includes("noodle")
+  ) {
     const pastaImages = [
       "https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=800&q=80",
@@ -118,7 +138,13 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   }
 
   // 6. Fish / Seafood
-  if (combined.includes("salmon") || combined.includes("fish") || combined.includes("tuna") || combined.includes("seafood") || combined.includes("shrimp")) {
+  if (
+    combined.includes("salmon") ||
+    combined.includes("fish") ||
+    combined.includes("tuna") ||
+    combined.includes("seafood") ||
+    combined.includes("shrimp")
+  ) {
     const seafoodImages = [
       "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80",
@@ -128,7 +154,11 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   }
 
   // 7. Beef / Steak
-  if (combined.includes("steak") || combined.includes("beef") || combined.includes("meat")) {
+  if (
+    combined.includes("steak") ||
+    combined.includes("beef") ||
+    combined.includes("meat")
+  ) {
     const beefImages = [
       "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
@@ -137,7 +167,11 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   }
 
   // 8. Soup / Stew / Broth
-  if (combined.includes("soup") || combined.includes("stew") || combined.includes("broth")) {
+  if (
+    combined.includes("soup") ||
+    combined.includes("stew") ||
+    combined.includes("broth")
+  ) {
     const soupImages = [
       "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=800&q=80",
@@ -146,7 +180,11 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   }
 
   // 9. Curry / Masala
-  if (combined.includes("curry") || combined.includes("tikka") || combined.includes("masala")) {
+  if (
+    combined.includes("curry") ||
+    combined.includes("tikka") ||
+    combined.includes("masala")
+  ) {
     const curryImages = [
       "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=800&q=80",
@@ -156,7 +194,13 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   }
 
   // 10. Salad / Greens / Vegetarian
-  if (combined.includes("salad") || combined.includes("lettuce") || combined.includes("spinach") || combined.includes("veggie") || combined.includes("vegetable")) {
+  if (
+    combined.includes("salad") ||
+    combined.includes("lettuce") ||
+    combined.includes("spinach") ||
+    combined.includes("veggie") ||
+    combined.includes("vegetable")
+  ) {
     const saladImages = [
       "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
@@ -166,7 +210,12 @@ export function getImageForRecipe(recipeName = "", cuisine = "", ingredients = [
   }
 
   // 11. Egg / Breakfast / Toast
-  if (combined.includes("egg") || combined.includes("omelet") || combined.includes("breakfast") || combined.includes("toast")) {
+  if (
+    combined.includes("egg") ||
+    combined.includes("omelet") ||
+    combined.includes("breakfast") ||
+    combined.includes("toast")
+  ) {
     const eggImages = [
       "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80",
@@ -251,27 +300,155 @@ function isRecognizableFoodQuery(prompt = "") {
 
   // Common culinary terms, categories, and ingredients
   const foodTerms = [
-    "potat", "aloo", "spud", "tater", "fries",
-    "beef", "steak", "meat", "burger", "mince",
-    "chick", "poultry", "thigh", "breast", "wing",
-    "egg", "omelet", "scramble",
-    "rice", "risotto", "grain", "quinoa",
-    "pasta", "spaghetti", "penne", "noodle", "macaroni", "fettuccine", "linguine",
-    "salmon", "fish", "tuna", "shrimp", "prawn", "seafood", "cod", "crab", "lobster",
-    "mushroom", "tomato", "spinach", "greens", "kale", "lettuce", "cabbage",
-    "carrot", "onion", "garlic", "ginger", "pepper", "chili", "broccoli", "cauliflower",
-    "cheese", "cheddar", "mozzarella", "parmesan", "feta", "butter", "milk", "cream", "yogurt",
-    "bread", "toast", "sandwich", "flour", "dough",
-    "soup", "stew", "broth", "curry", "sauce",
-    "mango", "banana", "apple", "berry", "strawberr", "blueberr", "raspberr", "fruit",
-    "avocado", "guacamole", "lime", "lemon", "citrus", "orange", "pineapple", "coconut",
-    "peach", "watermelon", "melon", "grape", "kiwi", "papaya", "guava", "plum", "cherry",
-    "oat", "oatmeal", "chia", "honey", "cinnamon", "sugar", "sweet", "dessert", "smoothie",
-    "pancake", "waffle", "parfait", "chocolate", "vanilla", "nut", "peanut", "almond", "walnut",
-    "oil", "olive", "basil", "oregano", "parsley", "cilantro", "thyme", "rosemary",
-    "bean", "beans", "chickpea", "lentil", "corn", "peas", "cucumber", "zucchini", "eggplant",
-    "tofu", "bacon", "sausage", "ham", "turkey", "pork", "lamb", "duck",
-    "cook", "recipe", "dish", "meal", "dinner", "lunch", "breakfast", "bake", "fry"
+    "potat",
+    "aloo",
+    "spud",
+    "tater",
+    "fries",
+    "beef",
+    "steak",
+    "meat",
+    "burger",
+    "mince",
+    "chick",
+    "poultry",
+    "thigh",
+    "breast",
+    "wing",
+    "egg",
+    "omelet",
+    "scramble",
+    "rice",
+    "risotto",
+    "grain",
+    "quinoa",
+    "pasta",
+    "spaghetti",
+    "penne",
+    "noodle",
+    "macaroni",
+    "fettuccine",
+    "linguine",
+    "salmon",
+    "fish",
+    "tuna",
+    "shrimp",
+    "prawn",
+    "seafood",
+    "cod",
+    "crab",
+    "lobster",
+    "mushroom",
+    "tomato",
+    "spinach",
+    "greens",
+    "kale",
+    "lettuce",
+    "cabbage",
+    "carrot",
+    "onion",
+    "garlic",
+    "ginger",
+    "pepper",
+    "chili",
+    "broccoli",
+    "cauliflower",
+    "cheese",
+    "cheddar",
+    "mozzarella",
+    "parmesan",
+    "feta",
+    "butter",
+    "milk",
+    "cream",
+    "yogurt",
+    "bread",
+    "toast",
+    "sandwich",
+    "flour",
+    "dough",
+    "soup",
+    "stew",
+    "broth",
+    "curry",
+    "sauce",
+    "mango",
+    "banana",
+    "apple",
+    "berry",
+    "strawberr",
+    "blueberr",
+    "raspberr",
+    "fruit",
+    "avocado",
+    "guacamole",
+    "lime",
+    "lemon",
+    "citrus",
+    "orange",
+    "pineapple",
+    "coconut",
+    "peach",
+    "watermelon",
+    "melon",
+    "grape",
+    "kiwi",
+    "papaya",
+    "guava",
+    "plum",
+    "cherry",
+    "oat",
+    "oatmeal",
+    "chia",
+    "honey",
+    "cinnamon",
+    "sugar",
+    "sweet",
+    "dessert",
+    "smoothie",
+    "pancake",
+    "waffle",
+    "parfait",
+    "chocolate",
+    "vanilla",
+    "nut",
+    "peanut",
+    "almond",
+    "walnut",
+    "oil",
+    "olive",
+    "basil",
+    "oregano",
+    "parsley",
+    "cilantro",
+    "thyme",
+    "rosemary",
+    "bean",
+    "beans",
+    "chickpea",
+    "lentil",
+    "corn",
+    "peas",
+    "cucumber",
+    "zucchini",
+    "eggplant",
+    "tofu",
+    "bacon",
+    "sausage",
+    "ham",
+    "turkey",
+    "pork",
+    "lamb",
+    "duck",
+    "cook",
+    "recipe",
+    "dish",
+    "meal",
+    "dinner",
+    "lunch",
+    "breakfast",
+    "bake",
+    "fry",
   ];
 
   return foodTerms.some((term) => p.includes(term));
@@ -298,7 +475,10 @@ function generateFallbackRecipes(prompt) {
   }
 
   if (isQuestion) {
-    if (p.includes("substitute") && (p.includes("cream") || p.includes("heavy cream"))) {
+    if (
+      p.includes("substitute") &&
+      (p.includes("cream") || p.includes("heavy cream"))
+    ) {
       return {
         type: "advice",
         title: "Substitutes for Heavy Cream",
@@ -324,11 +504,16 @@ function generateFallbackRecipes(prompt) {
 
   // Typo-tolerant ingredient detection with root stems
   const isPotato = /potat|patat|aloo|spud|tater|hashbrown|fries/i.test(p);
-  const isBeef = /\b(beef|steak|mince|ground beef|burger)\b/i.test(p) && !/no beef|meatless|vegetarian/i.test(p);
+  const isBeef =
+    /\b(beef|steak|mince|ground beef|burger)\b/i.test(p) &&
+    !/no beef|meatless|vegetarian/i.test(p);
   const isChicken = /chick|poultry|thigh|breast|wing/i.test(p);
   const isEgg = /\b(egg|eggs|omelet|omelette|scramble|scrambled)\b/i.test(p);
   const isRice = /\b(rice|risotto)\b/i.test(p);
-  const isPasta = /\b(pasta|spaghetti|penne|noodle|noodles|macaroni|fettuccine|linguine)\b/i.test(p);
+  const isPasta =
+    /\b(pasta|spaghetti|penne|noodle|noodles|macaroni|fettuccine|linguine)\b/i.test(
+      p,
+    );
   const isSalmon = /\b(salmon|fish|tuna|shrimp|prawn|seafood|cod)\b/i.test(p);
   const isMushroom = /mushroom/i.test(p);
   const isTomato = /tomat/i.test(p);
@@ -340,11 +525,20 @@ function generateFallbackRecipes(prompt) {
   const isMango = /\b(mango|mangoes|mangos)\b/i.test(p);
   const isBanana = /\b(banana|bananas)\b/i.test(p);
   const isApple = /\b(apple|apples|applesauce)\b/i.test(p);
-  const isBerry = /\b(berry|berries|strawberry|strawberries|blueberry|blueberries|raspberry|raspberries|blackberry)\b/i.test(p);
+  const isBerry =
+    /\b(berry|berries|strawberry|strawberries|blueberry|blueberries|raspberry|raspberries|blackberry)\b/i.test(
+      p,
+    );
   const isAvocado = /\b(avocado|avocados|guacamole)\b/i.test(p);
   const isGenericFruitSearch = /\b(fruit|fruits)\b/i.test(p);
-  const isFruit = /fruit|berry|melon|citrus|mango|banana|apple|peach|pear|plum|cherry|pineapple|orange|grape|kiwi|lemon|lime|coconut|papaya|guava|lychee|fig|date|apricot/i.test(p);
-  const isSweetOrDessert = /sweet|dessert|smoothie|shake|parfait|pudding|pancake|waffle|oat|chia|yogurt|honey|cinnamon|ice cream|chocolate|cocoa|sugar|syrup|custard/i.test(p);
+  const isFruit =
+    /fruit|berry|melon|citrus|mango|banana|apple|peach|pear|plum|cherry|pineapple|orange|grape|kiwi|lemon|lime|coconut|papaya|guava|lychee|fig|date|apricot/i.test(
+      p,
+    );
+  const isSweetOrDessert =
+    /sweet|dessert|smoothie|shake|parfait|pudding|pancake|waffle|oat|chia|yogurt|honey|cinnamon|ice cream|chocolate|cocoa|sugar|syrup|custard/i.test(
+      p,
+    );
 
   // Curated database with full ingredients, steps, and authentic photos
   const CATALOG = [
@@ -353,7 +547,8 @@ function generateFallbackRecipes(prompt) {
       tags: ["potato", "aloo", "spud"],
       recipeName: "Crispy Pan-Seared Chili Potatoes",
       cuisine: "Homestyle Skillet",
-      description: "Golden diced potatoes shallow-seared until delightfully crunchy on the outside and tender inside, seasoned with chili powder, sea salt, and fresh herbs.",
+      description:
+        "Golden diced potatoes shallow-seared until delightfully crunchy on the outside and tender inside, seasoned with chili powder, sea salt, and fresh herbs.",
       cookingTime: "20 min",
       difficulty: "Easy",
       ingredients: [
@@ -381,7 +576,8 @@ function generateFallbackRecipes(prompt) {
       tags: ["potato", "aloo", "spud", "garlic"],
       recipeName: "Herb-Roasted Garlic & Rosemary Potato Wedges",
       cuisine: "Rustic Oven / Skillet",
-      description: "Crispy-edged thick potato wedges seasoned with aromatic rosemary, crushed garlic, and a touch of paprika for savory crunch.",
+      description:
+        "Crispy-edged thick potato wedges seasoned with aromatic rosemary, crushed garlic, and a touch of paprika for savory crunch.",
       cookingTime: "30 min",
       difficulty: "Easy",
       ingredients: [
@@ -409,7 +605,8 @@ function generateFallbackRecipes(prompt) {
       tags: ["potato", "aloo", "cheese", "butter", "garlic"],
       recipeName: "Creamy Garlic & Cheddar Mashed Potatoes",
       cuisine: "Comfort Kitchen",
-      description: "Velvety, buttery mashed potatoes whipped with roasted garlic, warm cream, and rich melted cheddar cheese.",
+      description:
+        "Velvety, buttery mashed potatoes whipped with roasted garlic, warm cream, and rich melted cheddar cheese.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
@@ -429,13 +626,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Use warm butter and cream so the potatoes absorb them smoothly without turning gummy.",
       ],
-      image: "https://images.unsplash.com/photo-1707616954324-99c89a78a20d?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1707616954324-99c89a78a20d?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["potato", "aloo", "egg", "onion"],
       recipeName: "Classic Spanish Potato & Onion Tortilla",
       cuisine: "Mediterranean",
-      description: "A beloved traditional Spanish omelet made with tender simmered potatoes and sweet caramelized onions bound in fluffy eggs.",
+      description:
+        "A beloved traditional Spanish omelet made with tender simmered potatoes and sweet caramelized onions bound in fluffy eggs.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
@@ -455,13 +654,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Letting cooked potatoes sit in raw egg for 5 minutes creates an ultra-tender, creamy interior.",
       ],
-      image: "https://images.unsplash.com/photo-1633436375153-d7045cb93e38?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1633436375153-d7045cb93e38?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["potato", "aloo", "garlic", "butter"],
       recipeName: "Crispy Garlic Butter Smashed Potatoes",
       cuisine: "Steakhouse Side",
-      description: "Boiled baby potatoes crushed flat and roasted until ultra-crispy, brushed with sizzling garlic herb butter.",
+      description:
+        "Boiled baby potatoes crushed flat and roasted until ultra-crispy, brushed with sizzling garlic herb butter.",
       cookingTime: "35 min",
       difficulty: "Easy",
       ingredients: [
@@ -482,13 +683,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Let boiled potatoes steam dry for 3 minutes before smashing so they crisp up better.",
       ],
-      image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["potato", "aloo", "soup", "onion"],
       recipeName: "Cozy Golden Potato & Leek Soup",
       cuisine: "Cozy Kitchen",
-      description: "Warm, velvety pureed potato soup simmered with sweet onions, garlic, and rich stock with a hint of cream.",
+      description:
+        "Warm, velvety pureed potato soup simmered with sweet onions, garlic, and rich stock with a hint of cream.",
       cookingTime: "30 min",
       difficulty: "Easy",
       ingredients: [
@@ -510,7 +713,8 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Top with extra cracked black pepper or chives for contrasting flavor.",
       ],
-      image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
     },
 
     // --- CHICKEN RECIPES ---
@@ -518,11 +722,15 @@ function generateFallbackRecipes(prompt) {
       tags: ["chicken", "rice", "garlic", "onion"],
       recipeName: "Savory Garlic Butter Chicken & Fragrant Rice",
       cuisine: "Homestyle Skillet",
-      description: "Tender golden-brown chicken bites tossed with caramelized onions and garlic, served over fluffy seasoned rice.",
+      description:
+        "Tender golden-brown chicken bites tossed with caramelized onions and garlic, served over fluffy seasoned rice.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
-        { name: "Chicken Breast / Thighs", quantity: "350g, cut into bite-sized cubes" },
+        {
+          name: "Chicken Breast / Thighs",
+          quantity: "350g, cut into bite-sized cubes",
+        },
         { name: "Rice (Jasmine or Basmati)", quantity: "1 cup (rinsed)" },
         { name: "Garlic", quantity: "4 cloves, minced" },
         { name: "Onion", quantity: "1 medium, finely sliced" },
@@ -546,11 +754,15 @@ function generateFallbackRecipes(prompt) {
       tags: ["chicken", "spinach", "garlic", "cream", "tomato"],
       recipeName: "Creamy Tuscan Garlic & Spinach Chicken",
       cuisine: "Italian-inspired",
-      description: "Pan-seared seasoned chicken cutlets simmered in a luscious garlic cream sauce with wilted spinach and sweet cherry tomatoes.",
+      description:
+        "Pan-seared seasoned chicken cutlets simmered in a luscious garlic cream sauce with wilted spinach and sweet cherry tomatoes.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
-        { name: "Chicken Breast", quantity: "2 fillets, pounded to even thickness" },
+        {
+          name: "Chicken Breast",
+          quantity: "2 fillets, pounded to even thickness",
+        },
         { name: "Spinach", quantity: "2 cups, fresh" },
         { name: "Cherry Tomatoes", quantity: "1 cup, halved" },
         { name: "Heavy Cream or Milk", quantity: "1/2 cup" },
@@ -568,13 +780,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Serve over pasta, rice, or with warm garlic bread to soak up the sauce.",
       ],
-      image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["chicken", "lemon", "garlic"],
       recipeName: "Crispy Lemon Herb Baked Chicken Breast",
       cuisine: "Comfort Kitchen",
-      description: "Juicy, tender baked chicken breasts marinated in zesty lemon juice, crushed garlic, and aromatic herbs.",
+      description:
+        "Juicy, tender baked chicken breasts marinated in zesty lemon juice, crushed garlic, and aromatic herbs.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
@@ -595,13 +809,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Resting the chicken before cutting prevents juices from escaping.",
       ],
-      image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["chicken", "pasta", "tomato", "garlic"],
       recipeName: "One-Pot Chicken & Tomato Basil Pasta",
       cuisine: "Quick & Easy",
-      description: "Seared seasoned chicken tossed with penne pasta, sweet cherry tomatoes, and fresh basil in a light olive oil garlic sauce.",
+      description:
+        "Seared seasoned chicken tossed with penne pasta, sweet cherry tomatoes, and fresh basil in a light olive oil garlic sauce.",
       cookingTime: "20 min",
       difficulty: "Easy",
       ingredients: [
@@ -622,7 +838,8 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Using reserved pasta water coats the pasta perfectly without needing heavy cream.",
       ],
-      image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80",
     },
 
     // --- BEEF RECIPES (ONLY WHEN BEEF/STEAK IS SEARCHED) ---
@@ -630,7 +847,8 @@ function generateFallbackRecipes(prompt) {
       tags: ["beef", "steak", "garlic", "butter"],
       recipeName: "Garlic Butter Seared Steak Bites",
       cuisine: "Steakhouse",
-      description: "Juicy bite-sized beef seared hot and fast in garlic herb butter with deeply caramelized edges.",
+      description:
+        "Juicy bite-sized beef seared hot and fast in garlic herb butter with deeply caramelized edges.",
       cookingTime: "15 min",
       difficulty: "Easy",
       ingredients: [
@@ -647,16 +865,16 @@ function generateFallbackRecipes(prompt) {
         "Drop heat to low, add butter and minced garlic, tossing constantly for 60 seconds to coat.",
         "Remove immediately from heat and rest 3 minutes before serving.",
       ],
-      tips: [
-        "Keep heat high so the beef browns nicely without steaming.",
-      ],
-      image: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+      tips: ["Keep heat high so the beef browns nicely without steaming."],
+      image:
+        "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["beef", "broccoli", "soy sauce", "garlic"],
       recipeName: "Classic Beef & Broccoli Stir-Fry",
       cuisine: "Asian-inspired",
-      description: "Tender flank steak slices and crisp broccoli florets wok-tossed in a rich savory garlic soy sauce.",
+      description:
+        "Tender flank steak slices and crisp broccoli florets wok-tossed in a rich savory garlic soy sauce.",
       cookingTime: "20 min",
       difficulty: "Easy",
       ingredients: [
@@ -672,16 +890,16 @@ function generateFallbackRecipes(prompt) {
         "Add broccoli with 2 tbsp water to the pan, cover and steam 2 minutes.",
         "Return beef, pour in sauce, and stir 2 minutes until glossy and thick.",
       ],
-      tips: [
-        "Slice beef thinly across the grain for tender results.",
-      ],
-      image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+      tips: ["Slice beef thinly across the grain for tender results."],
+      image:
+        "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["beef", "pasta", "tomato", "garlic", "onion"],
       recipeName: "Hearty Beef Bolognese & Garlic Pasta",
       cuisine: "Italian-inspired",
-      description: "Savory minced beef simmered with sweet tomatoes, garlic, onion, and herbs folded over al dente pasta.",
+      description:
+        "Savory minced beef simmered with sweet tomatoes, garlic, onion, and herbs folded over al dente pasta.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
@@ -701,7 +919,8 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Simmer gently so the beef absorbs all the garlic and tomato flavors.",
       ],
-      image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80",
     },
 
     // --- EGG & BREAKFAST RECIPES ---
@@ -709,7 +928,8 @@ function generateFallbackRecipes(prompt) {
       tags: ["egg", "rice", "onion", "garlic"],
       recipeName: "Golden Scrambled Egg & Aromatic Rice Bowl",
       cuisine: "Quick & Easy",
-      description: "Fluffy seasoned eggs scrambled alongside savory onions and garlic, folded over warm rice with soy butter.",
+      description:
+        "Fluffy seasoned eggs scrambled alongside savory onions and garlic, folded over warm rice with soy butter.",
       cookingTime: "15 min",
       difficulty: "Easy",
       ingredients: [
@@ -727,16 +947,16 @@ function generateFallbackRecipes(prompt) {
         "Add cooked rice and soy sauce, breaking up any clumps with a spatula.",
         "Fold the soft scrambled eggs back into the rice and serve hot.",
       ],
-      tips: [
-        "Chilled day-old rice fries best without becoming mushy.",
-      ],
-      image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+      tips: ["Chilled day-old rice fries best without becoming mushy."],
+      image:
+        "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["egg", "bread", "butter"],
       recipeName: "Artisan Smashed Egg & Butter Toast",
       cuisine: "Café Breakfast",
-      description: "Thick golden toast buttered to perfection, topped with soft-cooked seasoned eggs, sea salt, and fresh pepper.",
+      description:
+        "Thick golden toast buttered to perfection, topped with soft-cooked seasoned eggs, sea salt, and fresh pepper.",
       cookingTime: "10 min",
       difficulty: "Easy",
       ingredients: [
@@ -753,13 +973,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "A light dusting of paprika or herbs elevates this simple classic.",
       ],
-      image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["egg", "spinach", "cheese", "garlic"],
       recipeName: "Mediterranean Spinach & Feta Scramble",
       cuisine: "Healthy & Fresh",
-      description: "Fluffy eggs scrambled with tender wilted spinach, garlic, and creamy crumbled feta cheese.",
+      description:
+        "Fluffy eggs scrambled with tender wilted spinach, garlic, and creamy crumbled feta cheese.",
       cookingTime: "10 min",
       difficulty: "Easy",
       ingredients: [
@@ -778,7 +1000,8 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Pull eggs off the stove while still slightly glossy so they stay soft.",
       ],
-      image: "https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80",
     },
 
     // --- PASTA RECIPES ---
@@ -786,7 +1009,8 @@ function generateFallbackRecipes(prompt) {
       tags: ["pasta", "garlic", "olive oil"],
       recipeName: "Rustic Garlic & Herb Olive Oil Pasta (Aglio e Olio)",
       cuisine: "Italian Classic",
-      description: "Al dente spaghetti tossed in golden toasted garlic slices, extra virgin olive oil, and crushed chili flakes.",
+      description:
+        "Al dente spaghetti tossed in golden toasted garlic slices, extra virgin olive oil, and crushed chili flakes.",
       cookingTime: "15 min",
       difficulty: "Easy",
       ingredients: [
@@ -806,13 +1030,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Low heat is essential so the garlic infuses the oil gently without scorching.",
       ],
-      image: "https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1546549032-9571cd6b27df?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["pasta", "mushroom", "cream", "garlic", "cheese"],
       recipeName: "Creamy Parmesan & Mushroom Fettuccine",
       cuisine: "Italian-inspired",
-      description: "Sautéed earthy mushrooms tossed with fettuccine in a rich garlic parmesan cream sauce.",
+      description:
+        "Sautéed earthy mushrooms tossed with fettuccine in a rich garlic parmesan cream sauce.",
       cookingTime: "20 min",
       difficulty: "Easy",
       ingredients: [
@@ -833,7 +1059,8 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Do not salt the mushrooms until browned so they don't release water too early.",
       ],
-      image: "https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=800&q=80",
     },
 
     // --- SEAFOOD RECIPES ---
@@ -841,7 +1068,8 @@ function generateFallbackRecipes(prompt) {
       tags: ["salmon", "fish", "lemon", "butter", "garlic"],
       recipeName: "Pan-Seared Lemon Butter Salmon",
       cuisine: "Coastal Skillet",
-      description: "Crispy-skinned tender salmon fillets basted in luscious lemon garlic butter with fresh cracked pepper.",
+      description:
+        "Crispy-skinned tender salmon fillets basted in luscious lemon garlic butter with fresh cracked pepper.",
       cookingTime: "15 min",
       difficulty: "Easy",
       ingredients: [
@@ -857,10 +1085,9 @@ function generateFallbackRecipes(prompt) {
         "Sear undisturbed for 4-5 minutes until skin is deeply crisp.",
         "Flip salmon, add butter, garlic, and lemon juice. Baste foaming butter over fillets for 3 minutes.",
       ],
-      tips: [
-        "Drying salmon thoroughly is the key to ultra-crispy skin.",
-      ],
-      image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
+      tips: ["Drying salmon thoroughly is the key to ultra-crispy skin."],
+      image:
+        "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
     },
 
     // --- VEGETABLE & PANTRY DISHES ---
@@ -868,7 +1095,8 @@ function generateFallbackRecipes(prompt) {
       tags: ["mushroom", "spinach", "garlic", "butter"],
       recipeName: "Garlic Butter Sautéed Mushrooms & Spinach",
       cuisine: "Quick & Easy",
-      description: "Tender caramelized mushrooms and vibrant spinach sautéed with rich garlic butter and a touch of lemon.",
+      description:
+        "Tender caramelized mushrooms and vibrant spinach sautéed with rich garlic butter and a touch of lemon.",
       cookingTime: "12 min",
       difficulty: "Easy",
       ingredients: [
@@ -887,13 +1115,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Delicious served as a side, over rice, or spooned onto toasted sourdough.",
       ],
-      image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["rice", "egg", "onion", "garlic"],
       recipeName: "Classic Vegetable & Egg Fried Rice",
       cuisine: "Asian-inspired",
-      description: "A quick wok-fried rice with fluffy scrambled eggs, crisp garlic, and savory soy sauce.",
+      description:
+        "A quick wok-fried rice with fluffy scrambled eggs, crisp garlic, and savory soy sauce.",
       cookingTime: "15 min",
       difficulty: "Easy",
       ingredients: [
@@ -910,22 +1140,25 @@ function generateFallbackRecipes(prompt) {
         "Drizzle soy sauce around the rim of the pan, tossing vigorously to coat.",
         "Fold scrambled eggs back in and serve hot.",
       ],
-      tips: [
-        "Keep the wok hot so the rice gets a slight smoky char.",
-      ],
-      image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+      tips: ["Keep the wok hot so the rice gets a slight smoky char."],
+      image:
+        "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
     },
     // --- MANGO & FRESH FRUIT DISHES ---
     {
       tags: ["mango", "rice", "coconut", "sweet", "dessert", "fruit"],
       recipeName: "Thai Coconut Sticky Rice with Sweet Mango",
       cuisine: "Southeast Asian",
-      description: "Warm, sweet coconut infused sticky rice paired with chilled ripe mango slices and toasted sesame seeds.",
+      description:
+        "Warm, sweet coconut infused sticky rice paired with chilled ripe mango slices and toasted sesame seeds.",
       cookingTime: "25 min",
       difficulty: "Easy",
       ingredients: [
         { name: "Ripe Sweet Mangoes", quantity: "2, sliced into fans" },
-        { name: "Glutinous Rice or Jasmine Rice", quantity: "1 cup (cooked tender)" },
+        {
+          name: "Glutinous Rice or Jasmine Rice",
+          quantity: "1 cup (cooked tender)",
+        },
         { name: "Coconut Milk or Cream", quantity: "3/4 cup" },
         { name: "Sugar or Honey", quantity: "2 tbsp" },
         { name: "Salt", quantity: "1/4 tsp" },
@@ -937,16 +1170,16 @@ function generateFallbackRecipes(prompt) {
         "Peel and slice ripe mangoes into thin presentation fans.",
         "Plate warm sticky rice next to the mango slices, drizzle with remaining coconut cream, and top with toasted sesame seeds.",
       ],
-      tips: [
-        "Use fragrant, deeply ripe mangoes for natural honey sweetness.",
-      ],
-      image: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=800&q=80",
+      tips: ["Use fragrant, deeply ripe mangoes for natural honey sweetness."],
+      image:
+        "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["mango", "salsa", "lime", "cilantro", "onion", "fruit"],
       recipeName: "Fresh Zesty Mango & Lime Salsa",
       cuisine: "Tropical & Mexican",
-      description: "A vibrant, refreshing tropical salsa bursting with sweet diced mango, crisp red onion, fresh cilantro, and lime juice.",
+      description:
+        "A vibrant, refreshing tropical salsa bursting with sweet diced mango, crisp red onion, fresh cilantro, and lime juice.",
       cookingTime: "10 min",
       difficulty: "Easy",
       ingredients: [
@@ -966,13 +1199,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Letting the salsa sit for 10 minutes allows the lime juice to marry the sweet mango and savory onion.",
       ],
-      image: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["mango", "smoothie", "chia", "yogurt", "breakfast", "fruit"],
       recipeName: "Tropical Mango & Chia Smoothie Bowl",
       cuisine: "Café Breakfast",
-      description: "Velvety thick blended golden mango spooned into a chilled bowl, topped with chia seeds, coconut flakes, and fresh fruit.",
+      description:
+        "Velvety thick blended golden mango spooned into a chilled bowl, topped with chia seeds, coconut flakes, and fresh fruit.",
       cookingTime: "10 min",
       difficulty: "Easy",
       ingredients: [
@@ -980,7 +1215,10 @@ function generateFallbackRecipes(prompt) {
         { name: "Greek Yogurt or Coconut Milk", quantity: "1/2 cup" },
         { name: "Honey or Agave", quantity: "1 tbsp" },
         { name: "Chia Seeds", quantity: "1 tbsp" },
-        { name: "Toasted Coconut Flakes & Fresh Berries", quantity: "For topping" },
+        {
+          name: "Toasted Coconut Flakes & Fresh Berries",
+          quantity: "For topping",
+        },
       ],
       steps: [
         "Add frozen mango chunks, yogurt, and honey into a blender.",
@@ -991,13 +1229,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Use frozen mango chunks to get a thick, sorbet-like texture without needing crushed ice.",
       ],
-      image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["mango", "yogurt", "drink", "sweet", "fruit"],
       recipeName: "Chilled Traditional Mango Lassi",
       cuisine: "Indian-inspired",
-      description: "A velvety, refreshing chilled yogurt drink blended with ripe sweet mango, a whisper of ground cardamom, and honey.",
+      description:
+        "A velvety, refreshing chilled yogurt drink blended with ripe sweet mango, a whisper of ground cardamom, and honey.",
       cookingTime: "5 min",
       difficulty: "Easy",
       ingredients: [
@@ -1013,20 +1253,23 @@ function generateFallbackRecipes(prompt) {
         "Taste and adjust sweetness or add a splash more milk if you prefer a lighter drink.",
         "Pour into chilled glasses and finish with a dusting of ground cardamom on top.",
       ],
-      tips: [
-        "A pinch of cardamom elevates the floral aroma of fresh mango.",
-      ],
-      image: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=80",
+      tips: ["A pinch of cardamom elevates the floral aroma of fresh mango."],
+      image:
+        "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["berry", "yogurt", "breakfast", "sweet", "fruit"],
       recipeName: "Layered Berry & Greek Yogurt Parfait",
       cuisine: "Café Breakfast",
-      description: "Layers of thick creamy Greek yogurt, sweet strawberries, blueberries, crunchy granola, and golden honey.",
+      description:
+        "Layers of thick creamy Greek yogurt, sweet strawberries, blueberries, crunchy granola, and golden honey.",
       cookingTime: "8 min",
       difficulty: "Easy",
       ingredients: [
-        { name: "Mixed Fresh Berries (Strawberries, Blueberries)", quantity: "1.5 cups" },
+        {
+          name: "Mixed Fresh Berries (Strawberries, Blueberries)",
+          quantity: "1.5 cups",
+        },
         { name: "Greek Yogurt", quantity: "1 cup" },
         { name: "Granola or Rolled Oats", quantity: "1/2 cup" },
         { name: "Honey", quantity: "1.5 tbsp" },
@@ -1036,16 +1279,24 @@ function generateFallbackRecipes(prompt) {
         "Layer with fresh berries and a generous sprinkle of crunchy granola.",
         "Repeat the layers once more and drizzle pure honey across the top before serving.",
       ],
-      tips: [
-        "Layer just before eating to ensure the granola stays crunchy.",
-      ],
-      image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80",
+      tips: ["Layer just before eating to ensure the granola stays crunchy."],
+      image:
+        "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80",
     },
     {
-      tags: ["apple", "oats", "cinnamon", "honey", "breakfast", "sweet", "fruit"],
+      tags: [
+        "apple",
+        "oats",
+        "cinnamon",
+        "honey",
+        "breakfast",
+        "sweet",
+        "fruit",
+      ],
       recipeName: "Warm Caramelized Apple & Cinnamon Oatmeal",
       cuisine: "Comfort Kitchen",
-      description: "Hearty rolled oats cooked tender, topped with skillet-caramelized cinnamon apples and warm honey.",
+      description:
+        "Hearty rolled oats cooked tender, topped with skillet-caramelized cinnamon apples and warm honey.",
       cookingTime: "15 min",
       difficulty: "Easy",
       ingredients: [
@@ -1064,13 +1315,15 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Sautéing the apples first creates a rich spiced syrup that flavors the whole bowl.",
       ],
-      image: "https://images.unsplash.com/photo-1575549592564-4d50aa43b3af?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1575549592564-4d50aa43b3af?auto=format&fit=crop&w=800&q=80",
     },
     {
       tags: ["avocado", "bread", "toast", "lime"],
       recipeName: "Artisan Smashed Avocado & Lime Sourdough Toast",
       cuisine: "Café Classic",
-      description: "Creamy ripe avocado coarsely mashed with fresh lime juice, flaky sea salt, and chili flakes on golden toasted artisan bread.",
+      description:
+        "Creamy ripe avocado coarsely mashed with fresh lime juice, flaky sea salt, and chili flakes on golden toasted artisan bread.",
       cookingTime: "10 min",
       difficulty: "Easy",
       ingredients: [
@@ -1089,7 +1342,8 @@ function generateFallbackRecipes(prompt) {
       tips: [
         "Do not over-mash; retaining chunky pieces gives superior texture.",
       ],
-      image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80",
+      image:
+        "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80",
     },
   ];
 
@@ -1101,7 +1355,12 @@ function generateFallbackRecipes(prompt) {
       return false;
     }
     if ((isFruit || isSweetOrDessert) && !isBeef && !isChicken && !isSalmon) {
-      if (r.tags.includes("beef") || r.tags.includes("chicken") || r.tags.includes("salmon") || r.tags.includes("fish")) {
+      if (
+        r.tags.includes("beef") ||
+        r.tags.includes("chicken") ||
+        r.tags.includes("salmon") ||
+        r.tags.includes("fish")
+      ) {
         return false;
       }
     }
@@ -1112,14 +1371,21 @@ function generateFallbackRecipes(prompt) {
     if (isBanana && r.tags.includes("banana")) return true;
     if (isAvocado && r.tags.includes("avocado")) return true;
     if (isGenericFruitSearch && r.tags.includes("fruit")) return true;
-    if (isSweetOrDessert && (r.tags.includes("sweet") || r.tags.includes("smoothie") || r.tags.includes("breakfast"))) return true;
+    if (
+      isSweetOrDessert &&
+      (r.tags.includes("sweet") ||
+        r.tags.includes("smoothie") ||
+        r.tags.includes("breakfast"))
+    )
+      return true;
     if (isPotato && r.tags.includes("potato")) return true;
     if (isBeef && r.tags.includes("beef")) return true;
     if (isChicken && r.tags.includes("chicken")) return true;
     if (isEgg && r.tags.includes("egg")) return true;
     if (isRice && r.tags.includes("rice")) return true;
     if (isPasta && r.tags.includes("pasta")) return true;
-    if (isSalmon && (r.tags.includes("salmon") || r.tags.includes("fish"))) return true;
+    if (isSalmon && (r.tags.includes("salmon") || r.tags.includes("fish")))
+      return true;
     if (isMushroom && r.tags.includes("mushroom")) return true;
     if (isTomato && r.tags.includes("tomato")) return true;
     if (isSpinach && r.tags.includes("spinach")) return true;
@@ -1141,14 +1407,24 @@ function generateFallbackRecipes(prompt) {
       if (isBanana && recipe.tags.includes("banana")) s += 8;
       if (isAvocado && recipe.tags.includes("avocado")) s += 8;
       if (isGenericFruitSearch && recipe.tags.includes("fruit")) s += 4;
-      if (isSweetOrDessert && (recipe.tags.includes("sweet") || recipe.tags.includes("smoothie") || recipe.tags.includes("breakfast"))) s += 4;
+      if (
+        isSweetOrDessert &&
+        (recipe.tags.includes("sweet") ||
+          recipe.tags.includes("smoothie") ||
+          recipe.tags.includes("breakfast"))
+      )
+        s += 4;
       if (isPotato && recipe.tags.includes("potato")) s += 6;
       if (isBeef && recipe.tags.includes("beef")) s += 6;
       if (isChicken && recipe.tags.includes("chicken")) s += 6;
       if (isEgg && recipe.tags.includes("egg")) s += 4;
       if (isRice && recipe.tags.includes("rice")) s += 4;
       if (isPasta && recipe.tags.includes("pasta")) s += 4;
-      if (isSalmon && (recipe.tags.includes("salmon") || recipe.tags.includes("fish"))) s += 6;
+      if (
+        isSalmon &&
+        (recipe.tags.includes("salmon") || recipe.tags.includes("fish"))
+      )
+        s += 6;
       if (isCheese && recipe.tags.includes("cheese")) s += 2;
       if (isGarlic && recipe.tags.includes("garlic")) s += 2;
       if (isTomato && recipe.tags.includes("tomato")) s += 2;
@@ -1159,21 +1435,42 @@ function generateFallbackRecipes(prompt) {
 
     // Pick top-tier items so high-confidence matches (e.g. 100% mango) are prioritized
     const maxScore = scoredPool[0]?.score || 0;
-    const topTier = scoredPool.filter((item) => item.score === maxScore).map((item) => item.recipe);
+    const topTier = scoredPool
+      .filter((item) => item.score === maxScore)
+      .map((item) => item.recipe);
 
     if (topTier.length >= 3) {
       const shuffled = topTier.sort(() => 0.5 - Math.random());
       selectedRecipes = shuffled.slice(0, 3);
     } else {
-      const candidateList = scoredPool.slice(0, Math.min(scoredPool.length, 5)).map((item) => item.recipe);
-      selectedRecipes = candidateList.slice(0, Math.min(candidateList.length, 3));
+      const candidateList = scoredPool
+        .slice(0, Math.min(scoredPool.length, 5))
+        .map((item) => item.recipe);
+      selectedRecipes = candidateList.slice(
+        0,
+        Math.min(candidateList.length, 3),
+      );
     }
   } else {
     // Dynamic generation strictly tailored to what the user typed (NEVER default to beef or savory garlic for sweet foods)
     const cleanWords = prompt
       .replace(/[^a-zA-Z\s]/g, " ")
       .split(/\s+/)
-      .filter((w) => w.length > 2 && !["with", "and", "make", "cook", "want", "some", "like", "recipe", "recipes"].includes(w.toLowerCase()));
+      .filter(
+        (w) =>
+          w.length > 2 &&
+          ![
+            "with",
+            "and",
+            "make",
+            "cook",
+            "want",
+            "some",
+            "like",
+            "recipe",
+            "recipes",
+          ].includes(w.toLowerCase()),
+      );
 
     if (cleanWords.length === 0) {
       return {
@@ -1182,10 +1479,13 @@ function generateFallbackRecipes(prompt) {
       };
     }
 
-    const primaryItem = cleanWords[0].charAt(0).toUpperCase() + cleanWords[0].slice(1);
+    const primaryItem =
+      cleanWords[0].charAt(0).toUpperCase() + cleanWords[0].slice(1);
     const secondaryItem = cleanWords[1]
       ? cleanWords[1].charAt(0).toUpperCase() + cleanWords[1].slice(1)
-      : (isFruit || isSweetOrDessert ? "Honey" : "Garlic");
+      : isFruit || isSweetOrDessert
+        ? "Honey"
+        : "Garlic";
 
     if (isFruit || isSweetOrDessert) {
       selectedRecipes = [
@@ -1200,7 +1500,10 @@ function generateFallbackRecipes(prompt) {
             { name: "Honey or Maple Syrup", quantity: "1.5 tbsp" },
             { name: "Lime Juice", quantity: "1 tbsp, freshly squeezed" },
             { name: "Fresh Mint Leaves", quantity: "A small handful, torn" },
-            { name: "Greek Yogurt or Coconut Flakes", quantity: "For serving (optional)" },
+            {
+              name: "Greek Yogurt or Coconut Flakes",
+              quantity: "For serving (optional)",
+            },
           ],
           steps: [
             `Wash, peel, and slice the ${primaryItem} into neat bite-sized pieces.`,
@@ -1291,7 +1594,9 @@ function generateFallbackRecipes(prompt) {
   const enrichedRecipes = selectedRecipes.map((r, index) => ({
     ...r,
     id: `recipe-${Date.now()}-${index}`,
-    image: r.image || getImageForRecipe(r.recipeName, r.cuisine, r.ingredients, index),
+    image:
+      r.image ||
+      getImageForRecipe(r.recipeName, r.cuisine, r.ingredients, index),
   }));
 
   return {
@@ -1353,7 +1658,11 @@ export async function generateRecipe(prompt) {
       lastError = err;
       const msg = String(err?.message || "").toLowerCase();
       // If the model is not found (404) or unsupported, fall back to next free model
-      if (msg.includes("404") || msg.includes("not found") || msg.includes("not supported")) {
+      if (
+        msg.includes("404") ||
+        msg.includes("not found") ||
+        msg.includes("not supported")
+      ) {
         continue;
       }
       throw err;
@@ -1368,7 +1677,9 @@ export async function generateRecipe(prompt) {
       errorMessage.includes("RESOURCE_EXHAUSTED") ||
       errorMessage.toLowerCase().includes("quota")
     ) {
-      const quotaError = new Error("AI usage limit reached. Please try again later.");
+      const quotaError = new Error(
+        "AI usage limit reached. Please try again later.",
+      );
       quotaError.status = 429;
       quotaError.code = "RATE_LIMIT_EXCEEDED";
       throw quotaError;
@@ -1380,7 +1691,10 @@ export async function generateRecipe(prompt) {
   try {
     let rawText = response.text || "";
     // Clean potential markdown fencing
-    rawText = rawText.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+    rawText = rawText
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
 
     let parsed;
     try {
@@ -1411,7 +1725,9 @@ export async function generateRecipe(prompt) {
         description: recipe.description || "",
         cookingTime: recipe.cookingTime || "25 min",
         difficulty: recipe.difficulty || "Easy",
-        ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
+        ingredients: Array.isArray(recipe.ingredients)
+          ? recipe.ingredients
+          : [],
         steps: Array.isArray(recipe.steps) ? recipe.steps : [],
         tips: Array.isArray(recipe.tips) ? recipe.tips : [],
         image:
@@ -1420,7 +1736,7 @@ export async function generateRecipe(prompt) {
             recipe.recipeName,
             recipe.cuisine,
             recipe.ingredients,
-            index
+            index,
           ),
       }));
     }

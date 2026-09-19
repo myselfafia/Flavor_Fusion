@@ -14,7 +14,13 @@ function Login({ onHome, onSignUp, onAuthChange }) {
     setIsSubmitting(true);
     const form = new FormData(event.currentTarget);
     try {
-      const data = await api("/auth/login", { method: "POST", body: JSON.stringify({ email: form.get("email"), password: form.get("password") }) });
+      const data = await api("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email: form.get("email"),
+          password: form.get("password"),
+        }),
+      });
       localStorage.setItem("flavor-fusion-token", data.token);
       localStorage.setItem("flavor-fusion-user", JSON.stringify(data.user));
       if (onAuthChange) onAuthChange();
@@ -32,12 +38,29 @@ function Login({ onHome, onSignUp, onAuthChange }) {
       <main className="sign-in-page">
         <section className="sign-in-card">
           <div className="sign-in-image">
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhKUTMfq6lp07QjBHdQBbr9ZlfuMwTJws6k31c9-gxqkR2QzGKMWEJQ-UO9AoU6NbYn5aCdM0Xw8HKdqeHkNCViuiITk0lieh3y_SQ6iWMmdcXslm04NVQBeonPGGuJFHMvUGOUB2-TztvswZHllaIEoX-DNMo5Sd1UPIgQQQyic6LB2SnSEAbwEkMFbrAGJ1AQKSWhrBNYceatGTExcXiMGJQ-GHagcVPLknMvE-6poI1CdWk8ugY" alt="Fresh basil and ingredients" />
-            <div><strong>Flavor Fusion</strong><p>Pick up where you left off and keep your favorite recipes close.</p></div>
+            <img
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhKUTMfq6lp07QjBHdQBbr9ZlfuMwTJws6k31c9-gxqkR2QzGKMWEJQ-UO9AoU6NbYn5aCdM0Xw8HKdqeHkNCViuiITk0lieh3y_SQ6iWMmdcXslm04NVQBeonPGGuJFHMvUGOUB2-TztvswZHllaIEoX-DNMo5Sd1UPIgQQQyic6LB2SnSEAbwEkMFbrAGJ1AQKSWhrBNYceatGTExcXiMGJQ-GHagcVPLknMvE-6poI1CdWk8ugY"
+              alt="Fresh basil and ingredients"
+            />
+            <div>
+              <strong>Flavor Fusion</strong>
+              <p>
+                Pick up where you left off and keep your favorite recipes close.
+              </p>
+            </div>
           </div>
           <form onSubmit={submitForm}>
-            <h1>Welcome back</h1><p>Please enter your details to log in.</p>
-            <label>Email<input name="email" type="email" placeholder="Enter your email" required /></label>
+            <h1>Welcome back</h1>
+            <p>Please enter your details to log in.</p>
+            <label>
+              Email
+              <input
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                required
+              />
+            </label>
             <label>
               Password
               <span className="password-field">
@@ -68,12 +91,33 @@ function Login({ onHome, onSignUp, onAuthChange }) {
                 </button>
               </span>
             </label>
-            <div className="form-options"><label><input type="checkbox" /> Remember me</label><button type="button">Forgot password?</button></div>
-            {error && <p className="form-error" role="alert">{error}</p>}
-            <button className="submit-signin" disabled={isSubmitting}>{isSubmitting ? "Logging in…" : "Log in"}</button>
-            <div className="divider"><span>or continue with</span></div>
-            <div className="social-buttons"><button type="button">◎ &nbsp; Google</button><button type="button">▣ &nbsp; Apple</button></div>
-            <p className="sign-up">Don&apos;t have an account? <button type="button" onClick={onSignUp}>Sign up</button></p>
+            <div className="form-options">
+              <label>
+                <input type="checkbox" /> Remember me
+              </label>
+              <button type="button">Forgot password?</button>
+            </div>
+            {error && (
+              <p className="form-error" role="alert">
+                {error}
+              </p>
+            )}
+            <button className="submit-signin" disabled={isSubmitting}>
+              {isSubmitting ? "Logging in…" : "Log in"}
+            </button>
+            <div className="divider">
+              <span>or continue with</span>
+            </div>
+            <div className="social-buttons">
+              <button type="button">◎ &nbsp; Google</button>
+              <button type="button">▣ &nbsp; Apple</button>
+            </div>
+            <p className="sign-up">
+              Don&apos;t have an account?{" "}
+              <button type="button" onClick={onSignUp}>
+                Sign up
+              </button>
+            </p>
           </form>
         </section>
       </main>

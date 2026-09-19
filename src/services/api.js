@@ -17,6 +17,9 @@ export async function api(path, options = {}) {
     localStorage.removeItem("flavor-fusion-user");
     window.dispatchEvent(new Event("auth-logout"));
   }
-  if (!response.ok) throw new Error(data.message || data.error || "Unable to complete your request.");
+  if (!response.ok)
+    throw new Error(
+      data.message || data.error || "Unable to complete your request.",
+    );
   return data;
 }

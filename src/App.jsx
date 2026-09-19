@@ -68,7 +68,7 @@ function App() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!res.ok) {
@@ -136,7 +136,7 @@ function App() {
         {
           method: "POST",
           credentials: "include",
-        }
+        },
       );
     } catch {
       // Ignore network errors on logout
