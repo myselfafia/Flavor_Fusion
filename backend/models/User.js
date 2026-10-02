@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+<<<<<<< HEAD
 
 const savedRecipeSchema = new mongoose.Schema(
   {
@@ -16,12 +17,15 @@ const savedRecipeSchema = new mongoose.Schema(
   },
   { _id: false }
 );
+=======
+>>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, trim: true, default: "Chef" },
     displayName: { type: String, trim: true },
     username: { type: String, trim: true },
+<<<<<<< HEAD
     email: {
       type: String,
       trim: true,
@@ -31,6 +35,11 @@ const userSchema = new mongoose.Schema(
     },
     password: { type: String, required: true },
     savedRecipes: [savedRecipeSchema],
+=======
+    email: { type: String, trim: true, lowercase: true, unique: true },
+    password: { type: String, required: true },
+    refreshToken: { type: String, default: null },
+>>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
   },
   { timestamps: true }
 );

@@ -22,7 +22,7 @@ function Home({
   ];
   const [focusedIngredient, setFocusedIngredient] = useState("Spinach");
   const match = useMemo(
-    () => Math.min(100, 58 + selected.length * 8),
+    () => (selected.length === 0 ? 0 : Math.min(100, 50 + selected.length * 12)),
     [selected.length],
   );
   const selectedHeroIngredients = heroIngredients

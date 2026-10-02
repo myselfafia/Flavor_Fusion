@@ -52,20 +52,13 @@ function Header({
       onSaved ? onSaved : () => window.location.assign("/saved")
     );
 
-  // Check auth directly if not passed as prop (fallback)
-  const loggedIn =
-    typeof isLoggedIn === "boolean"
-      ? isLoggedIn
-      : !!localStorage.getItem("flavor-fusion-token");
+  // Use auth status passed as prop
+  const loggedIn = Boolean(isLoggedIn);
 
   const handleLogout = () => {
     setMobileMenuOpen(false);
     if (onLogout) {
       onLogout();
-    } else {
-      localStorage.removeItem("flavor-fusion-token");
-      localStorage.removeItem("flavor-fusion-user");
-      window.location.assign("/");
     }
   };
 

@@ -1,7 +1,11 @@
 import Header from "../components/Header";
 import { useState } from "react";
 import "./SignIn.css";
+<<<<<<< HEAD
 import { api, setAuthSession } from "../services/api";
+=======
+import { api, setAccessToken } from "../services/api";
+>>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 
 function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +26,13 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
           password: form.get("password"),
         }),
       });
+<<<<<<< HEAD
       setAuthSession(data.token, data.user);
       if (onAuthChange) onAuthChange();
+=======
+      setAccessToken(data.accessToken);
+      if (onAuthChange) onAuthChange(data.user);
+>>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
       onHome();
     } catch (requestError) {
       setError(requestError.message);

@@ -13,6 +13,9 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import savedRoutes from "./routes/savedRoutes.js";
+import postRoutes from "./routes/postRoutes.js";
+import recentRoutes from "./routes/recentRoutes.js";
 import log from "./middleware/logger.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
@@ -47,6 +50,7 @@ app.use(
     },
   })
 );
+<<<<<<< HEAD
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
@@ -57,6 +61,15 @@ app.use(log);
 app.get("/api", (_req, res) => res.json({ message: "Flavor Fusion API is running" }));
 app.get("/api/health", (_req, res) =>
   res.json({ success: true, message: "Flavor Fusion API is healthy." })
+=======
+app.use(express.json({ limit: "10mb" }));
+app.use(cookieParser());
+app.use(log);
+
+app.get("/api", (req, res) => res.json({ message: "API is working" }));
+app.get("/api/health", (req, res) =>
+  res.json({ success: true, message: "Flavor Fusion API is running." })
+>>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 );
 
 // Route mounts
@@ -64,6 +77,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/saved", savedRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/recents", recentRoutes);
 
 // Error handling middleware
 app.use(notFound);
@@ -71,9 +87,13 @@ app.use(errorHandler);
 
 connectDatabase()
   .then(() =>
+<<<<<<< HEAD
     app.listen(PORT, () =>
       console.log(`Flavor Fusion backend server listening on port: ${PORT}`)
     )
+=======
+    app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`))
+>>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
   )
   .catch((error) => {
     console.error(`Database connection failed: ${error.message}`);
