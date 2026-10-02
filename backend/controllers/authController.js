@@ -1,15 +1,59 @@
-﻿import User from "../models/User.js";
+import User from "../models/User.js";
 import { comparePassword, hashPassword } from "../utils/helpers.js";
 import jwt from "jsonwebtoken";
 
-const lifetime = "3600000"; // 1 hour
+const ACCESS_TOKEN_LIFETIME = "15m";
+const REFRESH_TOKEN_LIFETIME = "7d";
 
-const cookieOptions = {
-  maxAge: 3600000,
+const refreshCookieOptions = {
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   httpOnly: true,
   secure: true,
   sameSite: "none",
   path: "/",
+};
+
+const clearRefreshCookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: "/",
+};
+
+const getRefreshSecret = () => {
+  return (
+    process.env.JWT_REFRESH_SECRET ||
+    (process.env.JWT_SECRET
+      ? process.env.JWT_SECRET + "_refresh"
+      : "flavor_fusion_refresh_secret")
+  );
+};
+
+const sanitizeUser = (user) => {
+  const userObj =
+    typeof user.toObject === "function" ? user.toObject() : { ...user };
+  delete userObj.password;
+  delete userObj.refreshToken;
+  delete userObj.__v;
+  return userObj;
+};
+
+const generateTokens = (user) => {
+  const payload = {
+    id: user._id,
+    email: user.email,
+    name: user.name || user.displayName || user.username,
+  };
+
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_LIFETIME,
+  });
+
+  const refreshToken = jwt.sign({ id: user._id }, getRefreshSecret(), {
+    expiresIn: REFRESH_TOKEN_LIFETIME,
+  });
+
+  return { accessToken, refreshToken };
 };
 
 export const register = async (req, res) => {
@@ -19,12 +63,10 @@ export const register = async (req, res) => {
     const userName = name || displayName || username;
 
     if (!userIdentifier || !password) {
-      return res
-        .status(400)
-        .json({
-          error: "All fields are required",
-          message: "All fields are required",
-        });
+      return res.status(400).json({
+        error: "All fields are required",
+        message: "Email and password are required",
+      });
     }
 
     const existingUser = await User.findOne({
@@ -35,9 +77,10 @@ export const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ error: "User already exists", message: "User already exists" });
+      return res.status(400).json({
+        error: "User already exists",
+        message: "User with this email already exists",
+      });
     }
 
     const hashedPassword = await hashPassword(password);
@@ -50,25 +93,19 @@ export const register = async (req, res) => {
       password: hashedPassword,
     });
 
+    const { accessToken, refreshToken } = generateTokens(newUser);
+    newUser.refreshToken = refreshToken;
     const savedUser = await newUser.save();
 
-    const token = jwt.sign(
-      {
-        id: savedUser._id,
-        username: savedUser.username || savedUser.email,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: lifetime },
-    );
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
-    res.cookie("token", token, cookieOptions);
-
-    const userObj = savedUser.toObject();
+    const safeUser = sanitizeUser(savedUser);
     return res.status(201).json({
-      ...userObj,
-      message: "New user added successfully",
-      token,
-      user: userObj,
+      message: "New user registered successfully",
+      accessToken,
+      user: safeUser,
+      // Provide backwards compatibility if code accesses fields directly
+      ...safeUser,
     });
   } catch (err) {
     return res.status(400).json({ error: err.message, message: err.message });
@@ -81,74 +118,153 @@ export const login = async (req, res) => {
     const { password } = req.body;
 
     if (!identifier || !password) {
-      return res
-        .status(400)
-        .json({
-          error: "Please provide credentials",
-          message: "Please provide credentials",
-        });
+      return res.status(400).json({
+        error: "Please provide credentials",
+        message: "Email and password are required",
+      });
     }
 
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier.toLowerCase() }],
-    }).select("-__v");
+    });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ error: "User not found", message: "User not found" });
+      return res.status(404).json({
+        error: "User not found",
+        message: "No account found with this email",
+      });
     }
 
     const isSame = await comparePassword(password, user.password);
     if (!isSame) {
-      return res
-        .status(400)
-        .json({ error: "Wrong password", message: "Wrong password" });
+      return res.status(400).json({
+        error: "Wrong password",
+        message: "Incorrect password",
+      });
     }
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        username: user.username || user.email,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: lifetime },
-    );
+    const { accessToken, refreshToken } = generateTokens(user);
+    user.refreshToken = refreshToken;
+    await user.save();
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
-    const userObj = user.toObject();
+    const safeUser = sanitizeUser(user);
     return res.status(200).json({
-      ...userObj,
-      token,
-      user: userObj,
+      message: "Login successful",
+      accessToken,
+      user: safeUser,
+      ...safeUser,
     });
   } catch (err) {
     return res.status(400).json({ error: err.message, message: err.message });
   }
 };
 
-export const logout = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    path: "/",
-  });
-  return res.status(200).json({ message: "Logout successful" });
+export const refresh = async (req, res) => {
+  try {
+    const incomingRefreshToken = req.cookies?.refreshToken;
+
+    if (!incomingRefreshToken) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "No refresh token provided",
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(incomingRefreshToken, getRefreshSecret());
+    } catch {
+      res.clearCookie("refreshToken", clearRefreshCookieOptions);
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Refresh token is invalid or expired",
+      });
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      res.clearCookie("refreshToken", clearRefreshCookieOptions);
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "User not found",
+      });
+    }
+
+    // Refresh token rotation check
+    if (user.refreshToken !== incomingRefreshToken) {
+      // Possible token compromise: revoke user's stored refresh token
+      user.refreshToken = null;
+      await user.save();
+      res.clearCookie("refreshToken", clearRefreshCookieOptions);
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Invalid refresh token. Please log in again.",
+      });
+    }
+
+    // Issue rotated tokens
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+      generateTokens(user);
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    res.cookie("refreshToken", newRefreshToken, refreshCookieOptions);
+
+    const safeUser = sanitizeUser(user);
+    return res.status(200).json({
+      success: true,
+      accessToken: newAccessToken,
+      user: safeUser,
+      ...safeUser,
+    });
+  } catch (err) {
+    return res.status(400).json({ error: err.message, message: err.message });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const incomingRefreshToken = req.cookies?.refreshToken;
+    if (incomingRefreshToken) {
+      try {
+        const decoded = jwt.verify(incomingRefreshToken, getRefreshSecret());
+        if (decoded?.id) {
+          await User.findByIdAndUpdate(decoded.id, { refreshToken: null });
+        }
+      } catch {
+        // Ignore token verification errors during logout
+      }
+    }
+
+    res.clearCookie("refreshToken", clearRefreshCookieOptions);
+    res.clearCookie("token", clearRefreshCookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message, message: err.message });
+  }
 };
 
 export const getProfile = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
-    const user = await User.findById(userId).select("-password -__v");
+    const user = await User.findById(userId).select("-password -refreshToken -__v");
     if (!user) {
-      return res
-        .status(404)
-        .json({ error: "User not found", message: "User not found" });
+      return res.status(404).json({
+        error: "User not found",
+        message: "User not found",
+      });
     }
-    const userObj = user.toObject();
-    return res.status(200).json({ ...userObj, user: userObj });
+    const safeUser = sanitizeUser(user);
+    return res.status(200).json({
+      user: safeUser,
+      ...safeUser,
+    });
   } catch (err) {
     return res.status(400).json({ error: err.message, message: err.message });
   }

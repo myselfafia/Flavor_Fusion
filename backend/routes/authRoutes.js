@@ -1,8 +1,9 @@
-﻿import express from "express";
+import express from "express";
 import {
   login,
   logout,
   register,
+  refresh,
   getProfile,
 } from "../controllers/authController.js";
 import checkToken from "../middleware/checkToken.js";
@@ -10,8 +11,9 @@ import checkToken from "../middleware/checkToken.js";
 const router = express.Router();
 
 router.post("/login", login);
-router.post("/logout", checkToken, logout);
 router.post("/register", register);
+router.post("/refresh", refresh);
+router.post("/logout", logout);
 router.get("/me", checkToken, getProfile);
 router.get("/profile", checkToken, getProfile);
 

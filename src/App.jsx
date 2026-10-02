@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import SignIn from "./pages/SignIn";
@@ -12,6 +12,7 @@ import {
   PolicyPage,
   Terms,
 } from "./pages/InfoPages";
+import { api, setAccessToken, refreshAccessToken } from "./services/api";
 
 const pathToPage = {
   "/": "home",
@@ -20,6 +21,7 @@ const pathToPage = {
   "/signin": "login",
   "/login": "login",
   "/sign-up": "signup",
+  "/signup": "signup",
   "/community": "community",
   "/about": "about",
   "/privacy": "privacy",
@@ -28,6 +30,7 @@ const pathToPage = {
   "/careers": "careers",
   "/saved": "saved",
 };
+
 const pageToPath = {
   home: "/",
   explore: "/explore",
@@ -47,140 +50,12 @@ function App() {
     () => pathToPage[window.location.pathname] || "home",
   );
 
-  // Auth status - check if user is logged in
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return !!localStorage.getItem("flavor-fusion-token");
-  });
-
-  const verifyAuth = async () => {
-    const token = localStorage.getItem("flavor-fusion-token");
-    if (!token) {
-      if (isLoggedIn) setIsLoggedIn(false);
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/me`,
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!res.ok) {
-        // If token was changed, tampered with, or expired, automatically log out
-        localStorage.removeItem("flavor-fusion-token");
-        localStorage.removeItem("flavor-fusion-user");
-        setIsLoggedIn(false);
-      } else {
-        setIsLoggedIn(true);
-      }
-    } catch {
-      // Server error or network issue
-    }
-  };
-
-  // Check auth on mount, focus, storage change, and periodic poll
-  useEffect(() => {
-    const mountTimer = setTimeout(() => {
-      verifyAuth();
-    }, 0);
-
-    const onStorage = () => verifyAuth();
-    const onFocus = () => verifyAuth();
-    const onAuthLogout = () => setIsLoggedIn(false);
-
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("focus", onFocus);
-    window.addEventListener("auth-logout", onAuthLogout);
-
-    const interval = setInterval(verifyAuth, 2500);
-
-    return () => {
-      clearTimeout(mountTimer);
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("focus", onFocus);
-      window.removeEventListener("auth-logout", onAuthLogout);
-      clearInterval(interval);
-    };
-  }, []);
-
-  const handleAuthChange = () => {
-    setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
-    verifyAuth();
-  };
-
-  const [welcomeName, setWelcomeName] = useState(null);
-
-  const handleSignupWelcome = () => {
-    handleAuthChange();
-    try {
-      const user = JSON.parse(localStorage.getItem("flavor-fusion-user"));
-      setWelcomeName(user?.name || "there");
-    } catch {
-      setWelcomeName("there");
-    }
-    navigate("home");
-    // Auto hide after 7 seconds
-    setTimeout(() => setWelcomeName(null), 7000);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/logout`,
-        {
-          method: "POST",
-          credentials: "include",
-        },
-      );
-    } catch {
-      // Ignore network errors on logout
-    }
-    localStorage.removeItem("flavor-fusion-token");
-    localStorage.removeItem("flavor-fusion-user");
-    setIsLoggedIn(false);
-    setWelcomeName(null);
-    navigate("home");
-  };
-  const [selected, setSelected] = useState([
-    "Chicken Breast",
-    "Garlic",
-    "Heavy Cream",
-    "Spinach",
-    "Parmesan",
-  ]);
-  const [saved, setSaved] = useState(() => {
-    try {
-      const storedSaved = JSON.parse(
-        localStorage.getItem("flavor-fusion-saved"),
-      );
-      return Array.isArray(storedSaved) ? storedSaved : [];
-    } catch {
-      return [];
-    }
-  });
-
-  useEffect(() => {
-    localStorage.setItem("flavor-fusion-saved", JSON.stringify(saved));
-  }, [saved]);
-
-  const toggleSave = (name) =>
-    setSaved((current) =>
-      current.includes(name)
-        ? current.filter((item) => item !== name)
-        : [...current, name],
-    );
-
-  const navigate = (nextPage) => {
+  const navigate = useCallback((nextPage) => {
     setPage(nextPage);
     window.history.pushState({}, "", pageToPath[nextPage] || "/");
     window.scrollTo(0, 0);
-  };
+  }, []);
+
   useEffect(() => {
     const onPopState = () =>
       setPage(pathToPage[window.location.pathname] || "home");
@@ -188,12 +63,207 @@ function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
+  // Authentication State (In-Memory)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [welcomeName, setWelcomeName] = useState(null);
+
+  // Pantry State (starts empty - no hardcoded ingredients)
+  const [selected, setSelected] = useState([]);
+
+  // Saved recipes state (synced with backend API)
+  const [saved, setSaved] = useState([]);
+
+  // Initial silent auth check on mount via httpOnly refresh token cookie
+  useEffect(() => {
+    let isMounted = true;
+
+    const initAuth = async () => {
+      try {
+        const token = await refreshAccessToken();
+        if (token && isMounted) {
+          const profile = await api("/auth/me");
+          if (profile && profile.user && isMounted) {
+            setUser(profile.user);
+            setIsLoggedIn(true);
+          }
+        }
+      } catch {
+        if (isMounted) {
+          setIsLoggedIn(false);
+          setUser(null);
+        }
+      }
+    };
+
+    initAuth();
+
+    const onAuthLogout = () => {
+      setAccessToken(null);
+      setIsLoggedIn(false);
+      setUser(null);
+      setSaved([]);
+    };
+
+    const onAuthRefreshed = (e) => {
+      if (e.detail?.user) {
+        setUser(e.detail.user);
+        setIsLoggedIn(true);
+      }
+    };
+
+    window.addEventListener("auth-logout", onAuthLogout);
+    window.addEventListener("auth-refreshed", onAuthRefreshed);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("auth-logout", onAuthLogout);
+      window.removeEventListener("auth-refreshed", onAuthRefreshed);
+    };
+  }, []);
+
+  // Fetch saved recipes from API whenever authentication state becomes true
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    let isMounted = true;
+    api("/saved")
+      .then((res) => {
+        if (isMounted) {
+          if (res && Array.isArray(res.recipes)) {
+            setSaved(res.recipes);
+          } else if (Array.isArray(res)) {
+            setSaved(res);
+          }
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn]);
+
+  const handleAuthChange = (authenticatedUser) => {
+    if (authenticatedUser) {
+      setUser(authenticatedUser);
+      setIsLoggedIn(true);
+    } else {
+      api("/auth/me")
+        .then((res) => {
+          if (res?.user) {
+            setUser(res.user);
+            setIsLoggedIn(true);
+          }
+        })
+        .catch(() => {});
+    }
+  };
+
+  const handleSignupWelcome = (newUser) => {
+    handleAuthChange(newUser);
+    const displayName =
+      newUser?.name || newUser?.displayName || user?.name || "there";
+    setWelcomeName(displayName);
+    navigate("home");
+    setTimeout(() => setWelcomeName(null), 7000);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api("/auth/logout", { method: "POST" });
+    } catch {
+      // Ignore network errors on logout
+    }
+    setAccessToken(null);
+    setIsLoggedIn(false);
+    setUser(null);
+    setSaved([]);
+    setWelcomeName(null);
+    navigate("home");
+  };
+
+  const toggleSave = useCallback(
+    async (recipe) => {
+      if (!isLoggedIn) {
+        navigate("login");
+        return;
+      }
+
+      const recipeTitle =
+        typeof recipe === "string"
+          ? recipe
+          : recipe.recipeName || recipe.name || "";
+      if (!recipeTitle) return;
+
+      const isAlreadySaved = saved.some(
+        (item) =>
+          (item.name || item.recipeName || item).toLowerCase() ===
+          recipeTitle.toLowerCase(),
+      );
+
+      if (isAlreadySaved) {
+        // Optimistic remove
+        setSaved((curr) =>
+          curr.filter(
+            (item) =>
+              (item.name || item.recipeName || item).toLowerCase() !==
+              recipeTitle.toLowerCase(),
+          ),
+        );
+        try {
+          await api(`/saved/${encodeURIComponent(recipeTitle)}`, {
+            method: "DELETE",
+          });
+        } catch {
+          // Re-fetch on error
+          api("/saved")
+            .then((res) => {
+              if (res?.recipes) setSaved(res.recipes);
+            })
+            .catch(() => {});
+        }
+      } else {
+        // Optimistic add
+        const itemToAdd =
+          typeof recipe === "string"
+            ? { name: recipe, recipeName: recipe }
+            : recipe;
+        setSaved((curr) => [itemToAdd, ...curr]);
+        try {
+          const res = await api("/saved", {
+            method: "POST",
+            body: JSON.stringify(itemToAdd),
+          });
+          if (res && res.recipe) {
+            setSaved((curr) =>
+              curr.map((r) =>
+                (r.name || r.recipeName) === recipeTitle ? res.recipe : r,
+              ),
+            );
+          }
+        } catch {
+          // Revert on error
+          setSaved((curr) =>
+            curr.filter(
+              (item) =>
+                (item.name || item.recipeName || item).toLowerCase() !==
+                recipeTitle.toLowerCase(),
+            ),
+          );
+        }
+      }
+    },
+    [isLoggedIn, navigate, saved],
+  );
+
   const toggleIngredient = (ingredient) =>
     setSelected((current) =>
       current.includes(ingredient)
         ? current.filter((item) => item !== ingredient)
         : [...current, ingredient],
     );
+
   if (page === "home")
     return (
       <Home
@@ -257,6 +327,7 @@ function App() {
   if (page === "terms") return <Terms navigate={navigate} />;
   if (page === "help") return <HelpCenter navigate={navigate} />;
   if (page === "careers") return <Careers navigate={navigate} />;
+
   return (
     <Explore
       selected={selected}

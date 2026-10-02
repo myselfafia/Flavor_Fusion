@@ -24,23 +24,39 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
   const [adviceData, setAdviceData] = useState(null);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-  // Load recents from localStorage
-  const [recents, setRecents] = useState(() => {
-    try {
-      const stored = localStorage.getItem("flavor-fusion-recents");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  // Load recents from backend API
+  const [recents, setRecents] = useState([]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem("flavor-fusion-recents", JSON.stringify(recents));
-    } catch {
-      // Ignore storage errors
-    }
-  }, [recents]);
+    let isMounted = true;
+    const fetchRecents = async () => {
+      if (!isLoggedIn) {
+        setRecents([]);
+        return;
+      }
+      try {
+        const res = await api("/recents");
+        if (isMounted && res && Array.isArray(res.recents)) {
+          setRecents(res.recents);
+        }
+      } catch {
+        // Ignore errors fetching recents
+      }
+    };
+    fetchRecents();
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn]);
+
+  const isRecipeSaved = (recipe) => {
+    if (!recipe || !saved) return false;
+    const name = (recipe.recipeName || recipe.name || "").toLowerCase();
+    return saved.some((s) => {
+      if (typeof s === "string") return s.toLowerCase() === name;
+      return (s.name || s.recipeName || "").toLowerCase() === name;
+    });
+  };
 
   const handleSearch = async (promptOverride) => {
     const promptToSearch = (promptOverride || query || "").trim();
@@ -67,7 +83,18 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
           setAiRecipes(res.data.recipes);
           setAdviceData(null);
 
-          // Save to Recents
+          // Save to backend recents if logged in
+          if (isLoggedIn) {
+            api("/recents", {
+              method: "POST",
+              body: JSON.stringify({
+                prompt: promptToSearch,
+                recipes: res.data.recipes,
+              }),
+            }).catch(() => {});
+          }
+
+          // Update local state
           const newRecentItems = res.data.recipes.map((r) => ({
             ...r,
             prompt: promptToSearch,
@@ -75,13 +102,12 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
           }));
 
           setRecents((prev) => {
-            // Keep unique by recipeName and cap at 15 items
             const filtered = prev.filter(
               (item) =>
                 !newRecentItems.some(
                   (n) =>
-                    n.recipeName.toLowerCase() ===
-                    item.recipeName.toLowerCase(),
+                    (n.recipeName || n.name || "").toLowerCase() ===
+                    (item.recipeName || item.name || "").toLowerCase(),
                 ),
             );
             return [...newRecentItems, ...filtered].slice(0, 15);
@@ -149,12 +175,14 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
     }, 60);
   };
 
-  const clearRecents = () => {
+  const clearRecents = async () => {
     setRecents([]);
-    try {
-      localStorage.removeItem("flavor-fusion-recents");
-    } catch {
-      // Ignore
+    if (isLoggedIn) {
+      try {
+        await api("/recents", { method: "DELETE" });
+      } catch {
+        // Ignore errors on clear
+      }
     }
   };
 
@@ -315,10 +343,10 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                 {onToggleSave && (
                   <button
                     type="button"
-                    className={`save-detail-btn ${saved?.includes(selectedRecipe.recipeName) ? "saved" : ""}`}
-                    onClick={() => onToggleSave(selectedRecipe.recipeName)}
+                    className={`save-detail-btn ${isRecipeSaved(selectedRecipe) ? "saved" : ""}`}
+                    onClick={() => onToggleSave(selectedRecipe)}
                   >
-                    {saved?.includes(selectedRecipe.recipeName)
+                    {isRecipeSaved(selectedRecipe)
                       ? "★ Saved"
                       : "☆ Save Recipe"}
                   </button>
@@ -472,23 +500,23 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                   {onToggleSave && (
                     <button
                       type="button"
-                      className={`card-save-btn ${saved?.includes(recipe.recipeName) ? "saved" : ""}`}
+                      className={`card-save-btn ${isRecipeSaved(recipe) ? "saved" : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onToggleSave(recipe.recipeName);
+                        onToggleSave(recipe);
                       }}
                       aria-label={
-                        saved?.includes(recipe.recipeName)
+                        isRecipeSaved(recipe)
                           ? "Remove from saved"
                           : "Save recipe"
                       }
                       title={
-                        saved?.includes(recipe.recipeName)
+                        isRecipeSaved(recipe)
                           ? "Saved"
                           : "Save recipe"
                       }
                     >
-                      {saved?.includes(recipe.recipeName) ? "★" : "☆"}
+                      {isRecipeSaved(recipe) ? "★" : "☆"}
                     </button>
                   )}
                   {recipe.image && (
@@ -568,23 +596,23 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                     {onToggleSave && (
                       <button
                         type="button"
-                        className={`card-save-btn ${saved?.includes(item.recipeName) ? "saved" : ""}`}
+                        className={`card-save-btn ${isRecipeSaved(item) ? "saved" : ""}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onToggleSave(item.recipeName);
+                          onToggleSave(item);
                         }}
                         aria-label={
-                          saved?.includes(item.recipeName)
+                          isRecipeSaved(item)
                             ? "Remove from saved"
                             : "Save recipe"
                         }
                         title={
-                          saved?.includes(item.recipeName)
+                          isRecipeSaved(item)
                             ? "Saved"
                             : "Save recipe"
                         }
                       >
-                        {saved?.includes(item.recipeName) ? "★" : "☆"}
+                        {isRecipeSaved(item) ? "★" : "☆"}
                       </button>
                     )}
                     {item.image && (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { communityPosts } from "../data/communityPosts";
+import { api } from "../services/api";
 import "./Community.css";
 
 function Community({
@@ -13,55 +13,90 @@ function Community({
   isLoggedIn,
   onLogout,
 }) {
-  const [posts, setPosts] = useState(() => {
-    try {
-      return (
-        JSON.parse(localStorage.getItem("flavor-fusion-community-posts")) ||
-        communityPosts
-      );
-    } catch {
-      return communityPosts;
-    }
-  });
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [draft, setDraft] = useState("");
   const [photo, setPhoto] = useState("");
   const [recipeLink, setRecipeLink] = useState("");
   const [notice, setNotice] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Fetch real posts from backend API
   useEffect(() => {
-    localStorage.setItem(
-      "flavor-fusion-community-posts",
-      JSON.stringify(posts),
-    );
-  }, [posts]);
+    let isMounted = true;
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const res = await api("/posts");
+        if (isMounted) {
+          if (res && Array.isArray(res.posts)) {
+            setPosts(res.posts);
+          } else if (Array.isArray(res)) {
+            setPosts(res);
+          } else {
+            setPosts([]);
+          }
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err.message || "Failed to load community feed.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchPosts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const updatePost = (id, change) =>
     setPosts((current) =>
       current.map((post) =>
         post.id === id ? { ...post, ...change(post) } : post,
       ),
     );
-  const createPost = (event) => {
+
+  const createPost = async (event) => {
     event.preventDefault();
     if (!draft.trim() && !photo) return;
-    setPosts((current) => [
-      {
-        id: `post-${Date.now()}`,
-        name: "You",
-        initials: "YO",
-        time: "Just now",
-        text: draft.trim() || "Shared a new culinary creation.",
-        tags: recipeLink ? ["Recipe link"] : [],
-        image: photo,
-        likes: 0,
-        comments: [],
-        recipeLink,
-      },
-      ...current,
-    ]);
-    setDraft("");
-    setPhoto("");
-    setRecipeLink("");
-    setNotice("Your post is live!");
+
+    if (!isLoggedIn) {
+      setNotice("Please log in to share a recipe with the community.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const res = await api("/posts", {
+        method: "POST",
+        body: JSON.stringify({
+          text: draft.trim(),
+          image: photo,
+          recipeLink: recipeLink.trim(),
+        }),
+      });
+
+      if (res && res.post) {
+        setPosts((current) => [res.post, ...current]);
+        setDraft("");
+        setPhoto("");
+        setRecipeLink("");
+        setNotice("Your post is live!");
+      }
+    } catch (err) {
+      setNotice(err.message || "Failed to publish post.");
+    } finally {
+      setSubmitting(false);
+    }
   };
+
   const onPhoto = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -69,6 +104,7 @@ function Community({
     reader.onload = () => setPhoto(String(reader.result));
     reader.readAsDataURL(file);
   };
+
   return (
     <div className="app community-app">
       <Header
@@ -85,12 +121,17 @@ function Community({
         <section className="community-feed" aria-label="Community feed">
           <form className="composer" onSubmit={createPost}>
             <div className="composer-main">
-              <span className="community-avatar you">YO</span>
+              <span className="community-avatar you">YOU</span>
               <textarea
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
-                placeholder="What's cooking today? Share your culinary creation..."
+                placeholder={
+                  isLoggedIn
+                    ? "What's cooking today? Share your culinary creation..."
+                    : "Log in to share your culinary creations with the community!"
+                }
                 aria-label="Post text"
+                disabled={submitting}
               />
             </div>
             {photo && (
@@ -108,30 +149,74 @@ function Community({
             <div className="composer-actions">
               <label className="upload-control">
                 ▣ Photo
-                <input type="file" accept="image/*" onChange={onPhoto} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onPhoto}
+                  disabled={submitting}
+                />
               </label>
               <input
                 value={recipeLink}
                 onChange={(event) => setRecipeLink(event.target.value)}
                 placeholder="🔗 Recipe link (optional)"
                 aria-label="Recipe link"
+                disabled={submitting}
               />
-              <button type="submit">Post</button>
+              <button
+                type="submit"
+                disabled={submitting || (!draft.trim() && !photo)}
+              >
+                {submitting ? "Posting…" : "Post"}
+              </button>
             </div>
           </form>
+
           {notice && (
             <p className="community-notice" role="status">
               {notice}
             </p>
           )}
-          {posts.map((post) => (
-            <CommunityPost
-              key={post.id}
-              post={post}
-              onUpdate={updatePost}
-              onNotice={setNotice}
-            />
-          ))}
+
+          {error && (
+            <div className="error-banner" role="alert">
+              <p>{error}</p>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="empty-state" style={{ padding: "40px 20px" }}>
+              <div className="ai-spinner"></div>
+              <h3>Loading community posts...</h3>
+              <p>Gathering fresh culinary creations from our chefs</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && posts.length === 0 && (
+            <div className="empty-state">
+              <span>🍲</span>
+              <h3>No community posts yet</h3>
+              <p>
+                Be the first chef to share your latest culinary dish with the
+                Flavor Fusion community!
+              </p>
+            </div>
+          )}
+
+          {/* Real Posts */}
+          {!loading &&
+            posts.map((post) => (
+              <CommunityPost
+                key={post.id || post._id}
+                post={post}
+                onUpdate={updatePost}
+                onNotice={setNotice}
+                isLoggedIn={isLoggedIn}
+                onSignIn={onSignIn}
+              />
+            ))}
         </section>
       </main>
       <Footer navigate={navigate} />
@@ -171,14 +256,15 @@ function CommunitySidebar() {
   );
 }
 
-function CommunityPost({ post, onUpdate, onNotice }) {
+function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comment, setComment] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const saved = Boolean(post.saved);
+
   const share = async () => {
-    const url = `${window.location.origin}/community#${post.id}`;
+    const url = `${window.location.origin}/community#${post.id || post._id}`;
     try {
       if (navigator.share)
         await navigator.share({
@@ -194,21 +280,95 @@ function CommunityPost({ post, onUpdate, onNotice }) {
       onNotice("Sharing was cancelled.");
     }
   };
-  const addComment = (event) => {
+
+  const handleLike = async () => {
+    if (!isLoggedIn) {
+      if (onSignIn) onSignIn();
+      return;
+    }
+    // Optimistic update
+    const previousLiked = post.liked;
+    const previousLikes = post.likes || 0;
+    onUpdate(post.id || post._id, () => ({
+      liked: !previousLiked,
+      likes: previousLikes + (previousLiked ? -1 : 1),
+    }));
+
+    try {
+      const res = await api(`/posts/${post.id || post._id}/like`, {
+        method: "POST",
+      });
+      if (res && res.success) {
+        onUpdate(post.id || post._id, () => ({
+          liked: res.liked,
+          likes: res.likes,
+        }));
+      }
+    } catch {
+      // Revert on error
+      onUpdate(post.id || post._id, () => ({
+        liked: previousLiked,
+        likes: previousLikes,
+      }));
+    }
+  };
+
+  const handleToggleSave = async () => {
+    if (!isLoggedIn) {
+      if (onSignIn) onSignIn();
+      return;
+    }
+    const previousSaved = saved;
+    onUpdate(post.id || post._id, () => ({ saved: !previousSaved }));
+    onNotice(!previousSaved ? "Post saved to your collection." : "Post removed from saved.");
+
+    try {
+      const res = await api(`/posts/${post.id || post._id}/save`, {
+        method: "POST",
+      });
+      if (res && res.success) {
+        onUpdate(post.id || post._id, () => ({ saved: res.saved }));
+      }
+    } catch {
+      onUpdate(post.id || post._id, () => ({ saved: previousSaved }));
+    }
+  };
+
+  const addComment = async (event) => {
     event.preventDefault();
     if (!comment.trim()) return;
-    onUpdate(post.id, (current) => ({
-      comments: [...current.comments, { id: Date.now(), text: comment.trim() }],
-    }));
+
+    if (!isLoggedIn) {
+      if (onSignIn) onSignIn();
+      return;
+    }
+
+    const textToSubmit = comment.trim();
     setComment("");
+
+    try {
+      const res = await api(`/posts/${post.id || post._id}/comment`, {
+        method: "POST",
+        body: JSON.stringify({ text: textToSubmit }),
+      });
+
+      if (res && res.comment) {
+        onUpdate(post.id || post._id, (current) => ({
+          comments: [...(current.comments || []), res.comment],
+        }));
+      }
+    } catch (err) {
+      onNotice(err.message || "Failed to add comment");
+    }
   };
+
   return (
-    <article className="community-post" id={post.id}>
+    <article className="community-post" id={post.id || post._id}>
       <header>
-        <span className="community-avatar">{post.initials}</span>
+        <span className="community-avatar">{post.initials || "FF"}</span>
         <div>
           <strong>{post.name}</strong>
-          <small>{post.time}</small>
+          <small>{post.time || "Recently"}</small>
         </div>
         <div className="post-menu">
           <button
@@ -221,11 +381,8 @@ function CommunityPost({ post, onUpdate, onNotice }) {
             <div>
               <button
                 onClick={() => {
-                  onUpdate(post.id, () => ({ saved: !saved }));
+                  handleToggleSave();
                   setMenuOpen(false);
-                  onNotice(
-                    saved ? "Post removed from saved items." : "Post saved.",
-                  );
                 }}
               >
                 {saved ? "Unsave Post" : "Save Post"}
@@ -283,25 +440,17 @@ function CommunityPost({ post, onUpdate, onNotice }) {
       <div className="post-actions">
         <button
           className={post.liked ? "liked" : ""}
-          onClick={() =>
-            onUpdate(post.id, (current) => ({
-              liked: !current.liked,
-              likes: current.likes + (current.liked ? -1 : 1),
-            }))
-          }
+          onClick={handleLike}
         >
-          {post.liked ? "♥" : "♡"} {post.likes}
+          {post.liked ? "♥" : "♡"} {post.likes || 0}
         </button>
         <button onClick={() => setCommentsOpen(!commentsOpen)}>
-          ▢ {post.comments.length}
+          ▢ {post.comments?.length || 0}
         </button>
         <button onClick={share}>⌯ Share</button>
         <button
           className={saved ? "saved" : ""}
-          onClick={() => {
-            onUpdate(post.id, () => ({ saved: !saved }));
-            onNotice(saved ? "Post removed from saved items." : "Post saved.");
-          }}
+          onClick={handleToggleSave}
         >
           {saved ? "★ Saved" : "☆ Save"}
         </button>
@@ -316,9 +465,9 @@ function CommunityPost({ post, onUpdate, onNotice }) {
             />
             <button>Send</button>
           </form>
-          {post.comments.map((item) => (
-            <p key={item.id}>
-              <strong>You</strong> {item.text}
+          {(post.comments || []).map((item) => (
+            <p key={item.id || item._id}>
+              <strong>{item.name || "Chef"}</strong> {item.text}
             </p>
           ))}
         </div>

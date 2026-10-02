@@ -1,23 +1,31 @@
-﻿import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const checkToken = (req, res, next) => {
-  const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
+  const authHeader = req.headers.authorization;
+  let token = null;
 
-  if (!token) {
-    return res.status(401).json({ error: "Invalid token" });
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.cookies?.token) {
+    // Legacy fallback
+    token = req.cookies.token;
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) => {
+  if (!token) {
+    return res.status(401).json({
+      error: "Unauthorized",
+      message: "Access token is missing",
+    });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      res.clearCookie("token", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        path: "/",
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Invalid or expired access token",
       });
-      return res.status(401).json({ error: "Invalid token" });
     }
-    req.user = user;
+    req.user = decoded;
     next();
   });
 };

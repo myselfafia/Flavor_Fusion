@@ -1,7 +1,7 @@
 import Header from "../components/Header";
 import { useState } from "react";
 import "./SignIn.css";
-import { api } from "../services/api";
+import { api, setAccessToken } from "../services/api";
 
 function Login({ onHome, onSignUp, onAuthChange }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,9 +21,8 @@ function Login({ onHome, onSignUp, onAuthChange }) {
           password: form.get("password"),
         }),
       });
-      localStorage.setItem("flavor-fusion-token", data.token);
-      localStorage.setItem("flavor-fusion-user", JSON.stringify(data.user));
-      if (onAuthChange) onAuthChange();
+      setAccessToken(data.accessToken);
+      if (onAuthChange) onAuthChange(data.user);
       onHome();
     } catch (requestError) {
       setError(requestError.message);

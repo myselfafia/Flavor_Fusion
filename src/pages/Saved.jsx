@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { dishes } from "../data/dishes";
+import { api } from "../services/api";
 import "./Saved.css";
 
-const byMinutes = (time) => parseInt(time) || 0;
+const byMinutes = (time) => parseInt(time, 10) || 0;
 
 function Saved({
-  saved,
+  saved = [],
   onToggleSave,
   onSetSaved,
   navigate,
@@ -20,22 +20,40 @@ function Saved({
   const [sort, setSort] = useState("recent");
   const [notice, setNotice] = useState("");
   const [undo, setUndo] = useState(null);
-  const [posts, setPosts] = useState(() => {
-    try {
-      return (
-        JSON.parse(localStorage.getItem("flavor-fusion-community-posts")) || []
-      );
-    } catch {
-      return [];
-    }
-  });
 
+  const [savedPosts, setSavedPosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+  const [error, setError] = useState("");
+
+  // Use saved recipes provided from App-level API sync
+  const savedRecipes = saved;
+
+  // Fetch saved community posts from backend API
   useEffect(() => {
-    localStorage.setItem(
-      "flavor-fusion-community-posts",
-      JSON.stringify(posts),
-    );
-  }, [posts]);
+    if (!isLoggedIn) return;
+
+    let isMounted = true;
+    api("/saved")
+      .then((res) => {
+        if (isMounted && res && Array.isArray(res.posts)) {
+          setSavedPosts(res.posts);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setError(err.message || "Failed to load saved posts.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoadingPosts(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (!notice) return;
@@ -46,92 +64,148 @@ function Saved({
     return () => clearTimeout(timer);
   }, [notice]);
 
-  const savedRecipes = useMemo(
-    () =>
-      saved
-        .map((name) => dishes.find((dish) => dish.name === name))
-        .filter(Boolean),
-    [saved],
-  );
   const cuisines = useMemo(
-    () => ["All", ...new Set(savedRecipes.map((dish) => dish.cuisine))],
+    () => [
+      "All",
+      ...new Set(
+        savedRecipes
+          .map((dish) => dish.cuisine)
+          .filter((c) => Boolean(c) && c !== "General"),
+      ),
+    ],
     [savedRecipes],
   );
-  const savedPosts = useMemo(() => posts.filter((post) => post.saved), [posts]);
 
   const visible = useMemo(() => {
     let list = [...savedRecipes];
-    if (cuisine !== "All")
+    if (cuisine !== "All") {
       list = list.filter((dish) => dish.cuisine === cuisine);
+    }
     const term = query.trim().toLowerCase();
-    if (term)
-      list = list.filter(
-        (dish) =>
-          dish.name.toLowerCase().includes(term) ||
-          dish.cuisine.toLowerCase().includes(term) ||
-          dish.required.some((item) => item.toLowerCase().includes(term)),
+    if (term) {
+      list = list.filter((dish) => {
+        const name = (dish.name || dish.recipeName || "").toLowerCase();
+        const cuis = (dish.cuisine || "").toLowerCase();
+        const reqs = Array.isArray(dish.required) ? dish.required : [];
+        return (
+          name.includes(term) ||
+          cuis.includes(term) ||
+          reqs.some((item) => String(item).toLowerCase().includes(term))
+        );
+      });
+    }
+    if (sort === "name") {
+      list.sort((a, b) =>
+        (a.name || a.recipeName || "").localeCompare(
+          b.name || b.recipeName || "",
+        ),
       );
-    if (sort === "recent") list.reverse();
-    if (sort === "name") list.sort((a, b) => a.name.localeCompare(b.name));
-    if (sort === "time")
-      list.sort((a, b) => byMinutes(a.time) - byMinutes(b.time));
+    } else if (sort === "time") {
+      list.sort(
+        (a, b) =>
+          byMinutes(a.time || a.cookingTime) -
+          byMinutes(b.time || b.cookingTime),
+      );
+    }
     return list;
   }, [savedRecipes, cuisine, query, sort]);
 
-  const stats = useMemo(
-    () => ({
+  const stats = useMemo(() => {
+    const validTimes = savedRecipes
+      .map((d) => byMinutes(d.time || d.cookingTime))
+      .filter((t) => t > 0);
+
+    return {
       total: savedRecipes.length,
       posts: savedPosts.length,
-      cuisines: new Set(savedRecipes.map((dish) => dish.cuisine)).size,
-      quickest: savedRecipes.length
-        ? Math.min(...savedRecipes.map((dish) => byMinutes(dish.time)))
-        : 0,
-      ingredients: new Set(savedRecipes.flatMap((dish) => dish.required)).size,
-    }),
-    [savedRecipes, savedPosts],
-  );
+      cuisines: new Set(
+        savedRecipes.map((dish) => dish.cuisine).filter(Boolean),
+      ).size,
+      quickest: validTimes.length ? Math.min(...validTimes) : 0,
+    };
+  }, [savedRecipes, savedPosts]);
 
-  const removeRecipe = (name) => {
-    setUndo({ type: "recipe", name });
-    onToggleSave(name);
-    setNotice(`Removed “${name}” from your collection.`);
+  const removeRecipe = async (dish) => {
+    setUndo({ type: "recipe", item: dish });
+    if (onToggleSave) {
+      onToggleSave(dish);
+    }
+    setNotice(
+      `Removed “${dish.name || dish.recipeName}” from your collection.`,
+    );
   };
 
-  const clearAll = () => {
-    if (!saved.length) return;
-    const backup = saved;
-    onSetSaved([]);
-    setUndo({ type: "clear", recipes: backup });
+  const unsavePost = async (post) => {
+    const postId = post.id || post._id;
+    setUndo({ type: "post", item: post });
+    setSavedPosts((curr) => curr.filter((p) => (p.id || p._id) !== postId));
+    setNotice("Removed post from your collection.");
+
+    try {
+      await api(`/saved/${postId}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      setNotice(err.message || "Failed to unsave post.");
+    }
+  };
+
+  const clearAllRecipes = async () => {
+    if (!savedRecipes.length) return;
+    const backup = [...savedRecipes];
+    if (onSetSaved) {
+      onSetSaved([]);
+    }
+    setUndo({ type: "clear", items: backup });
     setNotice(
       `Cleared ${backup.length} recipe${backup.length === 1 ? "" : "s"} from your collection.`,
     );
+
+    for (const r of backup) {
+      const idOrName = r._id || r.recipeId || r.name || r.recipeName;
+      try {
+        await api(`/saved/${encodeURIComponent(idOrName)}`, {
+          method: "DELETE",
+        });
+      } catch {
+        // Continue
+      }
+    }
   };
 
-  const unsavePost = (id) => {
-    setUndo({ type: "post", id });
-    setPosts((current) =>
-      current.map((post) =>
-        post.id === id ? { ...post, saved: false } : post,
-      ),
-    );
-    setNotice("Removed post from your collection.");
-  };
-
-  const undoLastChange = () => {
+  const undoLastChange = async () => {
     if (!undo) return;
 
-    if (undo.type === "recipe") {
-      onSetSaved((current) =>
-        current.includes(undo.name) ? current : [...current, undo.name],
-      );
-    } else if (undo.type === "clear") {
-      onSetSaved(undo.recipes);
-    } else {
-      setPosts((current) =>
-        current.map((post) =>
-          post.id === undo.id ? { ...post, saved: true } : post,
-        ),
-      );
+    if (undo.type === "recipe" && undo.item) {
+      const item = undo.item;
+      if (onToggleSave) {
+        onToggleSave(item);
+      }
+    } else if (undo.type === "clear" && undo.items) {
+      if (onSetSaved) {
+        onSetSaved(undo.items);
+      }
+      for (const item of undo.items) {
+        try {
+          await api("/saved", {
+            method: "POST",
+            body: JSON.stringify(item),
+          });
+        } catch {
+          // ignore
+        }
+      }
+    } else if (undo.type === "post" && undo.item) {
+      const item = undo.item;
+      setSavedPosts((curr) => [item, ...curr]);
+      try {
+        await api("/saved", {
+          method: "POST",
+          body: JSON.stringify({ type: "post", postId: item.id || item._id }),
+        });
+      } catch {
+        // ignore
+      }
     }
 
     setNotice("Restored to your collection.");
@@ -213,6 +287,12 @@ function Saved({
           </div>
         )}
 
+        {error && (
+          <div className="error-banner" role="alert">
+            <p>{error}</p>
+          </div>
+        )}
+
         {tab === "recipes" && savedRecipes.length > 0 && (
           <div className="saved-toolbar">
             <div className="saved-search">
@@ -233,22 +313,24 @@ function Saved({
                 </button>
               )}
             </div>
-            <div
-              className="cuisine-pills"
-              role="group"
-              aria-label="Filter by cuisine"
-            >
-              {cuisines.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  className={cuisine === item ? "pill active" : "pill"}
-                  onClick={() => setCuisine(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
+            {cuisines.length > 1 && (
+              <div
+                className="cuisine-pills"
+                role="group"
+                aria-label="Filter by cuisine"
+              >
+                {cuisines.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={cuisine === item ? "pill active" : "pill"}
+                    onClick={() => setCuisine(item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            )}
             <label className="sort-select">
               Sort
               <select
@@ -261,7 +343,11 @@ function Saved({
                 <option value="name">Name A–Z</option>
               </select>
             </label>
-            <button type="button" className="clear-button" onClick={clearAll}>
+            <button
+              type="button"
+              className="clear-button"
+              onClick={clearAllRecipes}
+            >
               Clear all
             </button>
           </div>
@@ -270,53 +356,94 @@ function Saved({
         {tab === "recipes" &&
           (visible.length ? (
             <div className="saved-grid">
-              {visible.map((dish, index) => (
-                <article
-                  className="saved-card"
-                  key={dish.name}
-                  style={{ animationDelay: `${Math.min(index * 0.07, 0.5)}s` }}
-                >
-                  <div className="saved-image">
-                    <img src={dish.image} alt={dish.name} loading="lazy" />
-                    <button
-                      type="button"
-                      className="unsave-button"
-                      onClick={() => removeRecipe(dish.name)}
-                      aria-label={`Remove ${dish.name} from saved`}
-                      title="Remove from saved"
-                    >
-                      ★ Remove
-                    </button>
-                    <span className="saved-time">◷ {dish.time}</span>
-                  </div>
-                  <div className="saved-content">
-                    <span className="cuisine-tag">{dish.cuisine}</span>
-                    <h3>{dish.name}</h3>
-                    <p className="saved-meta">
-                      ◒ {dish.level}
-                      <i />
-                      {dish.required.length} ingredients
-                    </p>
-                    <div className="saved-ingredients">
-                      {dish.required.slice(0, 3).map((item) => (
-                        <em key={item}>{item}</em>
-                      ))}
-                      {dish.required.length > 3 && (
-                        <em className="more">
-                          +{dish.required.length - 3} more
-                        </em>
+              {visible.map((dish, index) => {
+                const dishName = dish.name || dish.recipeName;
+                const dishTime = dish.time || dish.cookingTime || "30 min";
+                const dishLevel = dish.level || dish.difficulty || "Easy";
+                const dishCuisine = dish.cuisine || "General";
+                const dishReqs =
+                  Array.isArray(dish.required) && dish.required.length > 0
+                    ? dish.required
+                    : Array.isArray(dish.ingredients)
+                      ? dish.ingredients.map((i) =>
+                          typeof i === "string" ? i : i.name,
+                        )
+                      : [];
+
+                return (
+                  <article
+                    className="saved-card"
+                    key={dish._id || dishName}
+                    style={{
+                      animationDelay: `${Math.min(index * 0.07, 0.5)}s`,
+                    }}
+                  >
+                    <div className="saved-image">
+                      {dish.image ? (
+                        <img
+                          src={dish.image}
+                          alt={dishName}
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            height: 180,
+                            background: "var(--color-surface, #f5f5f5)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 36,
+                          }}
+                        >
+                          🍲
+                        </div>
                       )}
+                      <button
+                        type="button"
+                        className="unsave-button"
+                        onClick={() => removeRecipe(dish)}
+                        aria-label={`Remove ${dishName} from saved`}
+                        title="Remove from saved"
+                      >
+                        ★ Remove
+                      </button>
+                      <span className="saved-time">◷ {dishTime}</span>
                     </div>
-                    <button
-                      type="button"
-                      className="cook-button"
-                      onClick={() => navigate("explore")}
-                    >
-                      Cook it now →
-                    </button>
-                  </div>
-                </article>
-              ))}
+                    <div className="saved-content">
+                      <span className="cuisine-tag">{dishCuisine}</span>
+                      <h3>{dishName}</h3>
+                      <p className="saved-meta">
+                        ◒ {dishLevel}
+                        <i />
+                        {dishReqs.length} ingredients
+                      </p>
+                      {dishReqs.length > 0 && (
+                        <div className="saved-ingredients">
+                          {dishReqs.slice(0, 3).map((item) => (
+                            <em key={item}>{item}</em>
+                          ))}
+                          {dishReqs.length > 3 && (
+                            <em className="more">
+                              +{dishReqs.length - 3} more
+                            </em>
+                          )}
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="cook-button"
+                        onClick={() => navigate("explore")}
+                      >
+                        Cook it now →
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           ) : savedRecipes.length ? (
             <div className="empty-state">
@@ -350,24 +477,33 @@ function Saved({
         )}
 
         {tab === "posts" &&
-          (savedPosts.length ? (
+          (loadingPosts ? (
+            <div className="empty-state" style={{ padding: "40px 20px" }}>
+              <div className="ai-spinner"></div>
+              <h3>Loading saved posts...</h3>
+            </div>
+          ) : savedPosts.length ? (
             <div className="saved-grid posts">
               {savedPosts.map((post, index) => (
                 <article
                   className="post-card"
-                  key={post.id}
-                  style={{ animationDelay: `${Math.min(index * 0.07, 0.5)}s` }}
+                  key={post.id || post._id}
+                  style={{
+                    animationDelay: `${Math.min(index * 0.07, 0.5)}s`,
+                  }}
                 >
                   <header>
-                    <span className="post-avatar">{post.initials}</span>
+                    <span className="post-avatar">
+                      {post.initials || "FF"}
+                    </span>
                     <div className="post-id">
-                      <strong>{post.name}</strong>
-                      <small>{post.time}</small>
+                      <strong>{post.name || "Chef"}</strong>
+                      <small>{post.time || "Recently"}</small>
                     </div>
                     <button
                       type="button"
                       className="unsave-post"
-                      onClick={() => unsavePost(post.id)}
+                      onClick={() => unsavePost(post)}
                       title="Remove from saved"
                     >
                       ★ Remove
@@ -404,7 +540,10 @@ function Saved({
                       ♥ {post.likes ?? 0}
                       <i />▢ {post.comments?.length ?? 0}
                     </span>
-                    <button type="button" onClick={() => navigate("community")}>
+                    <button
+                      type="button"
+                      onClick={() => navigate("community")}
+                    >
                       Open in Community →
                     </button>
                   </footer>

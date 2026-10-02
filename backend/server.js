@@ -11,6 +11,9 @@ import { connectDatabase } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import savedRoutes from "./routes/savedRoutes.js";
+import postRoutes from "./routes/postRoutes.js";
+import recentRoutes from "./routes/recentRoutes.js";
 import log from "./middleware/logger.js";
 
 const app = express();
@@ -44,19 +47,26 @@ app.use(
     },
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use(log);
 
 app.get("/api", (req, res) => res.json({ message: "API is working" }));
-app.get("/api/health", (req, res) => res.json({ success: true, message: "Flavor Fusion API is running." }));
+app.get("/api/health", (req, res) =>
+  res.json({ success: true, message: "Flavor Fusion API is running." })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/saved", savedRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/recents", recentRoutes);
 
 connectDatabase()
-  .then(() => app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`)))
+  .then(() =>
+    app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`))
+  )
   .catch((error) => {
     console.error(`Database connection failed: ${error.message}`);
     process.exit(1);
