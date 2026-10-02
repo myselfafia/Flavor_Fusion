@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import SignIn from "./pages/SignIn";
@@ -12,6 +12,7 @@ import {
   PolicyPage,
   Terms,
 } from "./pages/InfoPages";
+import { api, clearAuthSession, getAuthToken, getStoredUser } from "./services/api";
 
 const pathToPage = {
   "/": "home",
@@ -28,6 +29,7 @@ const pathToPage = {
   "/careers": "careers",
   "/saved": "saved",
 };
+
 const pageToPath = {
   home: "/",
   explore: "/explore",
@@ -44,120 +46,18 @@ const pageToPath = {
 
 function App() {
   const [page, setPage] = useState(
-    () => pathToPage[window.location.pathname] || "home",
+    () => pathToPage[window.location.pathname] || "home"
   );
 
-  // Auth status - check if user is logged in
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return !!localStorage.getItem("flavor-fusion-token");
-  });
-
-  const verifyAuth = async () => {
-    const token = localStorage.getItem("flavor-fusion-token");
-    if (!token) {
-      if (isLoggedIn) setIsLoggedIn(false);
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/me`,
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!res.ok) {
-        // If token was changed, tampered with, or expired, automatically log out
-        localStorage.removeItem("flavor-fusion-token");
-        localStorage.removeItem("flavor-fusion-user");
-        setIsLoggedIn(false);
-      } else {
-        setIsLoggedIn(true);
-      }
-    } catch {
-      // Server error or network issue
-    }
-  };
-
-  // Check auth on mount, focus, storage change, and periodic poll
-  useEffect(() => {
-    const mountTimer = setTimeout(() => {
-      verifyAuth();
-    }, 0);
-
-    const onStorage = () => verifyAuth();
-    const onFocus = () => verifyAuth();
-    const onAuthLogout = () => setIsLoggedIn(false);
-
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("focus", onFocus);
-    window.addEventListener("auth-logout", onAuthLogout);
-
-    const interval = setInterval(verifyAuth, 2500);
-
-    return () => {
-      clearTimeout(mountTimer);
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("focus", onFocus);
-      window.removeEventListener("auth-logout", onAuthLogout);
-      clearInterval(interval);
-    };
-  }, []);
-
-  const handleAuthChange = () => {
-    setIsLoggedIn(!!localStorage.getItem("flavor-fusion-token"));
-    verifyAuth();
-  };
-
+  // Auth status state initialized from local session
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!getAuthToken());
   const [welcomeName, setWelcomeName] = useState(null);
 
-  const handleSignupWelcome = () => {
-    handleAuthChange();
-    try {
-      const user = JSON.parse(localStorage.getItem("flavor-fusion-user"));
-      setWelcomeName(user?.name || "there");
-    } catch {
-      setWelcomeName("there");
-    }
-    navigate("home");
-    // Auto hide after 7 seconds
-    setTimeout(() => setWelcomeName(null), 7000);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/logout`,
-        {
-          method: "POST",
-          credentials: "include",
-        },
-      );
-    } catch {
-      // Ignore network errors on logout
-    }
-    localStorage.removeItem("flavor-fusion-token");
-    localStorage.removeItem("flavor-fusion-user");
-    setIsLoggedIn(false);
-    setWelcomeName(null);
-    navigate("home");
-  };
-  const [selected, setSelected] = useState([
-    "Chicken Breast",
-    "Garlic",
-    "Heavy Cream",
-    "Spinach",
-    "Parmesan",
-  ]);
+  // Saved recipes array holding rich recipe objects
   const [saved, setSaved] = useState(() => {
     try {
       const storedSaved = JSON.parse(
-        localStorage.getItem("flavor-fusion-saved"),
+        localStorage.getItem("flavor-fusion-saved")
       );
       return Array.isArray(storedSaved) ? storedSaved : [];
     } catch {
@@ -166,21 +66,223 @@ function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem("flavor-fusion-saved", JSON.stringify(saved));
+    try {
+      localStorage.setItem("flavor-fusion-saved", JSON.stringify(saved));
+    } catch {
+      // Ignore storage errors
+    }
   }, [saved]);
 
-  const toggleSave = (name) =>
-    setSaved((current) =>
-      current.includes(name)
-        ? current.filter((item) => item !== name)
-        : [...current, name],
-    );
+  // Auth verification helper for user interactions
+  const verifyAuth = useCallback(async () => {
+    const token = getAuthToken();
+    if (!token) {
+      setIsLoggedIn(false);
+      return;
+    }
+
+    try {
+      const res = await api("/auth/me");
+      if (res && res.user) {
+        localStorage.setItem("flavor-fusion-user", JSON.stringify(res.user));
+        setIsLoggedIn(true);
+
+        if (Array.isArray(res.user.savedRecipes) && res.user.savedRecipes.length > 0) {
+          setSaved((current) => {
+            const currentNames = new Set(
+              current.map((r) => (typeof r === "string" ? r : r.recipeName || r.name).toLowerCase())
+            );
+            const merged = [...current];
+            for (const r of res.user.savedRecipes) {
+              const name = (r.recipeName || r.name || "").toLowerCase();
+              if (name && !currentNames.has(name)) {
+                merged.push(r);
+                currentNames.add(name);
+              }
+            }
+            return merged;
+          });
+        }
+      } else {
+        clearAuthSession();
+        setIsLoggedIn(false);
+      }
+    } catch {
+      clearAuthSession();
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  // Run startup verification once on mount and attach reactive listeners (no polling)
+  useEffect(() => {
+    let isMounted = true;
+    const token = getAuthToken();
+
+    if (token) {
+      api("/auth/me")
+        .then((res) => {
+          if (!isMounted) return;
+          if (res && res.user) {
+            localStorage.setItem("flavor-fusion-user", JSON.stringify(res.user));
+            setIsLoggedIn(true);
+
+            if (Array.isArray(res.user.savedRecipes) && res.user.savedRecipes.length > 0) {
+              setSaved((current) => {
+                const currentNames = new Set(
+                  current.map((r) =>
+                    (typeof r === "string" ? r : r.recipeName || r.name).toLowerCase()
+                  )
+                );
+                const merged = [...current];
+                for (const r of res.user.savedRecipes) {
+                  const name = (r.recipeName || r.name || "").toLowerCase();
+                  if (name && !currentNames.has(name)) {
+                    merged.push(r);
+                    currentNames.add(name);
+                  }
+                }
+                return merged;
+              });
+            }
+          } else {
+            clearAuthSession();
+            setIsLoggedIn(false);
+          }
+        })
+        .catch(() => {
+          if (!isMounted) return;
+          clearAuthSession();
+          setIsLoggedIn(false);
+        });
+    }
+
+    const onStorage = (e) => {
+      if (e.key === "flavor-fusion-token") {
+        setIsLoggedIn(!!e.newValue);
+      }
+    };
+    const onAuthLogout = () => setIsLoggedIn(false);
+    const onAuthChange = () => {
+      setIsLoggedIn(!!getAuthToken());
+    };
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("auth-logout", onAuthLogout);
+    window.addEventListener("auth-change", onAuthChange);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("auth-logout", onAuthLogout);
+      window.removeEventListener("auth-change", onAuthChange);
+    };
+  }, []);
+
+  const handleAuthChange = () => {
+    setIsLoggedIn(!!getAuthToken());
+    verifyAuth();
+  };
+
+  const handleSignupWelcome = () => {
+    handleAuthChange();
+    const user = getStoredUser();
+    setWelcomeName(user?.name || "there");
+    navigate("home");
+    // Auto hide welcome banner after 7 seconds
+    setTimeout(() => setWelcomeName(null), 7000);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api("/auth/logout", { method: "POST" });
+    } catch {
+      // Ignore network errors on logout
+    }
+    clearAuthSession();
+    setIsLoggedIn(false);
+    setWelcomeName(null);
+    navigate("home");
+  };
+
+  const [selected, setSelected] = useState([
+    "Chicken Breast",
+    "Garlic",
+    "Heavy Cream",
+    "Spinach",
+    "Parmesan",
+  ]);
+
+  const toggleSave = (recipeOrName) => {
+    if (!recipeOrName) return;
+
+    const targetName =
+      typeof recipeOrName === "string"
+        ? recipeOrName
+        : recipeOrName.recipeName || recipeOrName.name;
+
+    if (!targetName) return;
+
+    setSaved((current) => {
+      const exists = current.some((item) => {
+        const itemName =
+          typeof item === "string" ? item : item.recipeName || item.name;
+        return itemName?.toLowerCase() === targetName.toLowerCase();
+      });
+
+      let updated;
+      if (exists) {
+        updated = current.filter((item) => {
+          const itemName =
+            typeof item === "string" ? item : item.recipeName || item.name;
+          return itemName?.toLowerCase() !== targetName.toLowerCase();
+        });
+
+        // Sync with backend if logged in
+        if (getAuthToken()) {
+          api(`/users/saved/${encodeURIComponent(targetName)}`, {
+            method: "DELETE",
+          }).catch(() => {});
+        }
+      } else {
+        const itemToAdd =
+          typeof recipeOrName === "object" && recipeOrName !== null
+            ? {
+                ...recipeOrName,
+                name: recipeOrName.recipeName || recipeOrName.name || targetName,
+                recipeName: recipeOrName.recipeName || recipeOrName.name || targetName,
+              }
+            : {
+                name: targetName,
+                recipeName: targetName,
+                cuisine: "Homestyle",
+                cookingTime: "25 min",
+                difficulty: "Easy",
+                required: [],
+                ingredients: [],
+                steps: [],
+                tips: [],
+              };
+        updated = [...current, itemToAdd];
+
+        // Sync with backend if logged in
+        if (getAuthToken()) {
+          api("/users/saved", {
+            method: "POST",
+            body: JSON.stringify(itemToAdd),
+          }).catch(() => {});
+        }
+      }
+
+      return updated;
+    });
+  };
 
   const navigate = (nextPage) => {
     setPage(nextPage);
     window.history.pushState({}, "", pageToPath[nextPage] || "/");
     window.scrollTo(0, 0);
   };
+
   useEffect(() => {
     const onPopState = () =>
       setPage(pathToPage[window.location.pathname] || "home");
@@ -192,8 +294,9 @@ function App() {
     setSelected((current) =>
       current.includes(ingredient)
         ? current.filter((item) => item !== ingredient)
-        : [...current, ingredient],
+        : [...current, ingredient]
     );
+
   if (page === "home")
     return (
       <Home
@@ -209,6 +312,7 @@ function App() {
         onDismissWelcome={() => setWelcomeName(null)}
       />
     );
+
   if (page === "signup")
     return (
       <SignIn
@@ -218,6 +322,7 @@ function App() {
         onAuthChange={handleAuthChange}
       />
     );
+
   if (page === "login")
     return (
       <Login
@@ -229,6 +334,7 @@ function App() {
         onAuthChange={handleAuthChange}
       />
     );
+
   if (page === "saved")
     return (
       <Saved
@@ -240,6 +346,7 @@ function App() {
         onLogout={handleLogout}
       />
     );
+
   if (page === "community")
     return (
       <Community
@@ -252,11 +359,13 @@ function App() {
         onLogout={handleLogout}
       />
     );
+
   if (page === "about") return <About navigate={navigate} />;
   if (page === "privacy") return <PolicyPage navigate={navigate} />;
   if (page === "terms") return <Terms navigate={navigate} />;
   if (page === "help") return <HelpCenter navigate={navigate} />;
   if (page === "careers") return <Careers navigate={navigate} />;
+
   return (
     <Explore
       selected={selected}

@@ -4,14 +4,17 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectDatabase } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import postRoutes from "./routes/postRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import log from "./middleware/logger.js";
+import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,19 +47,34 @@ app.use(
     },
   })
 );
-app.use(express.json());
+
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(log);
 
-app.get("/api", (req, res) => res.json({ message: "API is working" }));
-app.get("/api/health", (req, res) => res.json({ success: true, message: "Flavor Fusion API is running." }));
+// Base health & info routes
+app.get("/api", (_req, res) => res.json({ message: "Flavor Fusion API is running" }));
+app.get("/api/health", (_req, res) =>
+  res.json({ success: true, message: "Flavor Fusion API is healthy." })
+);
 
+// Route mounts
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 app.use("/api/ai", aiRoutes);
 
+// Error handling middleware
+app.use(notFound);
+app.use(errorHandler);
+
 connectDatabase()
-  .then(() => app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`)))
+  .then(() =>
+    app.listen(PORT, () =>
+      console.log(`Flavor Fusion backend server listening on port: ${PORT}`)
+    )
+  )
   .catch((error) => {
     console.error(`Database connection failed: ${error.message}`);
     process.exit(1);

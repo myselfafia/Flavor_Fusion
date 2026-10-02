@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { dishes } from "../data/dishes";
 import "./Saved.css";
 
 const byMinutes = (time) => parseInt(time) || 0;
@@ -49,7 +48,51 @@ function Saved({
   const savedRecipes = useMemo(
     () =>
       saved
-        .map((name) => dishes.find((dish) => dish.name === name))
+        .map((item) => {
+          if (!item) return null;
+          const name =
+            typeof item === "string"
+              ? item
+              : item.recipeName || item.name || "Untitled Dish";
+          const rawRequired =
+            typeof item === "object"
+              ? item.required || item.ingredients || []
+              : [];
+          const required = Array.isArray(rawRequired)
+            ? rawRequired.map((i) =>
+                typeof i === "string" ? i : i.name || ""
+              )
+            : [];
+          return {
+            name,
+            recipeName: name,
+            cuisine:
+              (typeof item === "object" && item.cuisine) || "Homestyle",
+            time:
+              (typeof item === "object" &&
+                (item.cookingTime || item.time)) ||
+              "25 min",
+            level:
+              (typeof item === "object" &&
+                (item.difficulty || item.level)) ||
+              "Easy",
+            image:
+              (typeof item === "object" && item.image) ||
+              "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
+            description:
+              (typeof item === "object" && item.description) || "",
+            required,
+            steps:
+              typeof item === "object" && Array.isArray(item.steps)
+                ? item.steps
+                : [],
+            tips:
+              typeof item === "object" && Array.isArray(item.tips)
+                ? item.tips
+                : [],
+            raw: item,
+          };
+        })
         .filter(Boolean),
     [saved],
   );

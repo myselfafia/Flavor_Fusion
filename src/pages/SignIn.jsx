@@ -1,7 +1,7 @@
 import Header from "../components/Header";
 import { useState } from "react";
 import "./SignIn.css";
-import { api } from "../services/api";
+import { api, setAuthSession } from "../services/api";
 
 function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +22,7 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
           password: form.get("password"),
         }),
       });
-      localStorage.setItem("flavor-fusion-token", data.token);
-      localStorage.setItem("flavor-fusion-user", JSON.stringify(data.user));
+      setAuthSession(data.token, data.user);
       if (onAuthChange) onAuthChange();
       onHome();
     } catch (requestError) {

@@ -1,155 +1,272 @@
-﻿import User from "../models/User.js";
+import User from "../models/User.js";
 import { comparePassword, hashPassword } from "../utils/helpers.js";
 import jwt from "jsonwebtoken";
 
-const lifetime = "3600000"; // 1 hour
+const isProduction = process.env.NODE_ENV === "production";
+
+// 7-day token lifetime
+const ACCESS_TOKEN_EXPIRES_IN = "7d";
+const REFRESH_TOKEN_EXPIRES_IN = "30d";
 
 const cookieOptions = {
-  maxAge: 3600000,
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
   httpOnly: true,
-  secure: true,
-  sameSite: "none",
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
   path: "/",
+};
+
+const sanitizeUser = (userDoc) => {
+  if (!userDoc) return null;
+  const obj = userDoc.toObject ? userDoc.toObject() : { ...userDoc };
+  delete obj.password;
+  delete obj.__v;
+  return obj;
+};
+
+const generateTokens = (user) => {
+  const payload = {
+    id: user._id,
+    userId: user._id,
+    email: user.email,
+    username: user.username || user.email,
+  };
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+  });
+
+  const refreshSecret =
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+  const refreshToken = jwt.sign(payload, refreshSecret, {
+    expiresIn: REFRESH_TOKEN_EXPIRES_IN,
+  });
+
+  return { token, refreshToken };
 };
 
 export const register = async (req, res) => {
   try {
     const { name, displayName, email, username, password } = req.body;
-    const userIdentifier = email || username;
-    const userName = name || displayName || username;
+    const rawIdentifier = email || username;
+    const rawName = name || displayName || username || "Chef";
 
-    if (!userIdentifier || !password) {
-      return res
-        .status(400)
-        .json({
-          error: "All fields are required",
-          message: "All fields are required",
-        });
+    if (!rawIdentifier || !password) {
+      return res.status(400).json({
+        success: false,
+        error: "Email and password are required.",
+        message: "Email and password are required.",
+      });
     }
 
-    const existingUser = await User.findOne({
-      $or: [
-        { email: userIdentifier.toLowerCase() },
-        { username: userIdentifier },
-      ],
-    });
+    const trimmedEmail = rawIdentifier.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      return res.status(400).json({
+        success: false,
+        error: "Please enter a valid email address.",
+        message: "Please enter a valid email address.",
+      });
+    }
+
+    if (typeof password !== "string" || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: "Password must be at least 6 characters long.",
+        message: "Password must be at least 6 characters long.",
+      });
+    }
+
+    const existingUser = await User.findOne({ email: trimmedEmail });
 
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ error: "User already exists", message: "User already exists" });
+      return res.status(400).json({
+        success: false,
+        error: "An account with this email already exists.",
+        message: "An account with this email already exists.",
+      });
     }
 
     const hashedPassword = await hashPassword(password);
 
     const newUser = new User({
-      name: userName,
-      displayName: userName,
-      email: email ? email.toLowerCase() : userIdentifier.toLowerCase(),
-      username: username || userIdentifier,
+      name: rawName.trim(),
+      displayName: rawName.trim(),
+      email: trimmedEmail,
+      username: username ? username.trim() : trimmedEmail.split("@")[0],
       password: hashedPassword,
     });
 
     const savedUser = await newUser.save();
-
-    const token = jwt.sign(
-      {
-        id: savedUser._id,
-        username: savedUser.username || savedUser.email,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: lifetime },
-    );
+    const { token, refreshToken } = generateTokens(savedUser);
 
     res.cookie("token", token, cookieOptions);
 
-    const userObj = savedUser.toObject();
+    const sanitized = sanitizeUser(savedUser);
     return res.status(201).json({
-      ...userObj,
-      message: "New user added successfully",
+      success: true,
+      message: "Account created successfully.",
       token,
-      user: userObj,
+      refreshToken,
+      user: sanitized,
+      ...sanitized,
     });
   } catch (err) {
-    return res.status(400).json({ error: err.message, message: err.message });
+    return res.status(400).json({
+      success: false,
+      error: err.message || "Failed to create account.",
+      message: err.message || "Failed to create account.",
+    });
   }
 };
 
 export const login = async (req, res) => {
   try {
-    const identifier = req.body.username || req.body.email;
+    const identifier = req.body.email || req.body.username;
     const { password } = req.body;
 
     if (!identifier || !password) {
-      return res
-        .status(400)
-        .json({
-          error: "Please provide credentials",
-          message: "Please provide credentials",
-        });
+      return res.status(400).json({
+        success: false,
+        error: "Please provide both email and password.",
+        message: "Please provide both email and password.",
+      });
     }
 
+    const cleanIdentifier = identifier.trim().toLowerCase();
     const user = await User.findOne({
-      $or: [{ username: identifier }, { email: identifier.toLowerCase() }],
-    }).select("-__v");
+      $or: [{ email: cleanIdentifier }, { username: identifier.trim() }],
+    });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ error: "User not found", message: "User not found" });
+      return res.status(401).json({
+        success: false,
+        error: "Invalid email or password.",
+        message: "Invalid email or password.",
+      });
     }
 
-    const isSame = await comparePassword(password, user.password);
-    if (!isSame) {
-      return res
-        .status(400)
-        .json({ error: "Wrong password", message: "Wrong password" });
+    const isMatch = await comparePassword(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid email or password.",
+        message: "Invalid email or password.",
+      });
     }
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        username: user.username || user.email,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: lifetime },
-    );
+    const { token, refreshToken } = generateTokens(user);
 
     res.cookie("token", token, cookieOptions);
 
-    const userObj = user.toObject();
+    const sanitized = sanitizeUser(user);
     return res.status(200).json({
-      ...userObj,
+      success: true,
+      message: "Logged in successfully.",
       token,
-      user: userObj,
+      refreshToken,
+      user: sanitized,
+      ...sanitized,
     });
   } catch (err) {
-    return res.status(400).json({ error: err.message, message: err.message });
+    return res.status(400).json({
+      success: false,
+      error: err.message || "Failed to log in.",
+      message: err.message || "Failed to log in.",
+    });
   }
 };
 
-export const logout = (req, res) => {
+export const logout = (_req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: true,
-    sameSite: "none",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     path: "/",
   });
-  return res.status(200).json({ message: "Logout successful" });
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully.",
+  });
 };
 
 export const getProfile = async (req, res) => {
   try {
-    const userId = req.user?.id || req.user?._id;
+    const userId = req.user?.id || req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Not authenticated.",
+        message: "Not authenticated.",
+      });
+    }
+
     const user = await User.findById(userId).select("-password -__v");
     if (!user) {
-      return res
-        .status(404)
-        .json({ error: "User not found", message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        error: "User not found.",
+        message: "User not found.",
+      });
     }
-    const userObj = user.toObject();
-    return res.status(200).json({ ...userObj, user: userObj });
+
+    const sanitized = sanitizeUser(user);
+    return res.status(200).json({
+      success: true,
+      user: sanitized,
+      ...sanitized,
+    });
   } catch (err) {
-    return res.status(400).json({ error: err.message, message: err.message });
+    return res.status(400).json({
+      success: false,
+      error: err.message || "Could not fetch profile.",
+      message: err.message || "Could not fetch profile.",
+    });
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  try {
+    const token = req.body.refreshToken || req.cookies?.refreshToken;
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: "Refresh token is missing.",
+      });
+    }
+
+    const refreshSecret =
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
+
+    jwt.verify(token, refreshSecret, async (err, decoded) => {
+      if (err || !decoded) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid or expired refresh token.",
+        });
+      }
+
+      const user = await User.findById(decoded.id || decoded.userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: "User no longer exists.",
+        });
+      }
+
+      const tokens = generateTokens(user);
+      res.cookie("token", tokens.token, cookieOptions);
+
+      return res.status(200).json({
+        success: true,
+        token: tokens.token,
+        refreshToken: tokens.refreshToken,
+      });
+    });
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      error: err.message || "Token refresh failed.",
+    });
   }
 };

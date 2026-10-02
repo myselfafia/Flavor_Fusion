@@ -42,6 +42,15 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
     }
   }, [recents]);
 
+  const isRecipeSaved = (recipeName) => {
+    if (!recipeName || !Array.isArray(saved)) return false;
+    return saved.some((item) => {
+      const name =
+        typeof item === "string" ? item : item.recipeName || item.name;
+      return name?.toLowerCase() === recipeName.toLowerCase();
+    });
+  };
+
   const handleSearch = async (promptOverride) => {
     const promptToSearch = (promptOverride || query || "").trim();
     if (!promptToSearch) {
@@ -315,10 +324,10 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                 {onToggleSave && (
                   <button
                     type="button"
-                    className={`save-detail-btn ${saved?.includes(selectedRecipe.recipeName) ? "saved" : ""}`}
-                    onClick={() => onToggleSave(selectedRecipe.recipeName)}
+                    className={`save-detail-btn ${isRecipeSaved(selectedRecipe.recipeName) ? "saved" : ""}`}
+                    onClick={() => onToggleSave(selectedRecipe)}
                   >
-                    {saved?.includes(selectedRecipe.recipeName)
+                    {isRecipeSaved(selectedRecipe.recipeName)
                       ? "★ Saved"
                       : "☆ Save Recipe"}
                   </button>
@@ -472,23 +481,23 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                   {onToggleSave && (
                     <button
                       type="button"
-                      className={`card-save-btn ${saved?.includes(recipe.recipeName) ? "saved" : ""}`}
+                      className={`card-save-btn ${isRecipeSaved(recipe.recipeName) ? "saved" : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onToggleSave(recipe.recipeName);
+                        onToggleSave(recipe);
                       }}
                       aria-label={
-                        saved?.includes(recipe.recipeName)
+                        isRecipeSaved(recipe.recipeName)
                           ? "Remove from saved"
                           : "Save recipe"
                       }
                       title={
-                        saved?.includes(recipe.recipeName)
+                        isRecipeSaved(recipe.recipeName)
                           ? "Saved"
                           : "Save recipe"
                       }
                     >
-                      {saved?.includes(recipe.recipeName) ? "★" : "☆"}
+                      {isRecipeSaved(recipe.recipeName) ? "★" : "☆"}
                     </button>
                   )}
                   {recipe.image && (
@@ -568,23 +577,23 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                     {onToggleSave && (
                       <button
                         type="button"
-                        className={`card-save-btn ${saved?.includes(item.recipeName) ? "saved" : ""}`}
+                        className={`card-save-btn ${isRecipeSaved(item.recipeName) ? "saved" : ""}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onToggleSave(item.recipeName);
+                          onToggleSave(item);
                         }}
                         aria-label={
-                          saved?.includes(item.recipeName)
+                          isRecipeSaved(item.recipeName)
                             ? "Remove from saved"
                             : "Save recipe"
                         }
                         title={
-                          saved?.includes(item.recipeName)
+                          isRecipeSaved(item.recipeName)
                             ? "Saved"
                             : "Save recipe"
                         }
                       >
-                        {saved?.includes(item.recipeName) ? "★" : "☆"}
+                        {isRecipeSaved(item.recipeName) ? "★" : "☆"}
                       </button>
                     )}
                     {item.image && (
