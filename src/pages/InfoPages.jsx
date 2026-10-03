@@ -3,7 +3,14 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "./InfoPages.css";
 
-function PageShell({ children, navigate, title, intro }) {
+function PageShell({
+  children,
+  navigate,
+  title,
+  intro,
+  isLoggedIn,
+  onLogout,
+}) {
   return (
     <div className="app info-app">
       <Header
@@ -13,6 +20,8 @@ function PageShell({ children, navigate, title, intro }) {
         onCommunity={() => navigate("community")}
         onSaved={() => navigate("saved")}
         onSignIn={() => navigate("login")}
+        isLoggedIn={isLoggedIn}
+        onLogout={onLogout}
       />
       <main className="info-main container">
         <section className="info-hero">
@@ -45,10 +54,12 @@ const steps = [
   },
 ];
 
-export function About({ navigate }) {
+export function About({ navigate, isLoggedIn, onLogout }) {
   return (
     <PageShell
       navigate={navigate}
+      isLoggedIn={isLoggedIn}
+      onLogout={onLogout}
       title="Good food starts with what you have."
       intro="Flavor Fusion turns the ingredients already in your kitchen into practical, delicious inspiration."
     >
@@ -161,10 +172,12 @@ function Accordion({ items }) {
   );
 }
 
-export function PolicyPage({ navigate }) {
+export function PolicyPage({ navigate, isLoggedIn, onLogout }) {
   return (
     <PageShell
       navigate={navigate}
+      isLoggedIn={isLoggedIn}
+      onLogout={onLogout}
       title="Privacy Policy"
       intro="Here is how Flavor Fusion handles the information that helps make your cooking experience personal and useful."
     >
@@ -176,10 +189,12 @@ export function PolicyPage({ navigate }) {
     </PageShell>
   );
 }
-export function Terms({ navigate }) {
+export function Terms({ navigate, isLoggedIn, onLogout }) {
   return (
     <PageShell
       navigate={navigate}
+      isLoggedIn={isLoggedIn}
+      onLogout={onLogout}
       title="Terms of Service"
       intro="These simple terms explain the shared expectations that help keep Flavor Fusion useful, welcoming, and safe."
     >
@@ -231,7 +246,7 @@ const helpTopics = [
   },
 ];
 
-export function HelpCenter({ navigate }) {
+export function HelpCenter({ navigate, isLoggedIn, onLogout }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(helpTopics[0]);
   const [sent, setSent] = useState(false);
@@ -243,6 +258,8 @@ export function HelpCenter({ navigate }) {
   return (
     <PageShell
       navigate={navigate}
+      isLoggedIn={isLoggedIn}
+      onLogout={onLogout}
       title="How can we help?"
       intro="Find a quick answer or browse the topics that make Flavor Fusion tick."
     >
@@ -332,12 +349,14 @@ const roles = [
     ],
   },
 ];
-export function Careers({ navigate }) {
+export function Careers({ navigate, isLoggedIn, onLogout }) {
   const [open, setOpen] = useState(null);
   const [applied, setApplied] = useState("");
   return (
     <PageShell
       navigate={navigate}
+      isLoggedIn={isLoggedIn}
+      onLogout={onLogout}
       title="Come cook up something great."
       intro="We’re building a kinder, more useful way to decide what’s for dinner. Join us."
     >

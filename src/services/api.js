@@ -1,44 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-<<<<<<< HEAD
-export function getAuthToken() {
-  return localStorage.getItem("flavor-fusion-token");
-}
-
-export function getStoredUser() {
-  try {
-    const raw = localStorage.getItem("flavor-fusion-user");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function setAuthSession(token, user) {
-  if (token) {
-    localStorage.setItem("flavor-fusion-token", token);
-  }
-  if (user) {
-    localStorage.setItem("flavor-fusion-user", JSON.stringify(user));
-  }
-  window.dispatchEvent(new Event("auth-change"));
-}
-
-export function clearAuthSession() {
-  localStorage.removeItem("flavor-fusion-token");
-  localStorage.removeItem("flavor-fusion-user");
-  window.dispatchEvent(new Event("auth-logout"));
-  window.dispatchEvent(new Event("auth-change"));
-}
-
-export async function api(path, options = {}) {
-  const token = getAuthToken();
-  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
-
-  const defaultHeaders = {
-    ...(isFormData ? {} : { "Content-Type": "application/json" }),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-=======
 let inMemoryAccessToken = null;
 let refreshPromise = null;
 
@@ -48,6 +9,10 @@ export const setAccessToken = (token) => {
 
 export const getAccessToken = () => {
   return inMemoryAccessToken;
+};
+
+export const clearAccessToken = () => {
+  inMemoryAccessToken = null;
 };
 
 /**
@@ -76,18 +41,20 @@ export async function refreshAccessToken() {
       }
 
       const data = await response.json().catch(() => ({}));
-      if (data && data.accessToken) {
-        setAccessToken(data.accessToken);
+      const token = data.accessToken || data.token;
+      if (token) {
+        setAccessToken(token);
         window.dispatchEvent(
-          new CustomEvent("auth-refreshed", { detail: data }),
+          new CustomEvent("auth-refreshed", { detail: data })
         );
-        return data.accessToken;
+        return token;
       }
 
       setAccessToken(null);
       window.dispatchEvent(new Event("auth-logout"));
       return null;
-    } catch {
+    } catch (err) {
+      console.warn("Silent token refresh failed:", err.message);
       setAccessToken(null);
       return null;
     } finally {
@@ -104,32 +71,30 @@ export async function refreshAccessToken() {
  */
 export async function api(path, options = {}, isRetry = false) {
   const token = getAccessToken();
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+
   const headers = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
   };
 
-  const response = await fetch(`${API_URL}${path}`, {
-    credentials: "include",
-    ...options,
-<<<<<<< HEAD
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
-  });
-
-  const data = await response.json().catch(() => ({}));
-
-  if (response.status === 401 && !path.startsWith("/auth/login") && !path.startsWith("/auth/register")) {
-    clearAuthSession();
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      credentials: "include",
+      ...options,
+      headers,
+    });
+  } catch (networkError) {
+    console.error(`Network error requesting ${path}:`, networkError.message);
+    const err = new Error(
+      "Unable to connect to the server. Please check your network connection."
+    );
+    err.isNetworkError = true;
+    throw err;
   }
-
-=======
-    headers,
-  });
 
   // Attempt automatic refresh on 401 (only once, excluding auth endpoints)
   if (
@@ -146,13 +111,26 @@ export async function api(path, options = {}, isRetry = false) {
     window.dispatchEvent(new Event("auth-logout"));
   }
 
-  const data = await response.json().catch(() => ({}));
+  let data = {};
+  try {
+    const text = await response.text();
+    if (text) {
+      data = JSON.parse(text);
+    }
+  } catch (parseError) {
+    console.warn(`Failed to parse response JSON from ${path}:`, parseError.message);
+    data = {};
+  }
 
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
   if (!response.ok) {
-    throw new Error(
-      data.error || data.message || "Unable to complete your request."
-    );
+    const message =
+      data.error ||
+      data.message ||
+      `Request failed with status ${response.status} (${response.statusText || "Error"})`;
+    const err = new Error(message);
+    err.status = response.status;
+    err.data = data;
+    throw err;
   }
 
   return data;

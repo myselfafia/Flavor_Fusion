@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-<<<<<<< HEAD
-import { api, getStoredUser } from "../services/api";
-=======
 import { api } from "../services/api";
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 import "./Community.css";
 
 function Community({
@@ -17,55 +13,13 @@ function Community({
   isLoggedIn,
   onLogout,
 }) {
-<<<<<<< HEAD
-  const [posts, setPosts] = useState(() => {
-    try {
-      return (
-        JSON.parse(localStorage.getItem("flavor-fusion-community-posts")) || []
-      );
-    } catch {
-      return [];
-    }
-  });
-
-  const [loading, setLoading] = useState(true);
-=======
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
   const [draft, setDraft] = useState("");
   const [photo, setPhoto] = useState("");
   const [recipeLink, setRecipeLink] = useState("");
   const [notice, setNotice] = useState("");
-<<<<<<< HEAD
-
-  // Fetch real posts from backend API on mount
-  useEffect(() => {
-    let isMounted = true;
-
-    api("/posts")
-      .then((res) => {
-        if (isMounted && res && res.data) {
-          setPosts(res.data);
-          try {
-            localStorage.setItem(
-              "flavor-fusion-community-posts",
-              JSON.stringify(res.data)
-            );
-          } catch {
-            // Ignore storage errors
-          }
-        }
-      })
-      .catch((err) => {
-        console.warn("Could not fetch remote community posts:", err.message);
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
-
-=======
   const [submitting, setSubmitting] = useState(false);
 
   // Fetch real posts from backend API
@@ -79,6 +33,8 @@ function Community({
         if (isMounted) {
           if (res && Array.isArray(res.posts)) {
             setPosts(res.posts);
+          } else if (res && Array.isArray(res.data)) {
+            setPosts(res.data);
           } else if (Array.isArray(res)) {
             setPosts(res);
           } else {
@@ -86,6 +42,7 @@ function Community({
           }
         }
       } catch (err) {
+        console.error("Failed to load community feed:", err.message);
         if (isMounted) {
           setError(err.message || "Failed to load community feed.");
         }
@@ -97,30 +54,15 @@ function Community({
     };
 
     fetchPosts();
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
     return () => {
       isMounted = false;
     };
   }, []);
 
-<<<<<<< HEAD
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        "flavor-fusion-community-posts",
-        JSON.stringify(posts)
-      );
-    } catch {
-      // Ignore storage errors
-    }
-  }, [posts]);
-
-=======
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
   const updatePost = (id, change) =>
     setPosts((current) =>
       current.map((post) =>
-        post.id === id ? { ...post, ...change(post) } : post
+        (post.id || post._id) === id ? { ...post, ...change(post) } : post
       )
     );
 
@@ -128,57 +70,17 @@ function Community({
     event.preventDefault();
     if (!draft.trim() && !photo) return;
 
-<<<<<<< HEAD
-    const payload = {
-      text: draft.trim(),
-      image: photo,
-      recipeLink: recipeLink.trim(),
-      tags: recipeLink ? ["Recipe link"] : [],
-    };
-
-    const user = getStoredUser();
-    const fallbackName = user?.name || "You";
-    const fallbackInitials = user?.name
-      ? user.name.substring(0, 2).toUpperCase()
-      : "YO";
-
-    try {
-      const res = await api("/posts", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-
-      const newPost =
-        res && res.data
-          ? res.data
-          : {
-              id: `post-${Date.now()}`,
-              name: fallbackName,
-              initials: fallbackInitials,
-              time: "Just now",
-              text: draft.trim() || "Shared a new culinary creation.",
-              tags: recipeLink ? ["Recipe link"] : [],
-              image: photo,
-              likes: 0,
-              comments: [],
-              recipeLink,
-            };
-
-      setPosts((current) => [newPost, ...current]);
-      setDraft("");
-      setPhoto("");
-      setRecipeLink("");
-      setNotice("Your post is live!");
-    } catch (err) {
-      setNotice(err.message || "Failed to publish post.");
-=======
     if (!isLoggedIn) {
       setNotice("Please log in to share a recipe with the community.");
+      if (onSignIn) {
+        onSignIn();
+      }
       return;
     }
 
     try {
       setSubmitting(true);
+      setError("");
       const res = await api("/posts", {
         method: "POST",
         body: JSON.stringify({
@@ -188,18 +90,19 @@ function Community({
         }),
       });
 
-      if (res && res.post) {
-        setPosts((current) => [res.post, ...current]);
+      const newPost = res?.post || res?.data;
+      if (newPost) {
+        setPosts((current) => [newPost, ...current]);
         setDraft("");
         setPhoto("");
         setRecipeLink("");
         setNotice("Your post is live!");
       }
     } catch (err) {
+      console.error("Failed to publish post:", err.message);
       setNotice(err.message || "Failed to publish post.");
     } finally {
       setSubmitting(false);
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
     }
   };
 
@@ -219,6 +122,7 @@ function Community({
         onExplore={onExplore}
         onCommunity={onCommunity}
         onSignIn={onSignIn}
+        onSaved={() => navigate && navigate("saved")}
         isLoggedIn={isLoggedIn}
         onLogout={onLogout}
       />
@@ -247,6 +151,7 @@ function Community({
                   type="button"
                   onClick={() => setPhoto("")}
                   aria-label="Remove photo"
+                  disabled={submitting}
                 >
                   ×
                 </button>
@@ -284,30 +189,6 @@ function Community({
             </p>
           )}
 
-<<<<<<< HEAD
-          {loading && posts.length === 0 && (
-            <div className="community-loading" style={{ textAlign: "center", padding: "30px" }}>
-              <p>Loading community posts...</p>
-            </div>
-          )}
-
-          {!loading && posts.length === 0 && (
-            <div
-              className="empty-community-state"
-              style={{
-                textAlign: "center",
-                padding: "48px 24px",
-                background: "rgba(255,255,255,0.03)",
-                borderRadius: "16px",
-                border: "1px dashed rgba(255,255,255,0.15)",
-                margin: "24px 0",
-              }}
-            >
-              <span style={{ fontSize: "2.5rem", display: "block", marginBottom: 12 }}>🍳</span>
-              <h3 style={{ margin: "0 0 8px 0" }}>No community posts yet</h3>
-              <p style={{ color: "rgba(255,255,255,0.6)", margin: 0 }}>
-                Be the first cook to share a dish, recipe link, or kitchen creation above!
-=======
           {error && (
             <div className="error-banner" role="alert">
               <p>{error}</p>
@@ -331,21 +212,10 @@ function Community({
               <p>
                 Be the first chef to share your latest culinary dish with the
                 Flavor Fusion community!
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
               </p>
             </div>
           )}
 
-<<<<<<< HEAD
-          {posts.map((post) => (
-            <CommunityPost
-              key={post.id || post._id}
-              post={post}
-              onUpdate={updatePost}
-              onNotice={setNotice}
-            />
-          ))}
-=======
           {/* Real Posts */}
           {!loading &&
             posts.map((post) => (
@@ -358,7 +228,6 @@ function Community({
                 onSignIn={onSignIn}
               />
             ))}
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
         </section>
       </main>
       <Footer navigate={navigate} />
@@ -405,16 +274,18 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
   const [photoOpen, setPhotoOpen] = useState(false);
   const saved = Boolean(post.saved);
 
+  const postId = post.id || post._id;
+
   const share = async () => {
-    const url = `${window.location.origin}/community#${post.id || post._id}`;
+    const url = `${window.location.origin}/community#${postId}`;
     try {
-      if (navigator.share)
+      if (navigator.share) {
         await navigator.share({
           title: "Flavor Fusion community post",
           text: post.text,
           url,
         });
-      else {
+      } else {
         await navigator.clipboard.writeText(url);
         onNotice("Post link copied to your clipboard.");
       }
@@ -423,8 +294,6 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
     }
   };
 
-<<<<<<< HEAD
-=======
   const handleLike = async () => {
     if (!isLoggedIn) {
       if (onSignIn) onSignIn();
@@ -433,24 +302,25 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
     // Optimistic update
     const previousLiked = post.liked;
     const previousLikes = post.likes || 0;
-    onUpdate(post.id || post._id, () => ({
+    onUpdate(postId, () => ({
       liked: !previousLiked,
       likes: previousLikes + (previousLiked ? -1 : 1),
     }));
 
     try {
-      const res = await api(`/posts/${post.id || post._id}/like`, {
+      const res = await api(`/posts/${postId}/like`, {
         method: "POST",
       });
       if (res && res.success) {
-        onUpdate(post.id || post._id, () => ({
+        onUpdate(postId, () => ({
           liked: res.liked,
           likes: res.likes,
         }));
       }
-    } catch {
+    } catch (err) {
+      console.warn("Could not toggle like:", err.message);
       // Revert on error
-      onUpdate(post.id || post._id, () => ({
+      onUpdate(postId, () => ({
         liked: previousLiked,
         likes: previousLikes,
       }));
@@ -463,76 +333,30 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
       return;
     }
     const previousSaved = saved;
-    onUpdate(post.id || post._id, () => ({ saved: !previousSaved }));
-    onNotice(!previousSaved ? "Post saved to your collection." : "Post removed from saved.");
+    onUpdate(postId, () => ({ saved: !previousSaved }));
+    onNotice(
+      !previousSaved
+        ? "Post saved to your collection."
+        : "Post removed from saved."
+    );
 
     try {
-      const res = await api(`/posts/${post.id || post._id}/save`, {
+      const res = await api(`/posts/${postId}/save`, {
         method: "POST",
       });
       if (res && res.success) {
-        onUpdate(post.id || post._id, () => ({ saved: res.saved }));
+        onUpdate(postId, () => ({ saved: res.saved }));
       }
-    } catch {
-      onUpdate(post.id || post._id, () => ({ saved: previousSaved }));
+    } catch (err) {
+      console.warn("Could not toggle save post:", err.message);
+      onUpdate(postId, () => ({ saved: previousSaved }));
     }
   };
 
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
   const addComment = async (event) => {
     event.preventDefault();
     if (!comment.trim()) return;
 
-<<<<<<< HEAD
-    const commentText = comment.trim();
-    setComment("");
-
-    try {
-      const res = await api(`/posts/${post.id || post._id}/comments`, {
-        method: "POST",
-        body: JSON.stringify({ text: commentText }),
-      });
-
-      const newComment = res?.data || {
-        id: `comment-${Date.now()}`,
-        name: "You",
-        text: commentText,
-      };
-
-      onUpdate(post.id || post._id, (current) => ({
-        comments: [...(current.comments || []), newComment],
-      }));
-    } catch {
-      onUpdate(post.id || post._id, (current) => ({
-        comments: [
-          ...(current.comments || []),
-          { id: `comment-${Date.now()}`, name: "You", text: commentText },
-        ],
-      }));
-    }
-  };
-
-  const handleLike = async () => {
-    const newLiked = !post.liked;
-    onUpdate(post.id || post._id, (current) => ({
-      liked: newLiked,
-      likes: Math.max(0, (current.likes || 0) + (newLiked ? 1 : -1)),
-    }));
-
-    try {
-      await api(`/posts/${post.id || post._id}/like`, { method: "POST" });
-    } catch {
-      // Revert if error
-    }
-  };
-
-  return (
-    <article className="community-post" id={post.id || post._id}>
-      <header>
-        <span className="community-avatar">{post.initials || "CC"}</span>
-        <div>
-          <strong>{post.name || "Community Member"}</strong>
-=======
     if (!isLoggedIn) {
       if (onSignIn) onSignIn();
       return;
@@ -542,28 +366,29 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
     setComment("");
 
     try {
-      const res = await api(`/posts/${post.id || post._id}/comment`, {
+      const res = await api(`/posts/${postId}/comment`, {
         method: "POST",
         body: JSON.stringify({ text: textToSubmit }),
       });
 
-      if (res && res.comment) {
-        onUpdate(post.id || post._id, (current) => ({
-          comments: [...(current.comments || []), res.comment],
+      const newComment = res?.comment || res?.data;
+      if (newComment) {
+        onUpdate(postId, (current) => ({
+          comments: [...(current.comments || []), newComment],
         }));
       }
     } catch (err) {
-      onNotice(err.message || "Failed to add comment");
+      console.error("Failed to add comment:", err.message);
+      onNotice(err.message || "Failed to add comment.");
     }
   };
 
   return (
-    <article className="community-post" id={post.id || post._id}>
+    <article className="community-post" id={postId}>
       <header>
         <span className="community-avatar">{post.initials || "FF"}</span>
         <div>
-          <strong>{post.name}</strong>
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
+          <strong>{post.name || "Community Member"}</strong>
           <small>{post.time || "Recently"}</small>
         </div>
         <div className="post-menu">
@@ -577,16 +402,8 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
             <div>
               <button
                 onClick={() => {
-<<<<<<< HEAD
-                  onUpdate(post.id || post._id, () => ({ saved: !saved }));
-                  setMenuOpen(false);
-                  onNotice(
-                    saved ? "Post removed from saved items." : "Post saved."
-                  );
-=======
                   handleToggleSave();
                   setMenuOpen(false);
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                 }}
               >
                 {saved ? "Unsave Post" : "Save Post"}
@@ -638,7 +455,6 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
         >
           <img src={post.image} alt={`Shared by ${post.name || "member"}`} />
           <span>{photoOpen ? "− Close photo" : "⌕ Expand photo"}</span>
-          {post.cooked && <b>● Cooked this!</b>}
         </button>
       )}
       <div className="post-actions">
@@ -649,23 +465,12 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
           {post.liked ? "♥" : "♡"} {post.likes || 0}
         </button>
         <button onClick={() => setCommentsOpen(!commentsOpen)}>
-<<<<<<< HEAD
-          ▢ {post.comments ? post.comments.length : 0}
-=======
           ▢ {post.comments?.length || 0}
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
         </button>
         <button onClick={share}>⌯ Share</button>
         <button
           className={saved ? "saved" : ""}
-<<<<<<< HEAD
-          onClick={() => {
-            onUpdate(post.id || post._id, () => ({ saved: !saved }));
-            onNotice(saved ? "Post removed from saved items." : "Post saved.");
-          }}
-=======
           onClick={handleToggleSave}
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
         >
           {saved ? "★ Saved" : "☆ Save"}
         </button>
@@ -680,20 +485,11 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
             />
             <button type="submit">Send</button>
           </form>
-<<<<<<< HEAD
-          {post.comments &&
-            post.comments.map((item) => (
-              <p key={item.id || item._id}>
-                <strong>{item.name || "You"}</strong> {item.text}
-              </p>
-            ))}
-=======
           {(post.comments || []).map((item) => (
             <p key={item.id || item._id}>
               <strong>{item.name || "Chef"}</strong> {item.text}
             </p>
           ))}
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
         </div>
       )}
     </article>

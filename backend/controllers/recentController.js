@@ -4,7 +4,12 @@ export const getRecents = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
-      return res.status(200).json({ success: true, recents: [] });
+      return res.status(200).json({
+        success: true,
+        message: "No recents for unauthenticated user.",
+        recents: [],
+        data: [],
+      });
     }
 
     const recents = await Recent.find({ user: userId })
@@ -23,12 +28,16 @@ export const getRecents = async (req, res) => {
 
     return res.status(200).json({
       success: true,
+      message: "Recent searches retrieved successfully.",
       recents: normalized,
+      data: normalized,
     });
   } catch (error) {
+    console.error("getRecents error:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Failed to fetch recent searches",
+      message: error.message || "Failed to fetch recent searches.",
+      error: "Internal Server Error",
     });
   }
 };
@@ -37,7 +46,11 @@ export const addRecent = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
-      return res.status(401).json({ success: false, error: "Unauthorized" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized.",
+        error: "Unauthorized",
+      });
     }
 
     const body = req.body;
@@ -74,7 +87,7 @@ export const addRecent = async (req, res) => {
       await Recent.findOneAndUpdate(
         { user: userId, recipeName: recipeTitle },
         updateData,
-        { upsert: true, new: true, setDefaultsOnInsert: true },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
       );
     }
 
@@ -91,12 +104,14 @@ export const addRecent = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Recents updated successfully",
+      message: "Recents updated successfully.",
     });
   } catch (error) {
+    console.error("addRecent error:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Failed to save recent search",
+      message: error.message || "Failed to save recent search.",
+      error: "Internal Server Error",
     });
   }
 };
@@ -105,19 +120,25 @@ export const clearRecents = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
-      return res.status(401).json({ success: false, error: "Unauthorized" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized.",
+        error: "Unauthorized",
+      });
     }
 
     await Recent.deleteMany({ user: userId });
 
     return res.status(200).json({
       success: true,
-      message: "Recents cleared successfully",
+      message: "Recents cleared successfully.",
     });
   } catch (error) {
+    console.error("clearRecents error:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Failed to clear recents",
+      message: error.message || "Failed to clear recents.",
+      error: "Internal Server Error",
     });
   }
 };

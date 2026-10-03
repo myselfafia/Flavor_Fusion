@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-<<<<<<< HEAD
-=======
 import { api } from "../services/api";
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 import "./Saved.css";
 
 const byMinutes = (time) => parseInt(time, 10) || 0;
@@ -28,7 +25,6 @@ function Saved({
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [error, setError] = useState("");
 
-  // Use saved recipes provided from App-level API sync
   const savedRecipes = saved;
 
   // Fetch saved community posts from backend API
@@ -36,23 +32,31 @@ function Saved({
     if (!isLoggedIn) return;
 
     let isMounted = true;
-    api("/saved")
-      .then((res) => {
-        if (isMounted && res && Array.isArray(res.posts)) {
-          setSavedPosts(res.posts);
+    const fetchSavedPosts = async () => {
+      try {
+        setLoadingPosts(true);
+        setError("");
+        const res = await api("/saved");
+        if (isMounted) {
+          if (res && Array.isArray(res.posts)) {
+            setSavedPosts(res.posts);
+          } else if (res && Array.isArray(res.data?.posts)) {
+            setSavedPosts(res.data.posts);
+          }
         }
-      })
-      .catch((err) => {
+      } catch (err) {
+        console.error("Failed to load saved posts:", err.message);
         if (isMounted) {
           setError(err.message || "Failed to load saved posts.");
         }
-      })
-      .finally(() => {
+      } finally {
         if (isMounted) {
           setLoadingPosts(false);
         }
-      });
+      }
+    };
 
+    fetchSavedPosts();
     return () => {
       isMounted = false;
     };
@@ -67,70 +71,16 @@ function Saved({
     return () => clearTimeout(timer);
   }, [notice]);
 
-<<<<<<< HEAD
-  const savedRecipes = useMemo(
-    () =>
-      saved
-        .map((item) => {
-          if (!item) return null;
-          const name =
-            typeof item === "string"
-              ? item
-              : item.recipeName || item.name || "Untitled Dish";
-          const rawRequired =
-            typeof item === "object"
-              ? item.required || item.ingredients || []
-              : [];
-          const required = Array.isArray(rawRequired)
-            ? rawRequired.map((i) =>
-                typeof i === "string" ? i : i.name || ""
-              )
-            : [];
-          return {
-            name,
-            recipeName: name,
-            cuisine:
-              (typeof item === "object" && item.cuisine) || "Homestyle",
-            time:
-              (typeof item === "object" &&
-                (item.cookingTime || item.time)) ||
-              "25 min",
-            level:
-              (typeof item === "object" &&
-                (item.difficulty || item.level)) ||
-              "Easy",
-            image:
-              (typeof item === "object" && item.image) ||
-              "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80",
-            description:
-              (typeof item === "object" && item.description) || "",
-            required,
-            steps:
-              typeof item === "object" && Array.isArray(item.steps)
-                ? item.steps
-                : [],
-            tips:
-              typeof item === "object" && Array.isArray(item.tips)
-                ? item.tips
-                : [],
-            raw: item,
-          };
-        })
-        .filter(Boolean),
-    [saved],
-  );
-=======
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
   const cuisines = useMemo(
     () => [
       "All",
       ...new Set(
         savedRecipes
           .map((dish) => dish.cuisine)
-          .filter((c) => Boolean(c) && c !== "General"),
+          .filter((c) => Boolean(c) && c !== "General")
       ),
     ],
-    [savedRecipes],
+    [savedRecipes]
   );
 
   const visible = useMemo(() => {
@@ -143,7 +93,11 @@ function Saved({
       list = list.filter((dish) => {
         const name = (dish.name || dish.recipeName || "").toLowerCase();
         const cuis = (dish.cuisine || "").toLowerCase();
-        const reqs = Array.isArray(dish.required) ? dish.required : [];
+        const reqs = Array.isArray(dish.required)
+          ? dish.required
+          : Array.isArray(dish.ingredients)
+            ? dish.ingredients.map((i) => (typeof i === "string" ? i : i.name))
+            : [];
         return (
           name.includes(term) ||
           cuis.includes(term) ||
@@ -153,15 +107,13 @@ function Saved({
     }
     if (sort === "name") {
       list.sort((a, b) =>
-        (a.name || a.recipeName || "").localeCompare(
-          b.name || b.recipeName || "",
-        ),
+        (a.name || a.recipeName || "").localeCompare(b.name || b.recipeName || "")
       );
     } else if (sort === "time") {
       list.sort(
         (a, b) =>
           byMinutes(a.time || a.cookingTime) -
-          byMinutes(b.time || b.cookingTime),
+          byMinutes(b.time || b.cookingTime)
       );
     }
     return list;
@@ -176,7 +128,7 @@ function Saved({
       total: savedRecipes.length,
       posts: savedPosts.length,
       cuisines: new Set(
-        savedRecipes.map((dish) => dish.cuisine).filter(Boolean),
+        savedRecipes.map((dish) => dish.cuisine).filter(Boolean)
       ).size,
       quickest: validTimes.length ? Math.min(...validTimes) : 0,
     };
@@ -188,7 +140,7 @@ function Saved({
       onToggleSave(dish);
     }
     setNotice(
-      `Removed “${dish.name || dish.recipeName}” from your collection.`,
+      `Removed “${dish.name || dish.recipeName}” from your collection.`
     );
   };
 
@@ -203,6 +155,7 @@ function Saved({
         method: "DELETE",
       });
     } catch (err) {
+      console.error("Failed to unsave post:", err.message);
       setNotice(err.message || "Failed to unsave post.");
     }
   };
@@ -215,7 +168,7 @@ function Saved({
     }
     setUndo({ type: "clear", items: backup });
     setNotice(
-      `Cleared ${backup.length} recipe${backup.length === 1 ? "" : "s"} from your collection.`,
+      `Cleared ${backup.length} recipe${backup.length === 1 ? "" : "s"} from your collection.`
     );
 
     for (const r of backup) {
@@ -224,8 +177,8 @@ function Saved({
         await api(`/saved/${encodeURIComponent(idOrName)}`, {
           method: "DELETE",
         });
-      } catch {
-        // Continue
+      } catch (err) {
+        console.warn(`Could not delete recipe ${idOrName}:`, err.message);
       }
     }
   };
@@ -248,8 +201,8 @@ function Saved({
             method: "POST",
             body: JSON.stringify(item),
           });
-        } catch {
-          // ignore
+        } catch (err) {
+          console.warn("Could not re-save item on undo:", err.message);
         }
       }
     } else if (undo.type === "post" && undo.item) {
@@ -260,8 +213,8 @@ function Saved({
           method: "POST",
           body: JSON.stringify({ type: "post", postId: item.id || item._id }),
         });
-      } catch {
-        // ignore
+      } catch (err) {
+        console.warn("Could not re-save post on undo:", err.message);
       }
     }
 
@@ -423,14 +376,14 @@ function Saved({
                     ? dish.required
                     : Array.isArray(dish.ingredients)
                       ? dish.ingredients.map((i) =>
-                          typeof i === "string" ? i : i.name,
+                          typeof i === "string" ? i : i.name
                         )
                       : [];
 
                 return (
                   <article
                     className="saved-card"
-                    key={dish._id || dishName}
+                    key={dish._id || dish.id || dishName}
                     style={{
                       animationDelay: `${Math.min(index * 0.07, 0.5)}s`,
                     }}

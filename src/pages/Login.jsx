@@ -1,11 +1,7 @@
-import Header from "../components/Header";
 import { useState } from "react";
-import "./SignIn.css";
-<<<<<<< HEAD
-import { api, setAuthSession } from "../services/api";
-=======
+import Header from "../components/Header";
 import { api, setAccessToken } from "../services/api";
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
+import "./SignIn.css";
 
 function Login({ onHome, onSignUp, onAuthChange }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,26 +11,45 @@ function Login({ onHome, onSignUp, onAuthChange }) {
   const submitForm = async (event) => {
     event.preventDefault();
     setError("");
-    setIsSubmitting(true);
+
     const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") || "").trim();
+    const password = String(form.get("password") || "");
+
+    if (!email || !password) {
+      setError("Please provide both email and password.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
       const data = await api("/auth/login", {
         method: "POST",
-        body: JSON.stringify({
-          email: form.get("email"),
-          password: form.get("password"),
-        }),
+        body: JSON.stringify({ email, password }),
       });
-<<<<<<< HEAD
-      setAuthSession(data.token, data.user);
-      if (onAuthChange) onAuthChange();
-=======
-      setAccessToken(data.accessToken);
-      if (onAuthChange) onAuthChange(data.user);
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
+
+      const token = data.accessToken || data.token;
+      setAccessToken(token);
+
+      const authenticatedUser = data.user || data.data?.user;
+      if (onAuthChange) {
+        onAuthChange(authenticatedUser);
+      }
+
       onHome();
     } catch (requestError) {
-      setError(requestError.message);
+      console.error("Login attempt failed:", requestError.message);
+      setError(
+        requestError.message ||
+          "Failed to log in. Please check your credentials and try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -67,6 +82,7 @@ function Login({ onHome, onSignUp, onAuthChange }) {
                 type="email"
                 placeholder="Enter your email"
                 required
+                disabled={isSubmitting}
               />
             </label>
             <label>
@@ -77,6 +93,7 @@ function Login({ onHome, onSignUp, onAuthChange }) {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
+                  disabled={isSubmitting}
                 />
                 <button
                   type="button"
@@ -84,6 +101,7 @@ function Login({ onHome, onSignUp, onAuthChange }) {
                   onClick={() => setShowPassword((visible) => !visible)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   title={showPassword ? "Hide password" : "Show password"}
+                  disabled={isSubmitting}
                 >
                   {showPassword ? (
                     <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -99,30 +117,24 @@ function Login({ onHome, onSignUp, onAuthChange }) {
                 </button>
               </span>
             </label>
-            <div className="form-options">
-              <label>
-                <input type="checkbox" /> Remember me
-              </label>
-              <button type="button">Forgot password?</button>
-            </div>
             {error && (
               <p className="form-error" role="alert">
                 {error}
               </p>
             )}
-            <button className="submit-signin" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="submit-signin"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Logging in…" : "Log in"}
             </button>
             <div className="divider">
-              <span>or continue with</span>
-            </div>
-            <div className="social-buttons">
-              <button type="button">◎ &nbsp; Google</button>
-              <button type="button">▣ &nbsp; Apple</button>
+              <span>or</span>
             </div>
             <p className="sign-up">
               Don&apos;t have an account?{" "}
-              <button type="button" onClick={onSignUp}>
+              <button type="button" onClick={onSignUp} disabled={isSubmitting}>
                 Sign up
               </button>
             </p>

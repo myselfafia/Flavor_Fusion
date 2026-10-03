@@ -16,6 +16,7 @@ export const getSaved = async (req, res) => {
 
     const normalizedRecipes = recipes.map((recipe) => ({
       ...recipe,
+      id: recipe._id.toString(),
       name: recipe.name || recipe.recipeName,
       recipeName: recipe.recipeName || recipe.name,
       time: recipe.time || recipe.cookingTime || "30 min",
@@ -27,24 +28,32 @@ export const getSaved = async (req, res) => {
         recipe.required?.length > 0
           ? recipe.required
           : recipe.ingredients?.map((i) =>
-              typeof i === "string" ? i : i.name,
+              typeof i === "string" ? i : i.name
             ) || [],
     }));
 
     const normalizedPosts = posts.map((post) => ({
       ...post,
+      id: post._id.toString(),
       saved: true,
     }));
 
     return res.status(200).json({
       success: true,
+      message: "Saved collection fetched successfully.",
       recipes: normalizedRecipes,
       posts: normalizedPosts,
+      data: {
+        recipes: normalizedRecipes,
+        posts: normalizedPosts,
+      },
     });
   } catch (error) {
+    console.error("getSaved error:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Failed to fetch saved collection",
+      message: error.message || "Failed to fetch saved collection.",
+      error: "Internal Server Error",
     });
   }
 };
@@ -57,24 +66,29 @@ export const saveRecipe = async (req, res) => {
     if (req.body.type === "post" || req.body.postId) {
       const postId = req.body.postId || req.body.id;
       if (!mongoose.isValidObjectId(postId)) {
-        return res
-          .status(400)
-          .json({ success: false, error: "Invalid post ID" });
+        return res.status(400).json({
+          success: false,
+          message: "Invalid post ID format.",
+          error: "Bad Request",
+        });
       }
       const post = await Post.findByIdAndUpdate(
         postId,
         { $addToSet: { savedBy: userId } },
-        { new: true },
+        { new: true }
       );
       if (!post) {
-        return res
-          .status(404)
-          .json({ success: false, error: "Post not found" });
+        return res.status(404).json({
+          success: false,
+          message: "Post not found.",
+          error: "Not Found",
+        });
       }
       return res.status(201).json({
         success: true,
-        message: "Post saved successfully",
-        post: { ...post.toObject(), saved: true },
+        message: "Post saved successfully to your collection.",
+        post: { ...post.toObject(), id: post._id.toString(), saved: true },
+        data: { ...post.toObject(), id: post._id.toString(), saved: true },
       });
     }
 
@@ -98,7 +112,8 @@ export const saveRecipe = async (req, res) => {
     if (!title) {
       return res.status(400).json({
         success: false,
-        error: "Recipe name is required",
+        message: "Recipe name is required.",
+        error: "Validation Error",
       });
     }
 
@@ -109,10 +124,12 @@ export const saveRecipe = async (req, res) => {
     });
 
     if (existing) {
+      const existingObj = existing.toObject();
       return res.status(200).json({
         success: true,
-        message: "Recipe already in your saved collection",
-        recipe: existing,
+        message: "Recipe already in your saved collection.",
+        recipe: { ...existingObj, id: existing._id.toString() },
+        data: { ...existingObj, id: existing._id.toString() },
       });
     }
 
@@ -121,7 +138,7 @@ export const saveRecipe = async (req, res) => {
         ? required
         : ingredients && ingredients.length > 0
           ? ingredients.map((item) =>
-              typeof item === "string" ? item : item.name,
+              typeof item === "string" ? item : item.name
             )
           : [];
 
@@ -143,16 +160,20 @@ export const saveRecipe = async (req, res) => {
     });
 
     const saved = await newSaved.save();
+    const savedObj = saved.toObject();
 
     return res.status(201).json({
       success: true,
-      message: "Recipe saved successfully",
-      recipe: saved,
+      message: "Recipe saved successfully to your collection.",
+      recipe: { ...savedObj, id: saved._id.toString() },
+      data: { ...savedObj, id: saved._id.toString() },
     });
   } catch (error) {
+    console.error("saveRecipe error:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Failed to save recipe",
+      message: error.message || "Failed to save recipe.",
+      error: "Internal Server Error",
     });
   }
 };
@@ -163,36 +184,42 @@ export const deleteSaved = async (req, res) => {
     const { recipeId } = req.params;
 
     if (!recipeId) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Recipe identifier is required" });
+      return res.status(400).json({
+        success: false,
+        message: "Recipe identifier is required.",
+        error: "Bad Request",
+      });
     }
 
+    const decodedId = decodeURIComponent(recipeId).trim();
     const query = { user: userId };
-    if (mongoose.isValidObjectId(recipeId)) {
-      query.$or = [{ _id: recipeId }, { name: recipeId }, { recipeName: recipeId }];
+    if (mongoose.isValidObjectId(decodedId)) {
+      query.$or = [{ _id: decodedId }, { name: decodedId }, { recipeName: decodedId }];
     } else {
-      query.$or = [{ name: recipeId }, { recipeName: recipeId }];
+      query.$or = [{ name: decodedId }, { recipeName: decodedId }];
     }
 
     const deleted = await SavedRecipe.findOneAndDelete(query);
 
-    // Also check if it corresponds to an unsaved community post
-    if (mongoose.isValidObjectId(recipeId)) {
-      await Post.findByIdAndUpdate(recipeId, {
+    // Also check if it corresponds to a saved community post
+    if (mongoose.isValidObjectId(decodedId)) {
+      await Post.findByIdAndUpdate(decodedId, {
         $pull: { savedBy: userId },
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Item removed from your saved collection",
-      deletedId: deleted?._id || recipeId,
+      message: "Item removed from your saved collection.",
+      deletedId: deleted?._id?.toString() || decodedId,
+      data: { deletedId: deleted?._id?.toString() || decodedId },
     });
   } catch (error) {
+    console.error("deleteSaved error:", error);
     return res.status(500).json({
       success: false,
-      error: error.message || "Failed to remove saved item",
+      message: error.message || "Failed to remove saved item.",
+      error: "Internal Server Error",
     });
   }
 };

@@ -15,7 +15,7 @@ const POPULAR_STAPLES = [
   { name: "Tomato", icon: "🍅" },
 ];
 
-function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
+function Explore({ saved = [], onToggleSave, navigate, isLoggedIn, onLogout }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -39,8 +39,8 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
         if (isMounted && res && Array.isArray(res.recents)) {
           setRecents(res.recents);
         }
-      } catch {
-        // Ignore errors fetching recents
+      } catch (err) {
+        console.warn("Could not fetch recents:", err.message);
       }
     };
     fetchRecents();
@@ -49,21 +49,18 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
     };
   }, [isLoggedIn]);
 
-  const isRecipeSaved = (recipe) => {
-    if (!recipe || !saved) return false;
-    const name = (recipe.recipeName || recipe.name || "").toLowerCase();
-    return saved.some((s) => {
-      if (typeof s === "string") return s.toLowerCase() === name;
-      return (s.name || s.recipeName || "").toLowerCase() === name;
-    });
-  };
+  const isRecipeSaved = (recipeOrTitle) => {
+    if (!recipeOrTitle || !Array.isArray(saved)) return false;
+    const title =
+      typeof recipeOrTitle === "string"
+        ? recipeOrTitle
+        : recipeOrTitle.recipeName || recipeOrTitle.name || "";
+    if (!title) return false;
 
-  const isRecipeSaved = (recipeName) => {
-    if (!recipeName || !Array.isArray(saved)) return false;
     return saved.some((item) => {
       const name =
         typeof item === "string" ? item : item.recipeName || item.name;
-      return name?.toLowerCase() === recipeName.toLowerCase();
+      return name?.toLowerCase() === title.toLowerCase();
     });
   };
 
@@ -71,7 +68,7 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
     const promptToSearch = (promptOverride || query || "").trim();
     if (!promptToSearch) {
       setErrorMessage(
-        "Please enter some ingredients or what you'd like to cook.",
+        "Please enter some ingredients or what you'd like to cook."
       );
       return;
     }
@@ -100,7 +97,9 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                 prompt: promptToSearch,
                 recipes: res.data.recipes,
               }),
-            }).catch(() => {});
+            }).catch((err) => {
+              console.warn("Could not save to recents:", err.message);
+            });
           }
 
           // Update local state
@@ -116,8 +115,8 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                 !newRecentItems.some(
                   (n) =>
                     (n.recipeName || n.name || "").toLowerCase() ===
-                    (item.recipeName || item.name || "").toLowerCase(),
-                ),
+                    (item.recipeName || item.name || "").toLowerCase()
+                )
             );
             return [...newRecentItems, ...filtered].slice(0, 15);
           });
@@ -130,12 +129,13 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
         }
       } else {
         setErrorMessage(
-          res?.error || "Could not generate recipes. Please try again.",
+          res?.error || res?.message || "Could not generate recipes. Please try again."
         );
       }
     } catch (err) {
+      console.error("AI Recipe search error:", err.message);
       setErrorMessage(
-        err.message || "Failed to reach AI recipe service. Please try again.",
+        err.message || "Failed to reach AI recipe service. Please try again."
       );
     } finally {
       setLoading(false);
@@ -189,8 +189,8 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
     if (isLoggedIn) {
       try {
         await api("/recents", { method: "DELETE" });
-      } catch {
-        // Ignore errors on clear
+      } catch (err) {
+        console.warn("Could not clear recents from server:", err.message);
       }
     }
   };
@@ -332,7 +332,7 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
           </section>
         )}
 
-        {/* RECIPE DETAIL VIEW (User will customize later) */}
+        {/* RECIPE DETAIL VIEW */}
         {selectedRecipe && !loading && (
           <section
             id="recipe-detail-section"
@@ -352,17 +352,10 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                 {onToggleSave && (
                   <button
                     type="button"
-<<<<<<< HEAD
-                    className={`save-detail-btn ${isRecipeSaved(selectedRecipe.recipeName) ? "saved" : ""}`}
-                    onClick={() => onToggleSave(selectedRecipe)}
-                  >
-                    {isRecipeSaved(selectedRecipe.recipeName)
-=======
                     className={`save-detail-btn ${isRecipeSaved(selectedRecipe) ? "saved" : ""}`}
                     onClick={() => onToggleSave(selectedRecipe)}
                   >
                     {isRecipeSaved(selectedRecipe)
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                       ? "★ Saved"
                       : "☆ Save Recipe"}
                   </button>
@@ -516,39 +509,23 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                   {onToggleSave && (
                     <button
                       type="button"
-<<<<<<< HEAD
-                      className={`card-save-btn ${isRecipeSaved(recipe.recipeName) ? "saved" : ""}`}
-=======
                       className={`card-save-btn ${isRecipeSaved(recipe) ? "saved" : ""}`}
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                       onClick={(e) => {
                         e.stopPropagation();
                         onToggleSave(recipe);
                       }}
                       aria-label={
-<<<<<<< HEAD
-                        isRecipeSaved(recipe.recipeName)
-=======
                         isRecipeSaved(recipe)
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                           ? "Remove from saved"
                           : "Save recipe"
                       }
                       title={
-<<<<<<< HEAD
-                        isRecipeSaved(recipe.recipeName)
-=======
                         isRecipeSaved(recipe)
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                           ? "Saved"
                           : "Save recipe"
                       }
                     >
-<<<<<<< HEAD
-                      {isRecipeSaved(recipe.recipeName) ? "★" : "☆"}
-=======
                       {isRecipeSaved(recipe) ? "★" : "☆"}
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                     </button>
                   )}
                   {recipe.image && (
@@ -592,7 +569,7 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
           </section>
         )}
 
-        {/* RECENTS SECTION (Shown initially instead of hardcoded matches) */}
+        {/* RECENTS SECTION */}
         {!aiRecipes && !loading && (
           <section className="matches-section recents-section">
             <div className="matches-heading">
@@ -628,39 +605,23 @@ function Explore({ saved, onToggleSave, navigate, isLoggedIn, onLogout }) {
                     {onToggleSave && (
                       <button
                         type="button"
-<<<<<<< HEAD
-                        className={`card-save-btn ${isRecipeSaved(item.recipeName) ? "saved" : ""}`}
-=======
                         className={`card-save-btn ${isRecipeSaved(item) ? "saved" : ""}`}
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                         onClick={(e) => {
                           e.stopPropagation();
                           onToggleSave(item);
                         }}
                         aria-label={
-<<<<<<< HEAD
-                          isRecipeSaved(item.recipeName)
-=======
                           isRecipeSaved(item)
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                             ? "Remove from saved"
                             : "Save recipe"
                         }
                         title={
-<<<<<<< HEAD
-                          isRecipeSaved(item.recipeName)
-=======
                           isRecipeSaved(item)
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                             ? "Saved"
                             : "Save recipe"
                         }
                       >
-<<<<<<< HEAD
-                        {isRecipeSaved(item.recipeName) ? "★" : "☆"}
-=======
                         {isRecipeSaved(item) ? "★" : "☆"}
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
                       </button>
                     )}
                     {item.image && (

@@ -1,28 +1,21 @@
 import mongoose from "mongoose";
-<<<<<<< HEAD
-=======
 
 let isConnecting = false;
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 
 export async function connectDatabase() {
   const dbUrl =
-    process.env.MONGO_URI ||
     process.env.MONGODB_URI ||
+    process.env.MONGO_URI ||
     process.env.DATABASE_URL;
 
   if (!dbUrl) {
     throw new Error(
-      "Database connection string missing. Please set MONGO_URI in your environment variables."
+      "Database connection string missing. Please set MONGODB_URI or MONGO_URI in your environment variables."
     );
   }
 
-<<<<<<< HEAD
-  await mongoose.connect(dbUrl);
-  console.log("Connected to MongoDB successfully");
-=======
   if (mongoose.connection.readyState === 1) {
-    return;
+    return mongoose.connection;
   }
 
   if (isConnecting) {
@@ -41,15 +34,18 @@ export async function connectDatabase() {
     });
 
     mongoose.connection.on("disconnected", () => {
-      console.warn("MongoDB disconnected.");
+      console.warn("MongoDB disconnected. Reconnection will be attempted if needed.");
     });
 
     await mongoose.connect(dbUrl, {
       serverSelectionTimeoutMS: 8000,
     });
-    console.log("Connected to database");
+
+    return mongoose.connection;
+  } catch (error) {
+    console.error("Failed to connect to MongoDB:", error.message);
+    throw error;
   } finally {
     isConnecting = false;
   }
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 }

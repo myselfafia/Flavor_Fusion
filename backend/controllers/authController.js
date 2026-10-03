@@ -1,98 +1,72 @@
+import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { comparePassword, hashPassword } from "../utils/helpers.js";
-import jwt from "jsonwebtoken";
 
-<<<<<<< HEAD
 const isProduction = process.env.NODE_ENV === "production";
 
-// 7-day token lifetime
-const ACCESS_TOKEN_EXPIRES_IN = "7d";
-const REFRESH_TOKEN_EXPIRES_IN = "30d";
-
-const cookieOptions = {
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-=======
 const ACCESS_TOKEN_LIFETIME = "15m";
 const REFRESH_TOKEN_LIFETIME = "7d";
 
+const getRefreshSecret = () => {
+  return (
+    process.env.JWT_REFRESH_SECRET ||
+    (process.env.JWT_SECRET
+      ? `${process.env.JWT_SECRET}_refresh`
+      : "flavor_fusion_refresh_secret")
+  );
+};
+
 const refreshCookieOptions = {
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
   httpOnly: true,
   secure: isProduction,
   sameSite: isProduction ? "none" : "lax",
   path: "/",
 };
 
-<<<<<<< HEAD
-const sanitizeUser = (userDoc) => {
-  if (!userDoc) return null;
-  const obj = userDoc.toObject ? userDoc.toObject() : { ...userDoc };
-  delete obj.password;
-  delete obj.__v;
-  return obj;
-=======
 const clearRefreshCookieOptions = {
   httpOnly: true,
-  secure: true,
-  sameSite: "none",
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
   path: "/",
 };
 
-const getRefreshSecret = () => {
-  return (
-    process.env.JWT_REFRESH_SECRET ||
-    (process.env.JWT_SECRET
-      ? process.env.JWT_SECRET + "_refresh"
-      : "flavor_fusion_refresh_secret")
-  );
-};
-
-const sanitizeUser = (user) => {
+export const sanitizeUser = (user) => {
+  if (!user) return null;
   const userObj =
     typeof user.toObject === "function" ? user.toObject() : { ...user };
   delete userObj.password;
   delete userObj.refreshToken;
   delete userObj.__v;
   return userObj;
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 };
 
 const generateTokens = (user) => {
   const payload = {
-    id: user._id,
-<<<<<<< HEAD
-    userId: user._id,
+    id: user._id.toString(),
+    userId: user._id.toString(),
     email: user.email,
-    username: user.username || user.email,
+    name: user.name || user.displayName || user.username || "Chef",
   };
 
-  const token = jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
-  });
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is missing.");
+  }
 
-  const refreshSecret =
-    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
-  const refreshToken = jwt.sign(payload, refreshSecret, {
-    expiresIn: REFRESH_TOKEN_EXPIRES_IN,
-  });
-
-  return { token, refreshToken };
-=======
-    email: user.email,
-    name: user.name || user.displayName || user.username,
-  };
-
-  const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+  const accessToken = jwt.sign(payload, secret, {
     expiresIn: ACCESS_TOKEN_LIFETIME,
   });
 
-  const refreshToken = jwt.sign({ id: user._id }, getRefreshSecret(), {
-    expiresIn: REFRESH_TOKEN_LIFETIME,
-  });
+  const refreshToken = jwt.sign(
+    { id: user._id.toString() },
+    getRefreshSecret(),
+    {
+      expiresIn: REFRESH_TOKEN_LIFETIME,
+    }
+  );
 
   return { accessToken, refreshToken };
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 };
 
 export const register = async (req, res) => {
@@ -101,98 +75,76 @@ export const register = async (req, res) => {
     const rawIdentifier = email || username;
     const rawName = name || displayName || username || "Chef";
 
-<<<<<<< HEAD
     if (!rawIdentifier || !password) {
       return res.status(400).json({
         success: false,
-        error: "Email and password are required.",
         message: "Email and password are required.",
-=======
-    if (!userIdentifier || !password) {
-      return res.status(400).json({
-        error: "All fields are required",
-        message: "Email and password are required",
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
+        error: "Missing Credentials",
       });
     }
 
-    const trimmedEmail = rawIdentifier.trim().toLowerCase();
+    const trimmedEmail = String(rawIdentifier).trim().toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
       return res.status(400).json({
         success: false,
-        error: "Please enter a valid email address.",
         message: "Please enter a valid email address.",
+        error: "Invalid Email",
       });
     }
 
     if (typeof password !== "string" || password.length < 6) {
       return res.status(400).json({
         success: false,
-        error: "Password must be at least 6 characters long.",
         message: "Password must be at least 6 characters long.",
+        error: "Weak Password",
       });
     }
 
     const existingUser = await User.findOne({ email: trimmedEmail });
-
     if (existingUser) {
-      return res.status(400).json({
-<<<<<<< HEAD
+      return res.status(409).json({
         success: false,
-        error: "An account with this email already exists.",
         message: "An account with this email already exists.",
-=======
-        error: "User already exists",
-        message: "User with this email already exists",
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
+        error: "User Exists",
       });
     }
 
     const hashedPassword = await hashPassword(password);
 
     const newUser = new User({
-      name: rawName.trim(),
-      displayName: rawName.trim(),
+      name: String(rawName).trim(),
+      displayName: String(rawName).trim(),
       email: trimmedEmail,
-      username: username ? username.trim() : trimmedEmail.split("@")[0],
+      username: username ? String(username).trim() : trimmedEmail.split("@")[0],
       password: hashedPassword,
     });
 
     const { accessToken, refreshToken } = generateTokens(newUser);
     newUser.refreshToken = refreshToken;
     const savedUser = await newUser.save();
-<<<<<<< HEAD
-    const { token, refreshToken } = generateTokens(savedUser);
-
-    res.cookie("token", token, cookieOptions);
-
-    const sanitized = sanitizeUser(savedUser);
-    return res.status(201).json({
-      success: true,
-      message: "Account created successfully.",
-      token,
-      refreshToken,
-      user: sanitized,
-      ...sanitized,
-=======
 
     res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
     const safeUser = sanitizeUser(savedUser);
     return res.status(201).json({
-      message: "New user registered successfully",
+      success: true,
+      message: "Account created successfully.",
       accessToken,
+      token: accessToken,
       user: safeUser,
-      // Provide backwards compatibility if code accesses fields directly
+      data: {
+        accessToken,
+        user: safeUser,
+      },
       ...safeUser,
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
     });
   } catch (err) {
-    return res.status(400).json({
+    console.error("Register error:", err);
+    return res.status(500).json({
       success: false,
-      error: err.message || "Failed to create account.",
       message: err.message || "Failed to create account.",
+      error: "Internal Server Error",
     });
   }
 };
@@ -204,28 +156,22 @@ export const login = async (req, res) => {
 
     if (!identifier || !password) {
       return res.status(400).json({
-<<<<<<< HEAD
         success: false,
-        error: "Please provide both email and password.",
-        message: "Please provide both email and password.",
-=======
-        error: "Please provide credentials",
-        message: "Email and password are required",
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
+        message: "Email and password are required.",
+        error: "Missing Credentials",
       });
     }
 
-    const cleanIdentifier = identifier.trim().toLowerCase();
+    const cleanIdentifier = String(identifier).trim().toLowerCase();
     const user = await User.findOne({
-<<<<<<< HEAD
-      $or: [{ email: cleanIdentifier }, { username: identifier.trim() }],
+      $or: [{ email: cleanIdentifier }, { username: String(identifier).trim() }],
     });
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        error: "Invalid email or password.",
         message: "Invalid email or password.",
+        error: "Invalid Credentials",
       });
     }
 
@@ -233,97 +179,63 @@ export const login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        error: "Invalid email or password.",
         message: "Invalid email or password.",
-      });
-    }
-
-    const { token, refreshToken } = generateTokens(user);
-=======
-      $or: [{ username: identifier }, { email: identifier.toLowerCase() }],
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        error: "User not found",
-        message: "No account found with this email",
-      });
-    }
-
-    const isSame = await comparePassword(password, user.password);
-    if (!isSame) {
-      return res.status(400).json({
-        error: "Wrong password",
-        message: "Incorrect password",
+        error: "Invalid Credentials",
       });
     }
 
     const { accessToken, refreshToken } = generateTokens(user);
     user.refreshToken = refreshToken;
     await user.save();
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 
     res.cookie("refreshToken", refreshToken, refreshCookieOptions);
 
-<<<<<<< HEAD
-    const sanitized = sanitizeUser(user);
+    const safeUser = sanitizeUser(user);
     return res.status(200).json({
       success: true,
       message: "Logged in successfully.",
-      token,
-      refreshToken,
-      user: sanitized,
-      ...sanitized,
-=======
-    const safeUser = sanitizeUser(user);
-    return res.status(200).json({
-      message: "Login successful",
       accessToken,
+      token: accessToken,
       user: safeUser,
+      data: {
+        accessToken,
+        user: safeUser,
+      },
       ...safeUser,
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
     });
   } catch (err) {
-    return res.status(400).json({
+    console.error("Login error:", err);
+    return res.status(500).json({
       success: false,
-      error: err.message || "Failed to log in.",
       message: err.message || "Failed to log in.",
+      error: "Internal Server Error",
     });
   }
 };
 
-<<<<<<< HEAD
-export const logout = (_req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    path: "/",
-  });
-  return res.status(200).json({
-    success: true,
-    message: "Logged out successfully.",
-  });
-=======
 export const refresh = async (req, res) => {
   try {
-    const incomingRefreshToken = req.cookies?.refreshToken;
+    const incomingRefreshToken =
+      req.cookies?.refreshToken || req.body.refreshToken;
 
     if (!incomingRefreshToken) {
       return res.status(401).json({
+        success: false,
+        message: "No refresh token provided.",
         error: "Unauthorized",
-        message: "No refresh token provided",
       });
     }
 
     let decoded;
     try {
       decoded = jwt.verify(incomingRefreshToken, getRefreshSecret());
-    } catch {
+    } catch (err) {
+      console.warn("Refresh token verify failed:", err.message);
       res.clearCookie("refreshToken", clearRefreshCookieOptions);
       return res.status(401).json({
+        success: false,
+        message: "Refresh token is invalid or expired. Please log in again.",
         error: "Unauthorized",
-        message: "Refresh token is invalid or expired",
       });
     }
 
@@ -331,20 +243,24 @@ export const refresh = async (req, res) => {
     if (!user) {
       res.clearCookie("refreshToken", clearRefreshCookieOptions);
       return res.status(401).json({
+        success: false,
+        message: "User session not found.",
         error: "Unauthorized",
-        message: "User not found",
       });
     }
 
     // Refresh token rotation check
     if (user.refreshToken !== incomingRefreshToken) {
-      // Possible token compromise: revoke user's stored refresh token
+      console.warn(
+        `Refresh token reuse or mismatch detected for user ${user._id}. Revoking tokens.`
+      );
       user.refreshToken = null;
       await user.save();
       res.clearCookie("refreshToken", clearRefreshCookieOptions);
       return res.status(401).json({
-        error: "Unauthorized",
+        success: false,
         message: "Invalid refresh token. Please log in again.",
+        error: "Unauthorized",
       });
     }
 
@@ -359,26 +275,39 @@ export const refresh = async (req, res) => {
     const safeUser = sanitizeUser(user);
     return res.status(200).json({
       success: true,
+      message: "Token refreshed successfully.",
       accessToken: newAccessToken,
+      token: newAccessToken,
       user: safeUser,
+      data: {
+        accessToken: newAccessToken,
+        user: safeUser,
+      },
       ...safeUser,
     });
   } catch (err) {
-    return res.status(400).json({ error: err.message, message: err.message });
+    console.error("Refresh endpoint error:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to refresh token.",
+      error: "Internal Server Error",
+    });
   }
 };
 
 export const logout = async (req, res) => {
   try {
-    const incomingRefreshToken = req.cookies?.refreshToken;
+    const incomingRefreshToken =
+      req.cookies?.refreshToken || req.body?.refreshToken;
+
     if (incomingRefreshToken) {
       try {
         const decoded = jwt.verify(incomingRefreshToken, getRefreshSecret());
         if (decoded?.id) {
           await User.findByIdAndUpdate(decoded.id, { refreshToken: null });
         }
-      } catch {
-        // Ignore token verification errors during logout
+      } catch (err) {
+        console.warn("Notice: Logout token decode failed:", err.message);
       }
     }
 
@@ -387,106 +316,54 @@ export const logout = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Logout successful",
+      message: "Logged out successfully.",
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message, message: err.message });
+    console.error("Logout error:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to log out.",
+      error: "Internal Server Error",
+    });
   }
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
 };
 
 export const getProfile = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const userId = req.user?.id || req.user?.userId;
+    const userId = req.user?.id || req.user?._id;
     if (!userId) {
       return res.status(401).json({
         success: false,
-        error: "Not authenticated.",
         message: "Not authenticated.",
+        error: "Unauthorized",
       });
     }
 
-    const user = await User.findById(userId).select("-password -__v");
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "User not found.",
-        message: "User not found.",
-      });
-    }
-
-    const sanitized = sanitizeUser(user);
-    return res.status(200).json({
-      success: true,
-      user: sanitized,
-      ...sanitized,
-=======
-    const userId = req.user?.id || req.user?._id;
     const user = await User.findById(userId).select("-password -refreshToken -__v");
     if (!user) {
       return res.status(404).json({
-        error: "User not found",
-        message: "User not found",
+        success: false,
+        message: "User not found.",
+        error: "Not Found",
       });
     }
+
     const safeUser = sanitizeUser(user);
     return res.status(200).json({
+      success: true,
+      message: "User profile fetched successfully.",
       user: safeUser,
+      data: safeUser,
       ...safeUser,
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
     });
   } catch (err) {
-    return res.status(400).json({
+    console.error("Get profile error:", err);
+    return res.status(500).json({
       success: false,
-      error: err.message || "Could not fetch profile.",
-      message: err.message || "Could not fetch profile.",
+      message: err.message || "Could not fetch user profile.",
+      error: "Internal Server Error",
     });
   }
 };
 
-export const refreshToken = async (req, res) => {
-  try {
-    const token = req.body.refreshToken || req.cookies?.refreshToken;
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        error: "Refresh token is missing.",
-      });
-    }
-
-    const refreshSecret =
-      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
-
-    jwt.verify(token, refreshSecret, async (err, decoded) => {
-      if (err || !decoded) {
-        return res.status(401).json({
-          success: false,
-          error: "Invalid or expired refresh token.",
-        });
-      }
-
-      const user = await User.findById(decoded.id || decoded.userId);
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          error: "User no longer exists.",
-        });
-      }
-
-      const tokens = generateTokens(user);
-      res.cookie("token", tokens.token, cookieOptions);
-
-      return res.status(200).json({
-        success: true,
-        token: tokens.token,
-        refreshToken: tokens.refreshToken,
-      });
-    });
-  } catch (err) {
-    return res.status(400).json({
-      success: false,
-      error: err.message || "Token refresh failed.",
-    });
-  }
-};
+export const refreshToken = refresh;

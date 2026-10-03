@@ -1,11 +1,7 @@
-import Header from "../components/Header";
 import { useState } from "react";
-import "./SignIn.css";
-<<<<<<< HEAD
-import { api, setAuthSession } from "../services/api";
-=======
+import Header from "../components/Header";
 import { api, setAccessToken } from "../services/api";
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
+import "./SignIn.css";
 
 function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,27 +11,56 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
   const submitForm = async (event) => {
     event.preventDefault();
     setError("");
-    setIsSubmitting(true);
+
     const form = new FormData(event.currentTarget);
+    const name = String(form.get("name") || "").trim();
+    const email = String(form.get("email") || "").trim();
+    const password = String(form.get("password") || "");
+
+    if (!name) {
+      setError("Please enter your name.");
+      return;
+    }
+
+    if (!email) {
+      setError("Please enter your email.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
       const data = await api("/auth/register", {
         method: "POST",
-        body: JSON.stringify({
-          name: form.get("name"),
-          email: form.get("email"),
-          password: form.get("password"),
-        }),
+        body: JSON.stringify({ name, email, password }),
       });
-<<<<<<< HEAD
-      setAuthSession(data.token, data.user);
-      if (onAuthChange) onAuthChange();
-=======
-      setAccessToken(data.accessToken);
-      if (onAuthChange) onAuthChange(data.user);
->>>>>>> ed4a2f0b729c2bcee7194781e48511565664ca6f
-      onHome();
+
+      const token = data.accessToken || data.token;
+      setAccessToken(token);
+
+      const authenticatedUser = data.user || data.data?.user;
+      if (onAuthChange) {
+        onAuthChange(authenticatedUser);
+      }
+
+      onHome(authenticatedUser);
     } catch (requestError) {
-      setError(requestError.message);
+      console.error("Registration attempt failed:", requestError.message);
+      setError(
+        requestError.message ||
+          "Failed to create account. Please check your details and try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -69,6 +94,7 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
                 type="text"
                 placeholder="Enter your name"
                 required
+                disabled={isSubmitting}
               />
             </label>
             <label>
@@ -78,6 +104,7 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
                 type="email"
                 placeholder="Enter your email"
                 required
+                disabled={isSubmitting}
               />
             </label>
             <label>
@@ -86,8 +113,9 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
                 <input
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create a password"
+                  placeholder="Create a password (min 6 characters)"
                   required
+                  disabled={isSubmitting}
                 />
                 <button
                   type="button"
@@ -95,6 +123,7 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
                   onClick={() => setShowPassword((visible) => !visible)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   title={showPassword ? "Hide password" : "Show password"}
+                  disabled={isSubmitting}
                 >
                   {showPassword ? (
                     <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -115,23 +144,35 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
                 {error}
               </p>
             )}
-            <button className="submit-signin" disabled={isSubmitting}>
+            <button
+              type="submit"
+              className="submit-signin"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Creating account…" : "Create account"}
             </button>
             <p className="terms">
               By creating an account, you agree to our{" "}
-              <button type="button" onClick={() => navigate("terms")}>
+              <button
+                type="button"
+                onClick={() => navigate && navigate("terms")}
+                disabled={isSubmitting}
+              >
                 Terms of Service
               </button>{" "}
               and{" "}
-              <button type="button" onClick={() => navigate("privacy")}>
+              <button
+                type="button"
+                onClick={() => navigate && navigate("privacy")}
+                disabled={isSubmitting}
+              >
                 Privacy Policy
               </button>
               .
             </p>
             <p className="sign-up">
               Already have an account?{" "}
-              <button type="button" onClick={onLogin}>
+              <button type="button" onClick={onLogin} disabled={isSubmitting}>
                 Log in
               </button>
             </p>
