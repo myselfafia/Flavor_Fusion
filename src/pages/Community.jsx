@@ -547,12 +547,9 @@ function CommunityPost({
             }
           }}
           onConfirm={handleDelete}
-          title="Delete Post"
-          message="Are you sure you want to delete this post permanently?"
-          subtext="This action cannot be undone."
-          confirmText="Delete Permanently"
-          cancelText="Cancel"
-          postPreview={post.text}
+          message="Are you sure you want to delete?"
+          confirmText="Yes"
+          cancelText="No"
         />
       )}
     </article>

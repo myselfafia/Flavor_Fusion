@@ -7,12 +7,14 @@ function DeleteConfirmModal({
   onClose,
   onConfirm,
   isDeleting = false,
-  title = "Delete Post",
-  message = "Are you sure you want to delete this post permanently?",
-  subtext = "This action cannot be undone.",
-  confirmText = "Delete Permanently",
-  cancelText = "Cancel",
+  title = "",
+  message = "Are you sure you want to delete?",
+  subtext = "",
+  confirmText = "Yes",
+  cancelText = "No",
   postPreview = "",
+  showIcon = false,
+  showCloseBtn = false,
 }) {
   useEffect(() => {
     if (!isOpen) return;
@@ -51,54 +53,59 @@ function DeleteConfirmModal({
         className="delete-modal-container"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="delete-modal-title"
-        aria-describedby="delete-modal-message"
+        aria-labelledby="delete-modal-message"
       >
-        <button
-          type="button"
-          className="delete-modal-close-btn"
-          onClick={onClose}
-          disabled={isDeleting}
-          aria-label="Close dialog"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {showCloseBtn && (
+          <button
+            type="button"
+            className="delete-modal-close-btn"
+            onClick={onClose}
+            disabled={isDeleting}
+            aria-label="Close dialog"
           >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
 
-        <div className="delete-modal-icon-wrapper" aria-hidden="true">
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 6h18" />
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-            <line x1="10" y1="11" x2="10" y2="17" />
-            <line x1="14" y1="11" x2="14" y2="17" />
-          </svg>
-        </div>
+        {showIcon && (
+          <div className="delete-modal-icon-wrapper" aria-hidden="true">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 6h18" />
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+              <line x1="10" y1="11" x2="10" y2="17" />
+              <line x1="14" y1="11" x2="14" y2="17" />
+            </svg>
+          </div>
+        )}
 
         <div className="delete-modal-content">
-          <h3 id="delete-modal-title" className="delete-modal-title">
-            {title}
-          </h3>
+          {title && (
+            <h3 id="delete-modal-title" className="delete-modal-title">
+              {title}
+            </h3>
+          )}
           <p id="delete-modal-message" className="delete-modal-message">
             {message}
           </p>
