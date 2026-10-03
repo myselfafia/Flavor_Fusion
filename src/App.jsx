@@ -18,6 +18,7 @@ import {
   clearAccessToken,
   refreshAccessToken,
 } from "./services/api";
+import CarbonFootprintDisplay from "./components/CarbonFootprintDisplay";
 
 const pathToPage = {
   "/": "home",
@@ -282,120 +283,133 @@ function App() {
         : [...current, ingredient]
     );
 
-  if (page === "home")
+  const renderPage = () => {
+    if (page === "home")
+      return (
+        <Home
+          onExplore={() => navigate("explore")}
+          onSignIn={() => navigate("login")}
+          selected={selected}
+          onToggleIngredient={toggleIngredient}
+          navigate={navigate}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+          onAuthChange={handleAuthChange}
+          welcomeName={welcomeName}
+          onDismissWelcome={() => setWelcomeName(null)}
+        />
+      );
+
+    if (page === "signup")
+      return (
+        <SignIn
+          onHome={handleSignupWelcome}
+          onLogin={() => navigate("login")}
+          navigate={navigate}
+          onAuthChange={handleAuthChange}
+        />
+      );
+
+    if (page === "login")
+      return (
+        <Login
+          onHome={() => {
+            handleAuthChange();
+            navigate("home");
+          }}
+          onSignUp={() => navigate("signup")}
+          onAuthChange={handleAuthChange}
+        />
+      );
+
+    if (page === "saved")
+      return (
+        <Saved
+          saved={saved}
+          onToggleSave={toggleSave}
+          onSetSaved={setSaved}
+          navigate={navigate}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
+      );
+
+    if (page === "community")
+      return (
+        <Community
+          onHome={() => navigate("home")}
+          onExplore={() => navigate("explore")}
+          onCommunity={() => navigate("community")}
+          onSignIn={() => navigate("login")}
+          navigate={navigate}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
+      );
+
+    if (page === "about")
+      return (
+        <About
+          navigate={navigate}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
+      );
+
+    if (page === "privacy")
+      return (
+        <PolicyPage
+          navigate={navigate}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
+      );
+
+    if (page === "terms")
+      return (
+        <Terms
+          navigate={navigate}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
+      );
+
+    if (page === "help")
+      return (
+        <HelpCenter
+          navigate={navigate}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
+      );
+
+    if (page === "careers")
+      return (
+        <Careers
+          navigate={navigate}
+          isLoggedIn={isLoggedIn}
+          onLogout={handleLogout}
+        />
+      );
+
     return (
-      <Home
-        onExplore={() => navigate("explore")}
-        onSignIn={() => navigate("login")}
+      <Explore
         selected={selected}
-        onToggleIngredient={toggleIngredient}
-        navigate={navigate}
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-        onAuthChange={handleAuthChange}
-        welcomeName={welcomeName}
-        onDismissWelcome={() => setWelcomeName(null)}
-      />
-    );
-
-  if (page === "signup")
-    return (
-      <SignIn
-        onHome={handleSignupWelcome}
-        onLogin={() => navigate("login")}
-        navigate={navigate}
-        onAuthChange={handleAuthChange}
-      />
-    );
-
-  if (page === "login")
-    return (
-      <Login
-        onHome={() => {
-          handleAuthChange();
-          navigate("home");
-        }}
-        onSignUp={() => navigate("signup")}
-        onAuthChange={handleAuthChange}
-      />
-    );
-
-  if (page === "saved")
-    return (
-      <Saved
+        onSelected={setSelected}
         saved={saved}
         onToggleSave={toggleSave}
-        onSetSaved={setSaved}
         navigate={navigate}
         isLoggedIn={isLoggedIn}
         onLogout={handleLogout}
       />
     );
-
-  if (page === "community")
-    return (
-      <Community
-        onHome={() => navigate("home")}
-        onExplore={() => navigate("explore")}
-        onCommunity={() => navigate("community")}
-        onSignIn={() => navigate("login")}
-        navigate={navigate}
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-      />
-    );
-
-  if (page === "about")
-    return (
-      <About
-        navigate={navigate}
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-      />
-    );
-  if (page === "privacy")
-    return (
-      <PolicyPage
-        navigate={navigate}
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-      />
-    );
-  if (page === "terms")
-    return (
-      <Terms
-        navigate={navigate}
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-      />
-    );
-  if (page === "help")
-    return (
-      <HelpCenter
-        navigate={navigate}
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-      />
-    );
-  if (page === "careers")
-    return (
-      <Careers
-        navigate={navigate}
-        isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
-      />
-    );
+  };
 
   return (
-    <Explore
-      selected={selected}
-      onSelected={setSelected}
-      saved={saved}
-      onToggleSave={toggleSave}
-      navigate={navigate}
-      isLoggedIn={isLoggedIn}
-      onLogout={handleLogout}
-    />
+    <>
+      {renderPage()}
+      <CarbonFootprintDisplay />
+    </>
   );
 }
 

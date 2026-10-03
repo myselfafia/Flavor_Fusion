@@ -16,6 +16,7 @@ import aiRoutes from "./routes/aiRoutes.js";
 import savedRoutes from "./routes/savedRoutes.js";
 import recentRoutes from "./routes/recentRoutes.js";
 import log from "./middleware/logger.js";
+import carbonFootprintMiddleware from "./middleware/carbonFootprint.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -58,6 +59,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(log);
+app.use(carbonFootprintMiddleware);
 
 // Base health & info routes
 app.get("/api", (_req, res) =>
