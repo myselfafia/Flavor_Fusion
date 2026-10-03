@@ -9,30 +9,39 @@ Flavor Fusion is a full-stack recipe and culinary exploration web application bu
 When you clone or pull this repository onto a new device, dependencies are not included in Git. Follow these simple steps:
 
 ### 1. Install Dependencies
+
 Run the following in the project root directory:
+
 ```bash
 npm install
 ```
+
 > **Note:** The `postinstall` script will automatically install both frontend and backend dependencies (`backend/node_modules`).
 
 ### 2. Configure Environment Variables
+
 If not already configured, copy the example environment files:
 
 - Backend environment:
+
 ```bash
 cp backend/.env.example backend/.env
 # On Windows CMD:
 copy backend\.env.example backend\.env
 ```
+
 Ensure your MongoDB connection string and JWT secret are set in `backend/.env`.
 
 ### 3. Start the Development Server
+
 Run the full-stack development server (starts both backend and frontend):
+
 ```bash
 npm run dev
 ```
 
 You will see:
+
 ```text
 [backend]  Flavor Fusion backend server listening on port: 5000
 [frontend] ➜  Local:   http://localhost:5173/

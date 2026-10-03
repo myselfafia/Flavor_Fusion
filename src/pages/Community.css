@@ -245,6 +245,12 @@
 .post-menu > div button:hover {
   background: #eafff1;
 }
+.post-menu > div button.delete-post-btn {
+  color: #c53030;
+}
+.post-menu > div button.delete-post-btn:hover {
+  background: #ffebeb;
+}
 .post-text {
   margin: 13px 14px 8px;
   color: #264538;

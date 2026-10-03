@@ -63,7 +63,7 @@ const generateTokens = (user) => {
     getRefreshSecret(),
     {
       expiresIn: REFRESH_TOKEN_LIFETIME,
-    }
+    },
   );
 
   return { accessToken, refreshToken };
@@ -164,7 +164,10 @@ export const login = async (req, res) => {
 
     const cleanIdentifier = String(identifier).trim().toLowerCase();
     const user = await User.findOne({
-      $or: [{ email: cleanIdentifier }, { username: String(identifier).trim() }],
+      $or: [
+        { email: cleanIdentifier },
+        { username: String(identifier).trim() },
+      ],
     });
 
     if (!user) {
@@ -252,7 +255,7 @@ export const refresh = async (req, res) => {
     // Refresh token rotation check
     if (user.refreshToken !== incomingRefreshToken) {
       console.warn(
-        `Refresh token reuse or mismatch detected for user ${user._id}. Revoking tokens.`
+        `Refresh token reuse or mismatch detected for user ${user._id}. Revoking tokens.`,
       );
       user.refreshToken = null;
       await user.save();
@@ -339,7 +342,9 @@ export const getProfile = async (req, res) => {
       });
     }
 
-    const user = await User.findById(userId).select("-password -refreshToken -__v");
+    const user = await User.findById(userId).select(
+      "-password -refreshToken -__v",
+    );
     if (!user) {
       return res.status(404).json({
         success: false,

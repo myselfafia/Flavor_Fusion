@@ -3,14 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "./InfoPages.css";
 
-function PageShell({
-  children,
-  navigate,
-  title,
-  intro,
-  isLoggedIn,
-  onLogout,
-}) {
+function PageShell({ children, navigate, title, intro, isLoggedIn, onLogout }) {
   return (
     <div className="app info-app">
       <Header

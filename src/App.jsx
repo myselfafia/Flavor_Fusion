@@ -53,7 +53,7 @@ const pageToPath = {
 
 function App() {
   const [page, setPage] = useState(
-    () => pathToPage[window.location.pathname] || "home"
+    () => pathToPage[window.location.pathname] || "home",
   );
 
   const navigate = useCallback((nextPage) => {
@@ -213,7 +213,7 @@ function App() {
       const isAlreadySaved = saved.some(
         (item) =>
           (item.name || item.recipeName || item).toLowerCase() ===
-          recipeTitle.toLowerCase()
+          recipeTitle.toLowerCase(),
       );
 
       if (isAlreadySaved) {
@@ -222,8 +222,8 @@ function App() {
           curr.filter(
             (item) =>
               (item.name || item.recipeName || item).toLowerCase() !==
-              recipeTitle.toLowerCase()
-          )
+              recipeTitle.toLowerCase(),
+          ),
         );
         try {
           await api(`/saved/${encodeURIComponent(recipeTitle)}`, {
@@ -237,7 +237,10 @@ function App() {
               if (res?.recipes) setSaved(res.recipes);
             })
             .catch((fetchErr) => {
-              console.warn("Failed to re-sync saved recipes:", fetchErr.message);
+              console.warn(
+                "Failed to re-sync saved recipes:",
+                fetchErr.message,
+              );
             });
         }
       } else {
@@ -256,8 +259,8 @@ function App() {
             const savedItem = res.recipe || res.data?.recipe;
             setSaved((curr) =>
               curr.map((r) =>
-                (r.name || r.recipeName) === recipeTitle ? savedItem : r
-              )
+                (r.name || r.recipeName) === recipeTitle ? savedItem : r,
+              ),
             );
           }
         } catch (err) {
@@ -267,20 +270,20 @@ function App() {
             curr.filter(
               (item) =>
                 (item.name || item.recipeName || item).toLowerCase() !==
-                recipeTitle.toLowerCase()
-            )
+                recipeTitle.toLowerCase(),
+            ),
           );
         }
       }
     },
-    [isLoggedIn, navigate, saved]
+    [isLoggedIn, navigate, saved],
   );
 
   const toggleIngredient = (ingredient) =>
     setSelected((current) =>
       current.includes(ingredient)
         ? current.filter((item) => item !== ingredient)
-        : [...current, ingredient]
+        : [...current, ingredient],
     );
 
   const renderPage = () => {

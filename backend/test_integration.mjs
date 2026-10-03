@@ -39,19 +39,31 @@ async function runTests() {
       const badEmailRes = await fetch(`${BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Chef", email: "invalid-email", password: testPassword }),
+        body: JSON.stringify({
+          name: "Chef",
+          email: "invalid-email",
+          password: testPassword,
+        }),
       });
       const badEmailData = await badEmailRes.json();
       if (badEmailRes.status !== 400 || badEmailData.success !== false) {
-        throw new Error(`Expected 400 for bad email, got ${badEmailRes.status}`);
+        throw new Error(
+          `Expected 400 for bad email, got ${badEmailRes.status}`,
+        );
       }
-      console.log("✓ Invalid email rejected with 400 and consistent error JSON");
+      console.log(
+        "✓ Invalid email rejected with 400 and consistent error JSON",
+      );
 
       // Test valid register
       const regRes = await fetch(`${BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Test Chef", email: testEmail, password: testPassword }),
+        body: JSON.stringify({
+          name: "Test Chef",
+          email: testEmail,
+          password: testPassword,
+        }),
       });
       const regData = await regRes.json();
       if (!regRes.ok || !regData.accessToken || regData.success !== true) {
@@ -64,7 +76,9 @@ async function runTests() {
         throw new Error("Expected set-cookie with refreshToken");
       }
       refreshCookie = setCookieHeader.split(";")[0];
-      console.log("✓ Registered successfully, received accessToken and httpOnly refreshToken cookie");
+      console.log(
+        "✓ Registered successfully, received accessToken and httpOnly refreshToken cookie",
+      );
 
       console.log("\n--- TEST 2: Login flow ---");
       const loginRes = await fetch(`${BASE}/auth/login`, {
@@ -73,7 +87,11 @@ async function runTests() {
         body: JSON.stringify({ email: testEmail, password: testPassword }),
       });
       const loginData = await loginRes.json();
-      if (!loginRes.ok || loginData.success !== true || !loginData.accessToken) {
+      if (
+        !loginRes.ok ||
+        loginData.success !== true ||
+        !loginData.accessToken
+      ) {
         throw new Error(`Login failed: ${JSON.stringify(loginData)}`);
       }
       accessToken = loginData.accessToken;
@@ -89,7 +107,11 @@ async function runTests() {
         },
       });
       const refreshData = await refreshRes.json();
-      if (!refreshRes.ok || refreshData.success !== true || !refreshData.accessToken) {
+      if (
+        !refreshRes.ok ||
+        refreshData.success !== true ||
+        !refreshData.accessToken
+      ) {
         throw new Error(`Refresh failed: ${JSON.stringify(refreshData)}`);
       }
       accessToken = refreshData.accessToken;
@@ -101,7 +123,11 @@ async function runTests() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const meData = await meRes.json();
-      if (!meRes.ok || meData.success !== true || meData.user.email !== testEmail) {
+      if (
+        !meRes.ok ||
+        meData.success !== true ||
+        meData.user.email !== testEmail
+      ) {
         throw new Error(`/auth/me failed: ${JSON.stringify(meData)}`);
       }
       console.log("✓ Current profile fetched successfully:", meData.user.email);
@@ -110,7 +136,9 @@ async function runTests() {
       // Unauthenticated rejected
       const unauthSaveRes = await fetch(`${BASE}/saved`);
       if (unauthSaveRes.status !== 401) {
-        throw new Error(`Expected 401 for unauthenticated /saved, got ${unauthSaveRes.status}`);
+        throw new Error(
+          `Expected 401 for unauthenticated /saved, got ${unauthSaveRes.status}`,
+        );
       }
       console.log("✓ Unauthenticated /saved correctly rejected with 401");
 
@@ -126,7 +154,10 @@ async function runTests() {
           cuisine: "Homestyle",
           cookingTime: "20 min",
           difficulty: "Easy",
-          ingredients: [{ name: "Potatoes", quantity: "3" }, { name: "Garlic", quantity: "2 cloves" }],
+          ingredients: [
+            { name: "Potatoes", quantity: "3" },
+            { name: "Garlic", quantity: "2 cloves" },
+          ],
         }),
       });
       const saveData = await saveRes.json();
@@ -141,7 +172,9 @@ async function runTests() {
       });
       const getSavedData = await getSavedRes.json();
       if (!getSavedRes.ok || getSavedData.recipes.length !== 1) {
-        throw new Error(`Expected 1 saved recipe, got ${getSavedData.recipes?.length}`);
+        throw new Error(
+          `Expected 1 saved recipe, got ${getSavedData.recipes?.length}`,
+        );
       }
       console.log("✓ Fetched saved collection:", getSavedData.recipes[0].name);
 
@@ -151,11 +184,13 @@ async function runTests() {
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${accessToken}` },
-        }
+        },
       );
       const deleteSaveData = await deleteSaveRes.json();
       if (!deleteSaveRes.ok || deleteSaveData.success !== true) {
-        throw new Error(`Delete saved recipe failed: ${JSON.stringify(deleteSaveData)}`);
+        throw new Error(
+          `Delete saved recipe failed: ${JSON.stringify(deleteSaveData)}`,
+        );
       }
       console.log("✓ Recipe deleted from collection");
 
@@ -174,8 +209,14 @@ async function runTests() {
         }),
       });
       const createPostData = await createPostRes.json();
-      if (!createPostRes.ok || createPostData.success !== true || !createPostData.post) {
-        throw new Error(`Create post failed: ${JSON.stringify(createPostData)}`);
+      if (
+        !createPostRes.ok ||
+        createPostData.success !== true ||
+        !createPostData.post
+      ) {
+        throw new Error(
+          `Create post failed: ${JSON.stringify(createPostData)}`,
+        );
       }
       const postId = createPostData.post.id;
       console.log("✓ Community post created:", createPostData.post.text);
@@ -201,7 +242,11 @@ async function runTests() {
         body: JSON.stringify({ text: "That crust looks incredible!" }),
       });
       const commentData = await commentRes.json();
-      if (!commentRes.ok || commentData.success !== true || !commentData.comment) {
+      if (
+        !commentRes.ok ||
+        commentData.success !== true ||
+        !commentData.comment
+      ) {
         throw new Error(`Comment failed: ${JSON.stringify(commentData)}`);
       }
       console.log("✓ Added comment to post:", commentData.comment.text);
@@ -212,10 +257,37 @@ async function runTests() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const savePostData = await savePostRes.json();
-      if (!savePostRes.ok || savePostData.success !== true || !savePostData.saved) {
-        throw new Error(`Save post toggle failed: ${JSON.stringify(savePostData)}`);
+      if (
+        !savePostRes.ok ||
+        savePostData.success !== true ||
+        !savePostData.saved
+      ) {
+        throw new Error(
+          `Save post toggle failed: ${JSON.stringify(savePostData)}`,
+        );
       }
       console.log("✓ Post saved to user collection");
+
+      // Delete post
+      const deletePostRes = await fetch(`${BASE}/posts/${postId}`, {
+        method: "DELETE",
+      });
+      const deletePostData = await deletePostRes.json();
+      if (!deletePostRes.ok || deletePostData.success !== true) {
+        throw new Error(`Delete post failed: ${JSON.stringify(deletePostData)}`);
+      }
+      console.log("✓ Community post deleted successfully via DELETE /api/posts/:id");
+
+      // Verify post is gone
+      const verifyPostRes = await fetch(`${BASE}/posts`);
+      const verifyPostData = await verifyPostRes.json();
+      const stillExists = (verifyPostData.posts || []).some(
+        (p) => String(p.id || p._id) === String(postId)
+      );
+      if (stillExists) {
+        throw new Error("Post still exists in feed after deletion!");
+      }
+      console.log("✓ Verified post no longer exists in community feed");
 
       console.log("\n--- TEST 7: Recents API ---");
       const addRecentRes = await fetch(`${BASE}/recents`, {
@@ -240,7 +312,9 @@ async function runTests() {
       });
       const getRecentsData = await getRecentsRes.json();
       if (!getRecentsRes.ok || getRecentsData.recents.length !== 1) {
-        throw new Error(`Expected 1 recent search, got ${getRecentsData.recents?.length}`);
+        throw new Error(
+          `Expected 1 recent search, got ${getRecentsData.recents?.length}`,
+        );
       }
       console.log("✓ Fetched recents:", getRecentsData.recents[0].recipeName);
 

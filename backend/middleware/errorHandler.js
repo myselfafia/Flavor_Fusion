@@ -7,7 +7,10 @@ export function notFound(req, res) {
 }
 
 export function errorHandler(error, req, res, _next) {
-  console.error(`[Error] ${req.method} ${req.originalUrl}:`, error.message || error);
+  console.error(
+    `[Error] ${req.method} ${req.originalUrl}:`,
+    error.message || error,
+  );
 
   // MongoDB duplicate key error
   if (error.code === 11000) {
@@ -21,7 +24,9 @@ export function errorHandler(error, req, res, _next) {
 
   // Mongoose validation error
   if (error.name === "ValidationError") {
-    const messages = Object.values(error.errors || {}).map((val) => val.message);
+    const messages = Object.values(error.errors || {}).map(
+      (val) => val.message,
+    );
     return res.status(400).json({
       success: false,
       message: messages.join(", ") || "Validation failed.",

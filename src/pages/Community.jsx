@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { api } from "../services/api";
@@ -22,7 +22,6 @@ function Community({
   const [notice, setNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch real posts from backend API
   useEffect(() => {
     let isMounted = true;
     const fetchPosts = async () => {
@@ -62,8 +61,15 @@ function Community({
   const updatePost = (id, change) =>
     setPosts((current) =>
       current.map((post) =>
-        (post.id || post._id) === id ? { ...post, ...change(post) } : post
-      )
+        String(post.id || post._id) === String(id)
+          ? { ...post, ...change(post) }
+          : post,
+      ),
+    );
+
+  const deletePost = (id) =>
+    setPosts((current) =>
+      current.filter((post) => String(post.id || post._id) !== String(id)),
     );
 
   const createPost = async (event) => {
@@ -195,7 +201,6 @@ function Community({
             </div>
           )}
 
-          {/* Loading State */}
           {loading && (
             <div className="empty-state" style={{ padding: "40px 20px" }}>
               <div className="ai-spinner"></div>
@@ -204,7 +209,6 @@ function Community({
             </div>
           )}
 
-          {/* Empty State */}
           {!loading && !error && posts.length === 0 && (
             <div className="empty-state">
               <span>🍲</span>
@@ -216,13 +220,13 @@ function Community({
             </div>
           )}
 
-          {/* Real Posts */}
           {!loading &&
             posts.map((post) => (
               <CommunityPost
                 key={post.id || post._id}
                 post={post}
                 onUpdate={updatePost}
+                onDelete={deletePost}
                 onNotice={setNotice}
                 isLoggedIn={isLoggedIn}
                 onSignIn={onSignIn}
@@ -267,14 +271,36 @@ function CommunitySidebar() {
   );
 }
 
-function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
+function CommunityPost({
+  post,
+  onUpdate,
+  onDelete,
+  onNotice,
+  isLoggedIn,
+  onSignIn,
+}) {
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comment, setComment] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const menuRef = useRef(null);
   const saved = Boolean(post.saved);
 
   const postId = post.id || post._id;
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
 
   const share = async () => {
     const url = `${window.location.origin}/community#${postId}`;
@@ -299,7 +325,6 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
       if (onSignIn) onSignIn();
       return;
     }
-    // Optimistic update
     const previousLiked = post.liked;
     const previousLikes = post.likes || 0;
     onUpdate(postId, () => ({
@@ -319,7 +344,6 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
       }
     } catch (err) {
       console.warn("Could not toggle like:", err.message);
-      // Revert on error
       onUpdate(postId, () => ({
         liked: previousLiked,
         likes: previousLikes,
@@ -337,7 +361,7 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
     onNotice(
       !previousSaved
         ? "Post saved to your collection."
-        : "Post removed from saved."
+        : "Post removed from saved.",
     );
 
     try {
@@ -350,6 +374,28 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
     } catch (err) {
       console.warn("Could not toggle save post:", err.message);
       onUpdate(postId, () => ({ saved: previousSaved }));
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this post?")) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      await api(`/posts/${postId}`, {
+        method: "DELETE",
+      });
+      if (onDelete) {
+        onDelete(postId);
+      }
+      onNotice("Post deleted successfully.");
+    } catch (err) {
+      console.error("Failed to delete post:", err.message);
+      onNotice(err.message || "Failed to delete post.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -391,8 +437,9 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
           <strong>{post.name || "Community Member"}</strong>
           <small>{post.time || "Recently"}</small>
         </div>
-        <div className="post-menu">
+        <div className="post-menu" ref={menuRef}>
           <button
+            type="button"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Post options"
           >
@@ -401,6 +448,7 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
           {menuOpen && (
             <div>
               <button
+                type="button"
                 onClick={() => {
                   handleToggleSave();
                   setMenuOpen(false);
@@ -409,6 +457,7 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
                 {saved ? "Unsave Post" : "Save Post"}
               </button>
               <button
+                type="button"
                 onClick={() => {
                   share();
                   setMenuOpen(false);
@@ -417,12 +466,15 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
                 Copy Link
               </button>
               <button
+                type="button"
+                className="delete-post-btn"
                 onClick={() => {
                   setMenuOpen(false);
-                  onNotice("Thanks — the post has been reported for review.");
+                  handleDelete();
                 }}
+                disabled={isDeleting}
               >
-                Report
+                {isDeleting ? "Deleting…" : "Delete Post"}
               </button>
             </div>
           )}
@@ -458,20 +510,14 @@ function CommunityPost({ post, onUpdate, onNotice, isLoggedIn, onSignIn }) {
         </button>
       )}
       <div className="post-actions">
-        <button
-          className={post.liked ? "liked" : ""}
-          onClick={handleLike}
-        >
+        <button className={post.liked ? "liked" : ""} onClick={handleLike}>
           {post.liked ? "♥" : "♡"} {post.likes || 0}
         </button>
         <button onClick={() => setCommentsOpen(!commentsOpen)}>
           ▢ {post.comments?.length || 0}
         </button>
         <button onClick={share}>⌯ Share</button>
-        <button
-          className={saved ? "saved" : ""}
-          onClick={handleToggleSave}
-        >
+        <button className={saved ? "saved" : ""} onClick={handleToggleSave}>
           {saved ? "★ Saved" : "☆ Save"}
         </button>
       </div>

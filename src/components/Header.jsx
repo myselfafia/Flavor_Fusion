@@ -45,12 +45,10 @@ function Header({
   const openExplore = () => handleNavClick(onExplore);
   const openCommunity = () =>
     handleNavClick(
-      onCommunity ? onCommunity : () => window.location.assign("/community")
+      onCommunity ? onCommunity : () => window.location.assign("/community"),
     );
   const openSaved = () =>
-    handleNavClick(
-      onSaved ? onSaved : () => window.location.assign("/saved")
-    );
+    handleNavClick(onSaved ? onSaved : () => window.location.assign("/saved"));
 
   // Use auth status passed as prop
   const loggedIn = Boolean(isLoggedIn);
@@ -201,7 +199,9 @@ function Header({
             onClick={openCommunity}
           >
             <span>Community</span>
-            {activePage === "community" && <span className="active-dot">●</span>}
+            {activePage === "community" && (
+              <span className="active-dot">●</span>
+            )}
           </button>
           <button
             type="button"
@@ -240,4 +240,3 @@ function Header({
 }
 
 export default Header;
-

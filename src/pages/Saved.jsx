@@ -77,10 +77,10 @@ function Saved({
       ...new Set(
         savedRecipes
           .map((dish) => dish.cuisine)
-          .filter((c) => Boolean(c) && c !== "General")
+          .filter((c) => Boolean(c) && c !== "General"),
       ),
     ],
-    [savedRecipes]
+    [savedRecipes],
   );
 
   const visible = useMemo(() => {
@@ -107,13 +107,15 @@ function Saved({
     }
     if (sort === "name") {
       list.sort((a, b) =>
-        (a.name || a.recipeName || "").localeCompare(b.name || b.recipeName || "")
+        (a.name || a.recipeName || "").localeCompare(
+          b.name || b.recipeName || "",
+        ),
       );
     } else if (sort === "time") {
       list.sort(
         (a, b) =>
           byMinutes(a.time || a.cookingTime) -
-          byMinutes(b.time || b.cookingTime)
+          byMinutes(b.time || b.cookingTime),
       );
     }
     return list;
@@ -128,7 +130,7 @@ function Saved({
       total: savedRecipes.length,
       posts: savedPosts.length,
       cuisines: new Set(
-        savedRecipes.map((dish) => dish.cuisine).filter(Boolean)
+        savedRecipes.map((dish) => dish.cuisine).filter(Boolean),
       ).size,
       quickest: validTimes.length ? Math.min(...validTimes) : 0,
     };
@@ -140,7 +142,7 @@ function Saved({
       onToggleSave(dish);
     }
     setNotice(
-      `Removed “${dish.name || dish.recipeName}” from your collection.`
+      `Removed “${dish.name || dish.recipeName}” from your collection.`,
     );
   };
 
@@ -168,7 +170,7 @@ function Saved({
     }
     setUndo({ type: "clear", items: backup });
     setNotice(
-      `Cleared ${backup.length} recipe${backup.length === 1 ? "" : "s"} from your collection.`
+      `Cleared ${backup.length} recipe${backup.length === 1 ? "" : "s"} from your collection.`,
     );
 
     for (const r of backup) {
@@ -376,7 +378,7 @@ function Saved({
                     ? dish.required
                     : Array.isArray(dish.ingredients)
                       ? dish.ingredients.map((i) =>
-                          typeof i === "string" ? i : i.name
+                          typeof i === "string" ? i : i.name,
                         )
                       : [];
 
@@ -503,9 +505,7 @@ function Saved({
                   }}
                 >
                   <header>
-                    <span className="post-avatar">
-                      {post.initials || "FF"}
-                    </span>
+                    <span className="post-avatar">{post.initials || "FF"}</span>
                     <div className="post-id">
                       <strong>{post.name || "Chef"}</strong>
                       <small>{post.time || "Recently"}</small>
@@ -550,10 +550,7 @@ function Saved({
                       ♥ {post.likes ?? 0}
                       <i />▢ {post.comments?.length ?? 0}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => navigate("community")}
-                    >
+                    <button type="button" onClick={() => navigate("community")}>
                       Open in Community →
                     </button>
                   </footer>

@@ -40,8 +40,8 @@ const CarbonFootprintDisplay = () => {
     bytesTransferred > 1048576
       ? `${(bytesTransferred / 1048576).toFixed(2)} MB`
       : bytesTransferred > 1024
-      ? `${(bytesTransferred / 1024).toFixed(1)} KB`
-      : null;
+        ? `${(bytesTransferred / 1024).toFixed(1)} KB`
+        : null;
 
   const emissionsGrams = (gCO2 || 0).toFixed(2);
 
@@ -70,7 +70,8 @@ const CarbonFootprintDisplay = () => {
           gap: "8px",
           cursor: "pointer",
           zIndex: 1000,
-          transition: "bottom 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.15s ease",
+          transition:
+            "bottom 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.15s ease",
         }}
         onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.04)")}
         onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}

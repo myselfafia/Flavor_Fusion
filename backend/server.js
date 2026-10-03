@@ -40,7 +40,7 @@ app.use(
       // Allow any localhost, 127.0.0.1, or local network (LAN) dev server port
       if (
         /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(
-          origin
+          origin,
         )
       ) {
         return callback(null, true);
@@ -52,7 +52,7 @@ app.use(
 
       return callback(new Error(`CORS origin not allowed: ${origin}`));
     },
-  })
+  }),
 );
 
 app.use(express.json({ limit: "10mb" }));
@@ -63,10 +63,10 @@ app.use(carbonFootprintMiddleware);
 
 // Base health & info routes
 app.get("/api", (_req, res) =>
-  res.json({ success: true, message: "Flavor Fusion API is running." })
+  res.json({ success: true, message: "Flavor Fusion API is running." }),
 );
 app.get("/api/health", (_req, res) =>
-  res.json({ success: true, message: "Flavor Fusion API is healthy." })
+  res.json({ success: true, message: "Flavor Fusion API is healthy." }),
 );
 
 // Route mounts
@@ -85,7 +85,7 @@ if (process.env.NODE_ENV !== "test") {
   connectDatabase()
     .then(() => {
       app.listen(PORT, () =>
-        console.log(`Flavor Fusion backend server listening on port: ${PORT}`)
+        console.log(`Flavor Fusion backend server listening on port: ${PORT}`),
       );
     })
     .catch((error) => {

@@ -26,7 +26,7 @@ const commentSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { _id: true }
+  { _id: true },
 );
 
 const postSchema = new mongoose.Schema(
@@ -80,7 +80,7 @@ const postSchema = new mongoose.Schema(
     ],
     comments: [commentSchema],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model("Post", postSchema);

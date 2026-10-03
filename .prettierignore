@@ -1,0 +1,10 @@
+node_modules
+backend/node_modules
+dist
+dist-ssr
+package-lock.json
+backend/package-lock.json
+*.log
+backend/*.log
+.env*
+backend/.env*

@@ -48,7 +48,7 @@ function Login({ onHome, onSignUp, onAuthChange }) {
       console.error("Login attempt failed:", requestError.message);
       setError(
         requestError.message ||
-          "Failed to log in. Please check your credentials and try again."
+          "Failed to log in. Please check your credentials and try again.",
       );
     } finally {
       setIsSubmitting(false);

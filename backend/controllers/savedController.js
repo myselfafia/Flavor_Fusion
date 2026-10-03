@@ -28,7 +28,7 @@ export const getSaved = async (req, res) => {
         recipe.required?.length > 0
           ? recipe.required
           : recipe.ingredients?.map((i) =>
-              typeof i === "string" ? i : i.name
+              typeof i === "string" ? i : i.name,
             ) || [],
     }));
 
@@ -75,7 +75,7 @@ export const saveRecipe = async (req, res) => {
       const post = await Post.findByIdAndUpdate(
         postId,
         { $addToSet: { savedBy: userId } },
-        { new: true }
+        { new: true },
       );
       if (!post) {
         return res.status(404).json({
@@ -138,7 +138,7 @@ export const saveRecipe = async (req, res) => {
         ? required
         : ingredients && ingredients.length > 0
           ? ingredients.map((item) =>
-              typeof item === "string" ? item : item.name
+              typeof item === "string" ? item : item.name,
             )
           : [];
 
@@ -194,7 +194,11 @@ export const deleteSaved = async (req, res) => {
     const decodedId = decodeURIComponent(recipeId).trim();
     const query = { user: userId };
     if (mongoose.isValidObjectId(decodedId)) {
-      query.$or = [{ _id: decodedId }, { name: decodedId }, { recipeName: decodedId }];
+      query.$or = [
+        { _id: decodedId },
+        { name: decodedId },
+        { recipeName: decodedId },
+      ];
     } else {
       query.$or = [{ name: decodedId }, { recipeName: decodedId }];
     }

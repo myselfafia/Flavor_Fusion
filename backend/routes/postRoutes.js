@@ -17,6 +17,6 @@ router.post("/:id/like", checkToken, likePost);
 router.post("/:id/comments", checkToken, addComment);
 router.post("/:id/comment", checkToken, addComment);
 router.post("/:id/save", checkToken, toggleSavePost);
-router.delete("/:id", checkToken, deletePost);
+router.delete("/:id", optionalAuth, deletePost);
 
 export default router;

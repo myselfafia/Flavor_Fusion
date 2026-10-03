@@ -56,7 +56,9 @@
   border-radius: 14px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .ingredient-input-wrap:focus-within {
@@ -113,7 +115,11 @@
   font-weight: 700;
   flex-shrink: 0;
   letter-spacing: 0.02em;
-  transition: background 0.18s, transform 0.1s, opacity 0.18s, box-shadow 0.18s;
+  transition:
+    background 0.18s,
+    transform 0.1s,
+    opacity 0.18s,
+    box-shadow 0.18s;
   box-shadow: 0 2px 6px rgba(7, 93, 61, 0.2);
 }
 
@@ -370,7 +376,10 @@
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
   position: relative;
   overflow: hidden;
 }
@@ -392,7 +401,11 @@
   color: #708078;
   cursor: pointer;
   z-index: 3;
-  transition: transform 0.18s, color 0.18s, background 0.18s, border-color 0.18s;
+  transition:
+    transform 0.18s,
+    color 0.18s,
+    background 0.18s,
+    border-color 0.18s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -921,4 +934,3 @@
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(22, 101, 52, 0.12);
 }
-

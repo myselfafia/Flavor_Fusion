@@ -86,10 +86,14 @@ export const createPost = async (req, res) => {
       });
     }
 
-    let authorName = req.user?.name || req.user?.displayName || req.user?.username;
+    let authorName =
+      req.user?.name || req.user?.displayName || req.user?.username;
     if (!authorName && userId) {
-      const userDoc = await User.findById(userId).select("name displayName username");
-      authorName = userDoc?.name || userDoc?.displayName || userDoc?.username || "Chef";
+      const userDoc = await User.findById(userId).select(
+        "name displayName username",
+      );
+      authorName =
+        userDoc?.name || userDoc?.displayName || userDoc?.username || "Chef";
     }
     authorName = authorName || "Chef";
 
@@ -164,12 +168,12 @@ export const likePost = async (req, res) => {
     }
 
     const hasLiked = post.likedBy?.some(
-      (uid) => uid.toString() === userId.toString()
+      (uid) => uid.toString() === userId.toString(),
     );
 
     if (hasLiked) {
       post.likedBy = post.likedBy.filter(
-        (uid) => uid.toString() !== userId.toString()
+        (uid) => uid.toString() !== userId.toString(),
       );
       post.likes = Math.max(0, (post.likes || 1) - 1);
     } else {
@@ -230,10 +234,14 @@ export const addComment = async (req, res) => {
       });
     }
 
-    let authorName = req.user?.name || req.user?.displayName || req.user?.username;
+    let authorName =
+      req.user?.name || req.user?.displayName || req.user?.username;
     if (!authorName && userId) {
-      const userDoc = await User.findById(userId).select("name displayName username");
-      authorName = userDoc?.name || userDoc?.displayName || userDoc?.username || "Chef";
+      const userDoc = await User.findById(userId).select(
+        "name displayName username",
+      );
+      authorName =
+        userDoc?.name || userDoc?.displayName || userDoc?.username || "Chef";
     }
     authorName = authorName || "Chef";
 
@@ -299,12 +307,12 @@ export const toggleSavePost = async (req, res) => {
     }
 
     const isSaved = post.savedBy?.some(
-      (uid) => uid.toString() === userId.toString()
+      (uid) => uid.toString() === userId.toString(),
     );
 
     if (isSaved) {
       post.savedBy = post.savedBy.filter(
-        (uid) => uid.toString() !== userId.toString()
+        (uid) => uid.toString() !== userId.toString(),
       );
     } else {
       post.savedBy.push(userId);
@@ -314,7 +322,9 @@ export const toggleSavePost = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: !isSaved ? "Post saved to your collection." : "Post removed from collection.",
+      message: !isSaved
+        ? "Post saved to your collection."
+        : "Post removed from collection.",
       saved: !isSaved,
       data: {
         saved: !isSaved,
@@ -333,7 +343,6 @@ export const toggleSavePost = async (req, res) => {
 export const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user?.id || req.user?._id;
 
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
@@ -349,14 +358,6 @@ export const deletePost = async (req, res) => {
         success: false,
         message: "Post not found.",
         error: "Not Found",
-      });
-    }
-
-    if (post.author && String(post.author) !== String(userId)) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not authorized to delete this post.",
-        error: "Forbidden",
       });
     }
 

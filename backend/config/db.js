@@ -10,7 +10,7 @@ export async function connectDatabase() {
 
   if (!dbUrl) {
     throw new Error(
-      "Database connection string missing. Please set MONGODB_URI or MONGO_URI in your environment variables."
+      "Database connection string missing. Please set MONGODB_URI or MONGO_URI in your environment variables.",
     );
   }
 
@@ -34,7 +34,9 @@ export async function connectDatabase() {
     });
 
     mongoose.connection.on("disconnected", () => {
-      console.warn("MongoDB disconnected. Reconnection will be attempted if needed.");
+      console.warn(
+        "MongoDB disconnected. Reconnection will be attempted if needed.",
+      );
     });
 
     await mongoose.connect(dbUrl, {

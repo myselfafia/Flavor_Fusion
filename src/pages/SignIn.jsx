@@ -59,7 +59,7 @@ function SignIn({ onHome, onLogin, navigate, onAuthChange }) {
       console.error("Registration attempt failed:", requestError.message);
       setError(
         requestError.message ||
-          "Failed to create account. Please check your details and try again."
+          "Failed to create account. Please check your details and try again.",
       );
     } finally {
       setIsSubmitting(false);

@@ -87,7 +87,7 @@ export const addRecent = async (req, res) => {
       await Recent.findOneAndUpdate(
         { user: userId, recipeName: recipeTitle },
         updateData,
-        { upsert: true, new: true, setDefaultsOnInsert: true }
+        { upsert: true, new: true, setDefaultsOnInsert: true },
       );
     }
 

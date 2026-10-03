@@ -68,7 +68,7 @@ function Explore({ saved = [], onToggleSave, navigate, isLoggedIn, onLogout }) {
     const promptToSearch = (promptOverride || query || "").trim();
     if (!promptToSearch) {
       setErrorMessage(
-        "Please enter some ingredients or what you'd like to cook."
+        "Please enter some ingredients or what you'd like to cook.",
       );
       return;
     }
@@ -115,8 +115,8 @@ function Explore({ saved = [], onToggleSave, navigate, isLoggedIn, onLogout }) {
                 !newRecentItems.some(
                   (n) =>
                     (n.recipeName || n.name || "").toLowerCase() ===
-                    (item.recipeName || item.name || "").toLowerCase()
-                )
+                    (item.recipeName || item.name || "").toLowerCase(),
+                ),
             );
             return [...newRecentItems, ...filtered].slice(0, 15);
           });
@@ -129,13 +129,15 @@ function Explore({ saved = [], onToggleSave, navigate, isLoggedIn, onLogout }) {
         }
       } else {
         setErrorMessage(
-          res?.error || res?.message || "Could not generate recipes. Please try again."
+          res?.error ||
+            res?.message ||
+            "Could not generate recipes. Please try again.",
         );
       }
     } catch (err) {
       console.error("AI Recipe search error:", err.message);
       setErrorMessage(
-        err.message || "Failed to reach AI recipe service. Please try again."
+        err.message || "Failed to reach AI recipe service. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -519,11 +521,7 @@ function Explore({ saved = [], onToggleSave, navigate, isLoggedIn, onLogout }) {
                           ? "Remove from saved"
                           : "Save recipe"
                       }
-                      title={
-                        isRecipeSaved(recipe)
-                          ? "Saved"
-                          : "Save recipe"
-                      }
+                      title={isRecipeSaved(recipe) ? "Saved" : "Save recipe"}
                     >
                       {isRecipeSaved(recipe) ? "★" : "☆"}
                     </button>
@@ -615,11 +613,7 @@ function Explore({ saved = [], onToggleSave, navigate, isLoggedIn, onLogout }) {
                             ? "Remove from saved"
                             : "Save recipe"
                         }
-                        title={
-                          isRecipeSaved(item)
-                            ? "Saved"
-                            : "Save recipe"
-                        }
+                        title={isRecipeSaved(item) ? "Saved" : "Save recipe"}
                       >
                         {isRecipeSaved(item) ? "★" : "☆"}
                       </button>

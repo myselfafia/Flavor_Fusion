@@ -45,7 +45,7 @@ export async function refreshAccessToken() {
       if (token) {
         setAccessToken(token);
         window.dispatchEvent(
-          new CustomEvent("auth-refreshed", { detail: data })
+          new CustomEvent("auth-refreshed", { detail: data }),
         );
         return token;
       }
@@ -90,7 +90,7 @@ export async function api(path, options = {}, isRetry = false) {
   } catch (networkError) {
     console.error(`Network error requesting ${path}:`, networkError.message);
     const err = new Error(
-      "Unable to connect to the backend server. Please make sure the backend server is running."
+      "Unable to connect to the backend server. Please make sure the backend server is running.",
     );
     err.isNetworkError = true;
     throw err;
@@ -118,7 +118,10 @@ export async function api(path, options = {}, isRetry = false) {
       data = JSON.parse(text);
     }
   } catch (parseError) {
-    console.warn(`Failed to parse response JSON from ${path}:`, parseError.message);
+    console.warn(
+      `Failed to parse response JSON from ${path}:`,
+      parseError.message,
+    );
     data = {};
   }
 
