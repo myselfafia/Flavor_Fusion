@@ -9,7 +9,9 @@
     "server": "node backend/server.js",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "install:all": "npm install && npm --prefix backend install",
+    "postinstall": "npm --prefix backend install"
   },
   "dependencies": {
     "react": "^19.2.8",
