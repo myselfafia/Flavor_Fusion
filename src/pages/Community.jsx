@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import { api } from "../services/api";
 import "./Community.css";
 
@@ -284,6 +285,7 @@ function CommunityPost({
   const [menuOpen, setMenuOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const menuRef = useRef(null);
   const saved = Boolean(post.saved);
 
@@ -378,15 +380,12 @@ function CommunityPost({
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this post?")) {
-      return;
-    }
-
     try {
       setIsDeleting(true);
       await api(`/posts/${postId}`, {
         method: "DELETE",
       });
+      setDeleteModalOpen(false);
       if (onDelete) {
         onDelete(postId);
       }
@@ -470,7 +469,7 @@ function CommunityPost({
                 className="delete-post-btn"
                 onClick={() => {
                   setMenuOpen(false);
-                  handleDelete();
+                  setDeleteModalOpen(true);
                 }}
                 disabled={isDeleting}
               >
@@ -537,6 +536,24 @@ function CommunityPost({
             </p>
           ))}
         </div>
+      )}
+      {deleteModalOpen && (
+        <DeleteConfirmModal
+          isOpen={deleteModalOpen}
+          isDeleting={isDeleting}
+          onClose={() => {
+            if (!isDeleting) {
+              setDeleteModalOpen(false);
+            }
+          }}
+          onConfirm={handleDelete}
+          title="Delete Post"
+          message="Are you sure you want to delete this post permanently?"
+          subtext="This action cannot be undone."
+          confirmText="Delete Permanently"
+          cancelText="Cancel"
+          postPreview={post.text}
+        />
       )}
     </article>
   );
